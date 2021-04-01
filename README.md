@@ -1,4 +1,4 @@
-# UniNote
+# UniNote -- WIP
 UniNote is a multiplatform note-taking software.
 It is designed to be a valid alternative to OneNote while having free access to your own data, in a simpler format to access and use for further purposes.
 

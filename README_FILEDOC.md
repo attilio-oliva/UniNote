@@ -4,9 +4,9 @@ It is structured using the following schema:
 
 📦File  
  ┣ 📂Attachments  
- ┣ 📂Subject1  
- ┣ 📂Subject2  
- ┗ 📂SubjectX  
+ ┣ 📂Section1  
+ ┣ 📂Section2  
+ ┗ 📂SectionX  
  ┃ ┣ 📜note.document  
  ┃ ┣ 📂Group1  
  ┃ ┃ ┗ 📜note1.document  
