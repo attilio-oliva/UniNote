@@ -26,11 +26,20 @@ class _NotebookState extends State<ListSelection> {
       bottomNavigationBar: BottomAppBar(
         child: Row(children: [
           Spacer(),
-          IconButton(icon: Icon(Icons.cloud_download_outlined)),
+          IconButton(
+            icon: Icon(Icons.cloud_download_outlined),
+            onPressed: () {},
+          ),
           Spacer(),
-          IconButton(icon: Icon(Icons.file_download)),
+          IconButton(
+            icon: Icon(Icons.file_download),
+            onPressed: () {},
+          ),
           Spacer(flex: 3),
-          IconButton(icon: Icon(Icons.add_circle_outline)),
+          IconButton(
+            icon: Icon(Icons.add_circle_outline),
+            onPressed: () {},
+          ),
           Spacer(flex: 2),
         ]),
       ),
