@@ -16,11 +16,12 @@ class _EditState extends State<EditCanvas> {
       drawerScrimColor: Colors.transparent,
       drawerEnableOpenDragGesture: false,
       appBar: AppBar(
+        titleSpacing: 0,
+        leadingWidth: 40,
         elevation: 0,
         leading: Builder(builder: (BuildContext context) {
           return IconButton(
             icon: const Icon(Icons.menu),
-            //padding: EdgeInsets.all(1.0),
             onPressed: () {
               Scaffold.of(context).openDrawer();
             },
@@ -29,59 +30,93 @@ class _EditState extends State<EditCanvas> {
         }),
         title: Row(
           children: [
-            IconButton(
-              icon: Icon(Icons.undo),
-              onPressed: () {},
+            Spacer(),
+            Flexible(
+              flex: 4,
+              child: IconButton(
+                padding: EdgeInsets.only(left: 5),
+                icon: Icon(Icons.undo),
+                onPressed: () {},
+              ),
             ),
-            IconButton(
-              icon: Icon(Icons.redo),
-              onPressed: () {},
+            Flexible(
+              flex: 4,
+              child: IconButton(
+                padding: EdgeInsets.only(right: 5),
+                icon: Icon(Icons.redo),
+                onPressed: () {},
+              ),
             ),
             Spacer(
               flex: 2,
             ),
-            TextButton(
-              onPressed: () {},
-              child: Text('Insert'),
+            Flexible(
+              flex: 7,
+              child: TextButton(
+                onPressed: () {},
+                child: Text('Insert'),
+                style: TextButton.styleFrom(
+                  primary: Colors.white,
+                ),
+              ),
             ),
-            Spacer(),
-            TextButton(
-              onPressed: () {},
-              child: Text('Text style'),
+            Flexible(
+              flex: 6,
+              child: TextButton(
+                onPressed: () {},
+                child: Text('Text style'),
+                style: TextButton.styleFrom(
+                  primary: Colors.white,
+                ),
+              ),
             ),
-            Spacer(),
-            TextButton(
-              onPressed: () {},
-              child: Text('Insert'),
+            Flexible(
+              flex: 6,
+              child: TextButton(
+                onPressed: () {},
+                child: Text('View'),
+                style: TextButton.styleFrom(
+                  primary: Colors.white,
+                ),
+              ),
             ),
             Spacer(
-              flex: 3,
+              flex: 1,
             )
           ],
         ),
         actions: [
           IconButton(
+            padding: EdgeInsets.zero,
             icon: Icon(Icons.more_vert),
             onPressed: () {},
           ),
         ],
       ),
-      body: CustomPaint(
-        painter: NotePainter(),
+      body: Padding(
+        padding: EdgeInsets.fromLTRB(20, 20, 0, 0),
+        child: CustomPaint(
+          painter: NotePainter(),
+        ),
       ),
       drawer: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            right: BorderSide(
-              width: 10.0,
-              color: Theme.of(context).primaryColor,
+        padding: EdgeInsets.only(top: AppBar().preferredSize.height),
+        child: Container(
+          child: FractionallySizedBox(
+            widthFactor: 0.5,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  right: BorderSide(
+                    width: 10.0,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+              child: Drawer(
+                child: ListSelection(title: "Notebook selection"),
+              ),
             ),
-          ),
-        ),
-        child: FractionallySizedBox(
-          widthFactor: 0.5,
-          child: Drawer(
-            child: ListSelection(title: "Notebook selection"),
           ),
         ),
       ),

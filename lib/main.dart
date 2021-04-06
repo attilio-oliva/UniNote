@@ -7,34 +7,20 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  final Color primaryColor = Color(0xff2b2b2b);
-  final Color primaryVariantColor = Colors.black;
-  final Color secondaryColor = Colors.white;
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'UniNote',
+      //theme: ThemeData.dark(),
       theme: ThemeData(
-        primaryColor: primaryColor,
-        accentColor: Colors.pink,
-        textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(primary: secondaryColor)),
-        iconTheme: IconThemeData(color: secondaryColor),
-        bottomAppBarColor: primaryColor,
-        scaffoldBackgroundColor: primaryVariantColor,
-        textTheme: Typography.whiteMountainView,
-        appBarTheme: AppBarTheme(
-          foregroundColor: Colors.white,
-          titleTextStyle: TextStyle(
-            color: secondaryColor,
-          ),
-          actionsIconTheme: IconThemeData(color: secondaryColor),
-        ),
-      ),
+          brightness: Brightness.dark,
+          scaffoldBackgroundColor: const Color(0xFF000000)),
       debugShowCheckedModeBanner: false,
       //home: ListSelection(title: 'Select notebook'),
-      home: EditCanvas(),
+      home: SizedBox(
+        width: 10,
+        child: EditCanvas(),
+      ),
     );
   }
 }
