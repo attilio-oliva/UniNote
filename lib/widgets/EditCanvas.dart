@@ -1,16 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uninote/widgets/ListSelection.dart';
-
-class Painter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {}
-
-  @override
-  bool shouldRepaint(Painter oldDelegate) => false;
-
-  @override
-  bool shouldRebuildSemantics(Painter oldDelegate) => false;
-}
+import 'package:uninote/widgets/NotePainter.dart';
 
 class EditCanvas extends StatefulWidget {
   EditCanvas({Key key}) : super(key: key);
@@ -23,6 +13,8 @@ class _EditState extends State<EditCanvas> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawerScrimColor: Colors.transparent,
+      drawerEnableOpenDragGesture: false,
       appBar: AppBar(
         elevation: 0,
         leading: Builder(builder: (BuildContext context) {
@@ -74,7 +66,9 @@ class _EditState extends State<EditCanvas> {
           ),
         ],
       ),
-      body: Center(),
+      body: CustomPaint(
+        painter: NotePainter(),
+      ),
       drawer: Container(
         decoration: BoxDecoration(
           border: Border(

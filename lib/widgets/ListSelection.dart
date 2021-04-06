@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'CustomList.dart';
+import 'package:uninote/widgets/CustomList.dart';
 
 class ListSelection extends StatefulWidget {
   ListSelection({Key key, this.title}) : super(key: key);
