@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:uninote/widgets/ListSelection.dart';
 import 'package:uninote/widgets/NotePainter.dart';
@@ -113,9 +112,7 @@ class _EditState extends State<EditCanvas> {
       ),
       body: Padding(
         padding: EdgeInsets.fromLTRB(20, 20, 0, 0),
-        child: CustomPaint(
-          painter: NotePainter(),
-        ),
+        child: Painter(),
       ),
       drawer: SafeArea(
         child: Container(

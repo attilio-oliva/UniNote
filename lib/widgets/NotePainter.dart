@@ -1,29 +1,56 @@
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
+import 'package:uninote/widgets/components/TextComponent.dart';
 
+class Painter extends StatefulWidget {
+  @override
+  State<Painter> createState() => _PainterState();
+}
+
+class _PainterState extends State<Painter> {
+  Offset cursor = Offset(0, 0);
+  List<Widget> list = [];
+  _PainterState() {
+    list.add(TextComponent(
+      position: cursor,
+      text: "Title",
+    ));
+  }
+  void onTapUp(BuildContext context, TapUpDetails details) {
+    setState(() {
+      cursor = details.localPosition;
+      list.add(TextComponent(position: cursor));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapUp: (TapUpDetails details) => onTapUp(context, details),
+      behavior: HitTestBehavior.translucent,
+      child: Stack(
+        children: list,
+      ),
+    );
+  }
+}
+
+/*
 class NotePainter extends CustomPainter {
+  List<CustomPainter> list = [];
+
+  NotePainter() {
+    addComponent(TextPrintable());
+  }
+
+  void addComponent(CustomPainter component) {
+    list.add(component);
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
-    final text =
-        'Hello, world.\nAnother line of text.\nA line of text that wraps around.';
-
-    // draw the text
-    final textStyle = ui.TextStyle(
-      color: Colors.white,
-      fontSize: 30,
-    );
-    final paragraphStyle = ui.ParagraphStyle(
-      textDirection: TextDirection.ltr,
-    );
-    final paragraphBuilder = ui.ParagraphBuilder(paragraphStyle)
-      ..pushStyle(textStyle)
-      ..addText(text);
-
-    final constraints = ui.ParagraphConstraints(width: 300);
-    final paragraph = paragraphBuilder.build();
-    paragraph.layout(constraints);
-    final offset = Offset(0, 0);
-    canvas.drawParagraph(paragraph, offset);
+    for (CustomPainter component in list) {
+      component.paint(canvas, size);
+    }
   }
 
   @override
@@ -32,3 +59,4 @@ class NotePainter extends CustomPainter {
   @override
   bool shouldRebuildSemantics(NotePainter oldDelegate) => false;
 }
+*/
