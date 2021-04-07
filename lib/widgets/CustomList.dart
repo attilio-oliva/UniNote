@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uninote/globals/colors.dart' as globalColors;
 
 class Item {
   Item(this.title, this.colorValue);
@@ -34,16 +35,21 @@ class _ReordableState extends State<CustomList> {
 
   @override
   Widget build(BuildContext context) {
-    return ReorderableListView(
-      children: <Widget>[
-        for (final item in widget.items)
-          ListTile(
-            key: ValueKey(item.title),
-            title: Text(item.title),
-            leading: Icon(Icons.book, color: Color(item.colorValue)),
-          )
-      ],
-      onReorder: reorderData,
+    return Theme(
+      data: Theme.of(context).copyWith(
+        canvasColor: Colors.grey.shade900,
+      ),
+      child: ReorderableListView(
+        children: <Widget>[
+          for (final item in widget.items)
+            ListTile(
+              key: ValueKey(item.title),
+              title: Text(item.title),
+              leading: Icon(Icons.book, color: Color(item.colorValue)),
+            )
+        ],
+        onReorder: reorderData,
+      ),
     );
   }
 }

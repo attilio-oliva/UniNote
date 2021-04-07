@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:uninote/widgets/ListSelection.dart';
 import 'package:uninote/widgets/NotePainter.dart';
@@ -10,12 +11,29 @@ class EditCanvas extends StatefulWidget {
 }
 
 class _EditState extends State<EditCanvas> {
+  /*final GlobalKey _appBarKey = GlobalKey();
+  Size appBarSize;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => getSizeAndPosition());
+  }
+
+  Future<void> getSizeAndPosition() async {
+    setState(() {
+      RenderBox _appBarBox = _appBarKey.currentContext.findRenderObject();
+      appBarSize = _appBarBox.size;
+    });
+  }*/
+
   @override
   Widget build(BuildContext context) {
+    //WidgetsBinding.instance.addPostFrameCallback((_) => getSizeAndPosition());
     return Scaffold(
       drawerScrimColor: Colors.transparent,
       drawerEnableOpenDragGesture: false,
       appBar: AppBar(
+        //key: _appBarKey,
         titleSpacing: 0,
         leadingWidth: 40,
         elevation: 0,
@@ -99,21 +117,25 @@ class _EditState extends State<EditCanvas> {
           painter: NotePainter(),
         ),
       ),
-      drawer: Container(
-        padding: EdgeInsets.only(top: AppBar().preferredSize.height),
+      drawer: SafeArea(
         child: Container(
-          child: FractionallySizedBox(
-            widthFactor: 0.5,
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  right: BorderSide(
-                    width: 10.0,
-                    color: Theme.of(context).primaryColor,
+          padding: EdgeInsets.only(top: AppBar().preferredSize.height),
+          child: Container(
+            child: FractionallySizedBox(
+              widthFactor: 0.5,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      width: 1.0,
+                      color: Colors.grey.shade900,
+                    ),
+                    right: BorderSide(
+                      width: 10.0,
+                      color: Theme.of(context).primaryColor,
+                    ),
                   ),
                 ),
-              ),
-              child: Drawer(
                 child: ListSelection(title: "Notebook selection"),
               ),
             ),

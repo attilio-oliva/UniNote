@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'widgets/ListSelection.dart';
 import 'widgets/EditCanvas.dart';
+import 'package:uninote/globals/colors.dart' as globalColors;
 
 void main() {
   runApp(MyApp());
@@ -11,16 +12,31 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'UniNote',
-      //theme: ThemeData.dark(),
       theme: ThemeData(
-          brightness: Brightness.dark,
-          scaffoldBackgroundColor: const Color(0xFF000000)),
+        shadowColor: Colors.transparent,
+        primaryColor: globalColors.primaryColor,
+        accentColor: Colors.pink,
+        textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(primary: globalColors.secondaryColor)),
+        iconTheme: IconThemeData(color: globalColors.secondaryColor),
+        bottomAppBarTheme: BottomAppBarTheme(
+            color: globalColors.primaryColor,
+            elevation: 0,
+            shape: const CircularNotchedRectangle()),
+        scaffoldBackgroundColor: globalColors.primaryVariantColor,
+        textTheme: Typography.whiteMountainView,
+        appBarTheme: AppBarTheme(
+          shadowColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          titleTextStyle: TextStyle(
+            color: globalColors.secondaryColor,
+          ),
+          actionsIconTheme: IconThemeData(color: globalColors.secondaryColor),
+        ),
+      ),
       debugShowCheckedModeBanner: false,
       //home: ListSelection(title: 'Select notebook'),
-      home: SizedBox(
-        width: 10,
-        child: EditCanvas(),
-      ),
+      home: EditCanvas(),
     );
   }
 }
