@@ -9,17 +9,26 @@ class Painter extends StatefulWidget {
 class _PainterState extends State<Painter> {
   Offset cursor = Offset(0, 0);
   List<Widget> list = [];
+  FocusNode focusNode = FocusNode();
   _PainterState() {
     list.add(TextComponent(
       position: cursor,
-      text: "Title",
+      text: "# Title",
     ));
   }
+
   void onTapUp(BuildContext context, TapUpDetails details) {
-    setState(() {
-      cursor = details.localPosition;
-      list.add(TextComponent(position: cursor));
-    });
+    if (!focusNode.hasFocus) {
+      setState(() {
+        FocusScope.of(context).requestFocus(focusNode);
+      });
+    } else {
+      setState(() {
+        focusNode.unfocus();
+        cursor = details.localPosition;
+        list.add(TextComponent(position: cursor));
+      });
+    }
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uninote/globals/colors.dart' as globalColors;
+import 'package:uninote/widgets/EditCanvas.dart';
 
 class Item {
   Item(this.title, this.colorValue);
@@ -40,12 +41,22 @@ class _ReordableState extends State<CustomList> {
         canvasColor: Colors.grey.shade900,
       ),
       child: ReorderableListView(
+        //ListView.builder(
+        //  itemCount: 1,
+        //  itemBuilder: (BuildContext context, int index) {
+        //  return ;
+        // },
+        //),
         children: <Widget>[
           for (final item in widget.items)
             ListTile(
               key: ValueKey(item.title),
               title: Text(item.title),
               leading: Icon(Icons.book, color: Color(item.colorValue)),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => EditCanvas())),
             )
         ],
         onReorder: reorderData,

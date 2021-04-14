@@ -32,7 +32,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  flutter_markdown: ^0.6.1
+  markdown: ^4.0.0
+  katex_flutter: ^4.0.2+26
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

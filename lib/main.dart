@@ -35,8 +35,8 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      //home: ListSelection(title: 'Select notebook'),
-      home: EditCanvas(),
+      home: ListSelection(title: 'Select notebook'),
+      //home: EditCanvas(),
     );
   }
 }

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
+import 'package:katex_flutter/katex_flutter.dart';
 
 const double defaultMaxWidth = 300;
 const Offset defaultPosition = Offset(0, 0);
@@ -8,27 +12,100 @@ class TextComponent extends StatefulWidget {
   final Offset position;
   final double maxWidth;
   final String text;
+  final bool autofocus;
   TextComponent(
       {this.position = defaultPosition,
       this.maxWidth = defaultMaxWidth,
-      this.text = ""});
+      this.text = "",
+      this.autofocus = true});
   @override
-  State<TextComponent> createState() =>
-      _TextState(position: position, maxWidth: maxWidth, text: text);
+  State<TextComponent> createState() => _TextState(
+      position: position, maxWidth: maxWidth, text: text, autofocus: autofocus);
 }
 
 class _TextState extends State<TextComponent> {
   Offset position;
   double maxWidth;
+  List<String> textModeList = ["md", "latex", "rich"];
+  int textMode = 0;
   TextEditingController _controller;
-  _TextState({this.position, this.maxWidth, text}) {
+  FocusNode _focusNode;
+  bool isEditorVisible = true;
+  bool autofocus;
+
+  _TextState({this.position, this.maxWidth, text, this.autofocus}) {
+    isEditorVisible = autofocus;
     _controller = TextEditingController(text: text);
+    _focusNode = FocusNode(
+      onKey: (node, key) => _onKey(key),
+    );
+    _focusNode.addListener(_handleFocus);
   }
 
   void onDragUpdate(DragUpdateDetails details) {
     setState(() {
       position += details.delta;
     });
+  }
+
+  bool _onKey(RawKeyEvent key) {
+    if (key.character == "PageUp") {
+      textMode = (textMode + 1) % textModeList.length;
+    } else if (key.character == "PageDown") {
+      textMode = (textMode - 1) % textModeList.length;
+    } else if (key.character == "Escape") {
+      switchToParsed();
+    }
+    return false;
+  }
+
+  void _handleFocus() {
+    if ((_focusNode.hasFocus) && (isEditorVisible = false)) {
+      switchToEditor();
+    } else if ((!_focusNode.hasFocus) && (isEditorVisible = true)) {
+      switchToParsed();
+    }
+  }
+
+  void switchToParsed() {
+    setState(() {
+      isEditorVisible = false;
+      _focusNode.unfocus();
+    });
+  }
+
+  void switchToEditor() {
+    setState(() {
+      isEditorVisible = true;
+      _focusNode.requestFocus();
+    });
+  }
+
+  Widget textWidget() {
+    Widget textWidget;
+    if (textModeList[textMode] == "md") {
+      textWidget = Markdown(
+        shrinkWrap: true,
+        //selectable: true,
+        data: _controller.text,
+        extensionSet: md.ExtensionSet(
+          md.ExtensionSet.gitHubFlavored.blockSyntaxes,
+          [md.EmojiSyntax(), ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes],
+        ),
+      );
+    } else if (textModeList[textMode] == "latex") {
+      textWidget = Builder(
+        builder: (context) => KaTeX(
+          laTeXCode: Text(_controller.text,
+              style: Theme.of(context).textTheme.bodyText1),
+          //delimiter: r'$',
+          //displayDelimiter: r'$$',
+        ),
+      );
+    } else {
+      textWidget = Text(_controller.text);
+    }
+    return textWidget;
   }
 
   @override
@@ -40,26 +117,48 @@ class _TextState extends State<TextComponent> {
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onPanUpdate: (details) => onDragUpdate(details),
-        child: TextField(
-          controller: _controller,
-          autofocus: true,
-          maxLines: null,
-          cursorColor: Colors.white,
-          style: TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.zero,
+        child: Visibility(
+            visible: isEditorVisible,
+            child: SizedBox(
+              width: maxWidth,
+              height: maxWidth,
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: maxWidth,
+                    height: 5,
+                    child: DecoratedBox(
+                      decoration: const BoxDecoration(color: Colors.white),
+                    ),
+                  ),
+                  TextField(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    autofocus: autofocus,
+                    maxLines: null,
+                    cursorColor: Colors.white,
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderRadius: BorderRadius.zero,
+                        borderSide: const BorderSide(color: Colors.white),
+                      ),
+                      enabledBorder: const OutlineInputBorder(
+                        borderRadius: BorderRadius.zero,
+                        borderSide: const BorderSide(color: Colors.transparent),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            focusedBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.zero,
-              borderSide: const BorderSide(color: Colors.white),
-            ),
-            enabledBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.zero,
-              borderSide: const BorderSide(color: Colors.transparent),
-            ),
-          ),
-        ),
+            replacement: GestureDetector(
+              onTapUp: (details) => switchToEditor(),
+              child: textWidget(),
+            )),
       ),
     );
   }
