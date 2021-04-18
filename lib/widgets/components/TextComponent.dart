@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:katex_flutter/katex_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const double defaultMaxWidth = 300;
 const Offset defaultPosition = Offset(0, 0);
@@ -80,12 +81,25 @@ class _TextState extends State<TextComponent> {
     });
   }
 
+  void _launchURL(String url) async =>
+      await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
+
   Widget textWidget() {
     Widget textWidget;
     if (textModeList[textMode] == "md") {
       textWidget = Markdown(
         shrinkWrap: true,
         //selectable: true,
+        onTapLink: (text, href, title) => _launchURL(href),
+        styleSheet: MarkdownStyleSheet(
+          codeblockDecoration: BoxDecoration(
+            color: Colors.deepPurple,
+            //border: Border.all(width: 4, color: Colors.white),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          code: TextStyle(
+              color: Colors.white, backgroundColor: Colors.transparent),
+        ),
         data: _controller.text,
         extensionSet: md.ExtensionSet(
           md.ExtensionSet.gitHubFlavored.blockSyntaxes,
