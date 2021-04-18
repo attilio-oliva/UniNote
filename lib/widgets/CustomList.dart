@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:uninote/globals/colors.dart' as globalColors;
 import 'package:uninote/canvas/EditCanvas.dart';
 
 class Item {

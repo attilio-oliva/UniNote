@@ -1,7 +1,4 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/src/material/popup_menu.dart';
 import 'package:uninote/canvas/ListSelection.dart';
 import 'package:uninote/widgets/NotePainter.dart';
 
