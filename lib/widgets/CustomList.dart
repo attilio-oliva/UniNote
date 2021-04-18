@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uninote/globals/colors.dart' as globalColors;
-import 'package:uninote/widgets/EditCanvas.dart';
+import 'package:uninote/canvas/EditCanvas.dart';
 
 class Item {
   Item(this.title, this.colorValue);
@@ -50,6 +50,8 @@ class _ReordableState extends State<CustomList> {
         children: <Widget>[
           for (final item in widget.items)
             ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
+              minLeadingWidth: 0,
               key: ValueKey(item.title),
               title: Text(item.title),
               leading: Icon(Icons.book, color: Color(item.colorValue)),

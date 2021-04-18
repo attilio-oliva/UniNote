@@ -15,6 +15,19 @@ class ListSelection extends StatefulWidget {
 }
 
 class _NotebookState extends State<ListSelection> {
+  void addNotebook() {
+    String noteTitle = "Pasqual";
+    int cont = 0;
+    setState(() {
+      for (final item in widget.items) {
+        if (item.title.contains(noteTitle)) {
+          cont++;
+        }
+      }
+      widget.items.add(Item(noteTitle + cont.toString(), 0xff448aff));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +51,9 @@ class _NotebookState extends State<ListSelection> {
           Spacer(flex: 3),
           IconButton(
             icon: Icon(Icons.add_circle_outline),
-            onPressed: () {},
+            onPressed: () {
+              addNotebook();
+            },
           ),
           Spacer(flex: 2),
         ]),

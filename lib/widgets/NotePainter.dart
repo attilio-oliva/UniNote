@@ -33,11 +33,20 @@ class _PainterState extends State<Painter> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapUp: (TapUpDetails details) => onTapUp(context, details),
-      behavior: HitTestBehavior.translucent,
-      child: Stack(
-        children: list,
+    return SingleChildScrollView(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Container(
+          height: 1000,
+          width: 1000,
+          child: GestureDetector(
+            onTapUp: (TapUpDetails details) => onTapUp(context, details),
+            behavior: HitTestBehavior.translucent,
+            child: Stack(
+              children: list,
+            ),
+          ),
+        ),
       ),
     );
   }

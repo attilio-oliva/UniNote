@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'widgets/ListSelection.dart';
-import 'widgets/EditCanvas.dart';
+import 'canvas/ListSelection.dart';
+import 'canvas/EditCanvas.dart';
 import 'package:uninote/globals/colors.dart' as globalColors;
 
 void main() {
@@ -13,7 +13,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'UniNote',
       theme: ThemeData(
-        shadowColor: Colors.transparent,
+        popupMenuTheme: PopupMenuThemeData(
+          color: globalColors.primaryColor,
+        ),
         primaryColor: globalColors.primaryColor,
         accentColor: Colors.pink,
         textButtonTheme: TextButtonThemeData(
