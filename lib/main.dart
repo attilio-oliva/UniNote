@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uninote/states/ListState.dart';
+import 'bloc/ListBloc.dart';
 import 'canvas/ListSelection.dart';
 import 'package:uninote/globals/colors.dart' as globalColors;
+
+import 'globals/types.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  final List<Item> openedNotebooks = [
+    Item("University", 0xffe040fb),
+    Item("Work", 0xff448aff),
+    Item("Memos", 0xffeeff41),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -38,7 +49,10 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: ListSelection(title: 'Select notebook'),
+      home: BlocProvider<ListBloc>(
+        create: (context) => ListBloc(ListState.fromList(openedNotebooks)),
+        child: ListSelection(title: 'notebook'),
+      ),
       //home: EditCanvas(),
     );
   }

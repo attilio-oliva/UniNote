@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uninote/bloc/ListBloc.dart';
 import 'package:uninote/canvas/ListSelection.dart';
+import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/NotePainter.dart';
 
 class EditCanvas extends StatefulWidget {
@@ -180,7 +183,9 @@ class _EditState extends State<EditCanvas> {
             child: Row(
               children: [
                 Container(
-                  child: ListSelection(title: "Notebook selection"),
+                  child: BlocProvider<ListBloc>(
+                      create: (context) => ListBloc(ListState()),
+                      child: ListSelection()),
                   width: (listWidth - listDividerWidth),
                 ),
                 GestureDetector(
