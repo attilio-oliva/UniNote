@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:uninote/bloc/ListBloc.dart';
-import 'package:uninote/canvas/EditCanvas.dart';
 import 'package:uninote/globals/types.dart';
 import 'package:uninote/states/ListState.dart';
 
@@ -36,26 +35,22 @@ class _ReordableState extends State<CustomList> {
       data: Theme.of(context).copyWith(
         canvasColor: Colors.grey.shade900,
       ),
-      child: ReorderableListView(
-        children: <Widget>[
-          for (final item in widget.items)
-            ListTile(
-                contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
-                minLeadingWidth: 0,
-                key: ValueKey(item.title),
-                title: Text(item.title),
-                leading: Icon(
-                    (widget.bloc.state.subject == ListSubject.notebook)
-                        ? Icons.book
-                        : Icons.insert_drive_file_sharp,
-                    color: Color(item.colorValue).withOpacity(1)),
-                onTap: () => widget.bloc.add(ListEvent.itemSelected)
-                //onTap: () => Navigator.push(
-                //    context,
-                //    MaterialPageRoute(
-                //        builder: (BuildContext context) => EditCanvas())),
-                )
-        ],
+      child: ReorderableListView.builder(
+        itemCount: widget.items.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
+            minLeadingWidth: 0,
+            key: ValueKey(widget.items[index].title),
+            title: Text(widget.items[index].title),
+            leading: Icon(
+                (widget.bloc.state.subject == ListSubject.notebook)
+                    ? Icons.book
+                    : Icons.insert_drive_file_sharp,
+                color: Color(widget.items[index].colorValue).withOpacity(1)),
+            onTap: () => widget.bloc.add(ListEvent.itemSelected),
+          );
+        },
         onReorder: reorderData,
       ),
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/bloc/ListBloc.dart';
-import 'package:uninote/canvas/ListSelection.dart';
+import 'package:uninote/frames/ListSelection.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/NotePainter.dart';
 

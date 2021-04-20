@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/bloc/ListBloc.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/CustomList.dart';
-import 'package:uninote/globals/types.dart';
-
 import 'EditCanvas.dart';
 
 class ListSelection extends StatelessWidget {

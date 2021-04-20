@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:markdown/markdown.dart';
 import 'package:uninote/globals/types.dart';
 import 'package:uninote/states/ListState.dart';
 import 'dart:math' as math;

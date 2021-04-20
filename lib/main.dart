@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/states/ListState.dart';
 import 'bloc/ListBloc.dart';
-import 'canvas/ListSelection.dart';
+import 'frames/ListSelection.dart';
 import 'package:uninote/globals/colors.dart' as globalColors;
 
 import 'globals/types.dart';
