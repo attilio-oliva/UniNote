@@ -6,9 +6,21 @@ import 'dart:math' as math;
 const defaultNoteBookName = "Notebook";
 const defaultNoteName = "Note";
 
-enum ListEvent { itemSelected, itemAdded, editRequested }
+enum ListEvent {
+  itemSelected,
+  itemAdded,
+  editRequested,
+  importRemoteResource,
+  importLocalResource
+}
 
-class ListBloc extends Bloc<ListEvent, ListState> {
+class ListEventData {
+  final ListEvent key;
+  final dynamic data;
+  ListEventData(this.key, [this.data]);
+}
+
+class ListBloc extends Bloc<ListEventData, ListState> {
   ListBloc(ListState initialState) : super(initialState);
 
   //TODO: use a list of presets instead
@@ -17,11 +29,11 @@ class ListBloc extends Bloc<ListEvent, ListState> {
   }
 
   @override
-  Stream<ListState> mapEventToState(ListEvent event) async* {
-    switch (event) {
+  Stream<ListState> mapEventToState(ListEventData event) async* {
+    switch (event.key) {
       case ListEvent.itemSelected:
         if (state.subject == ListSubject.notebook) {
-          yield ListState(ListSubject.note, null, null);
+          yield ListState(ListSubject.note, event.data);
         } else if (state.subject == ListSubject.note) {
           state.swapToEditCanvas = true;
           yield ListState.from(state);
@@ -41,6 +53,13 @@ class ListBloc extends Bloc<ListEvent, ListState> {
         yield ListState.from(state);
         break;
       case ListEvent.editRequested:
+        // TODO: Handle this case.
+        break;
+      case ListEvent.importLocalResource:
+        // TODO: Handle this case.
+        break;
+      case ListEvent.importRemoteResource:
+        // TODO: Handle this case.
         break;
     }
   }

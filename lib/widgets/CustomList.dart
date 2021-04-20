@@ -29,6 +29,15 @@ class _ReordableState extends State<CustomList> {
     });
   }
 
+  IconData getIconData(ListSubject subject) {
+    switch (subject) {
+      case ListSubject.notebook:
+        return Icons.book;
+      case ListSubject.note:
+        return Icons.insert_drive_file_sharp;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -43,12 +52,10 @@ class _ReordableState extends State<CustomList> {
             minLeadingWidth: 0,
             key: ValueKey(widget.items[index].title),
             title: Text(widget.items[index].title),
-            leading: Icon(
-                (widget.bloc.state.subject == ListSubject.notebook)
-                    ? Icons.book
-                    : Icons.insert_drive_file_sharp,
+            leading: Icon(getIconData(widget.bloc.state.subject),
                 color: Color(widget.items[index].colorValue).withOpacity(1)),
-            onTap: () => widget.bloc.add(ListEvent.itemSelected),
+            onTap: () => widget.bloc.add(ListEventData(
+                ListEvent.itemSelected, widget.items[index].title)),
           );
         },
         onReorder: reorderData,

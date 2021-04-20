@@ -10,6 +10,16 @@ class ListSelection extends StatelessWidget {
 
   final String title;
 
+  String getAppBarTitle(ListState state) {
+    switch (state.subject) {
+      case ListSubject.notebook:
+        return "Select notebook";
+      case ListSubject.note:
+        return state.selectedItem;
+    }
+    return "Select ${state.subject.name}";
+  }
+
   @override
   Widget build(BuildContext context) {
     final ListBloc listBloc = BlocProvider.of<ListBloc>(context);
@@ -24,7 +34,7 @@ class ListSelection extends StatelessWidget {
       },
       builder: (context, state) => Scaffold(
         appBar: AppBar(
-          title: Text("Select ${state.subject.name}"),
+          title: Text(getAppBarTitle(state)),
           centerTitle: true,
         ),
         body: CustomList(items: state.itemList, bloc: listBloc),
@@ -33,19 +43,19 @@ class ListSelection extends StatelessWidget {
             Spacer(),
             IconButton(
               icon: Icon(Icons.cloud_download_outlined),
-              onPressed: () {},
+              onPressed: () =>
+                  listBloc.add(ListEventData(ListEvent.importRemoteResource)),
             ),
             Spacer(),
             IconButton(
               icon: Icon(Icons.file_download),
-              onPressed: () {},
+              onPressed: () =>
+                  listBloc.add(ListEventData(ListEvent.importLocalResource)),
             ),
             Spacer(flex: 3),
             IconButton(
               icon: Icon(Icons.add_circle_outline),
-              onPressed: () {
-                listBloc.add(ListEvent.itemAdded);
-              },
+              onPressed: () => listBloc.add(ListEventData(ListEvent.itemAdded)),
             ),
             Spacer(flex: 2),
           ]),
