@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/bloc/ListBloc.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/CustomList.dart';
-import 'EditCanvas.dart';
+import 'NoteEditor.dart';
 
 class ListSelection extends StatelessWidget {
   ListSelection({Key key, this.title}) : super(key: key);
@@ -29,7 +29,7 @@ class ListSelection extends StatelessWidget {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (BuildContext context) => EditCanvas()));
+                  builder: (BuildContext context) => NoteEditor()));
         }
       },
       builder: (context, state) => Scaffold(
@@ -40,24 +40,27 @@ class ListSelection extends StatelessWidget {
         body: CustomList(items: state.itemList, bloc: listBloc),
         bottomNavigationBar: BottomAppBar(
           child: Row(children: [
-            Spacer(),
-            IconButton(
-              icon: Icon(Icons.cloud_download_outlined),
-              onPressed: () =>
-                  listBloc.add(ListEventData(ListEvent.importRemoteResource)),
+            Expanded(
+              child: IconButton(
+                icon: Icon(Icons.cloud_download_outlined),
+                onPressed: () =>
+                    listBloc.add(ListEventData(ListEvent.importRemoteResource)),
+              ),
             ),
-            Spacer(),
-            IconButton(
-              icon: Icon(Icons.file_download),
-              onPressed: () =>
-                  listBloc.add(ListEventData(ListEvent.importLocalResource)),
+            Expanded(
+              child: IconButton(
+                icon: Icon(Icons.file_download),
+                onPressed: () =>
+                    listBloc.add(ListEventData(ListEvent.importLocalResource)),
+              ),
             ),
-            Spacer(flex: 3),
-            IconButton(
-              icon: Icon(Icons.add_circle_outline),
-              onPressed: () => listBloc.add(ListEventData(ListEvent.itemAdded)),
+            Expanded(
+              child: IconButton(
+                icon: Icon(Icons.add_circle_outline),
+                onPressed: () =>
+                    listBloc.add(ListEventData(ListEvent.itemAdded)),
+              ),
             ),
-            Spacer(flex: 2),
           ]),
         ),
       ),

@@ -37,8 +37,8 @@ class _PainterState extends State<Painter> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Container(
-          height: 1000,
-          width: 1000,
+          height: 2000,
+          width: 2000,
           child: GestureDetector(
             onTapUp: (TapUpDetails details) => onTapUp(context, details),
             behavior: HitTestBehavior.translucent,
