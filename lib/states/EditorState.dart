@@ -1,34 +1,37 @@
 enum EditorMode {
-  Selection,
-  Insertion,
-  Reading,
+  selection,
+  insertion,
+  reading,
 }
 
 enum EditorSubject {
-  Text,
-  Image,
-  Stroke,
-  Attachment,
+  text,
+  image,
+  stroke,
+  attachment,
 }
 enum EditorToolBar {
-  Text,
-  Insert,
-  View,
+  text,
+  insert,
+  view,
 }
 
 class EditorState {
   EditorMode mode;
-  EditorSubject subject = EditorSubject.Text;
-  EditorToolBar selectedToolbar = EditorToolBar.Text;
-  bool toolbarVisibility = false;
+  EditorSubject subject;
+  EditorToolBar selectedToolbar;
+  bool toolBarVisibility;
   EditorState(this.mode, this.subject,
-      [this.selectedToolbar, this.toolbarVisibility]);
+      [this.selectedToolbar = EditorToolBar.text,
+      this.toolBarVisibility = false]);
   EditorState.from(EditorState state) {
-    EditorState(
-      state.mode,
-      state.subject,
-      state.selectedToolbar,
-      state.toolbarVisibility,
-    );
+    mode = state.mode;
+    subject = state.subject;
+    selectedToolbar = state.selectedToolbar;
+    toolBarVisibility = state.toolBarVisibility;
+  }
+  String toString() {
+    print(
+        "{Mode: $mode, Subject: $subject, SelectedToolbar: $selectedToolbar, toolbarVisibility: $toolBarVisibility\n");
   }
 }

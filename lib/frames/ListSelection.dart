@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/bloc/ListBloc.dart';
+import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/CustomList.dart';
 import 'NoteEditor.dart';
@@ -27,9 +29,19 @@ class ListSelection extends StatelessWidget {
       listener: (context, state) {
         if (state.swapToNoteEditor) {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) => NoteEditor()));
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => BlocProvider<EditorBloc>(
+                create: (context) => EditorBloc(
+                  EditorState(
+                    EditorMode.insertion,
+                    EditorSubject.text,
+                  ),
+                ),
+                child: NoteEditor(),
+              ),
+            ),
+          );
         }
       },
       builder: (context, state) => Scaffold(

@@ -1,15 +1,14 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/states/EditorState.dart';
-import 'package:uninote/globals/types.dart';
 
 enum EditorEvent {
-  AppBarButtonPressed,
-  ToolButtonPressed,
+  appBarButtonPressed,
+  toolButtonPressed,
 }
 enum EditorTool {
-  TextInsert,
-  TextSize,
-  TextColor,
+  textInsert,
+  textSize,
+  textColor,
 }
 
 class EditorEventData {
@@ -23,25 +22,25 @@ class EditorBloc extends Bloc<EditorEventData, EditorState> {
   @override
   Stream<EditorState> mapEventToState(EditorEventData event) async* {
     switch (event.key) {
-      case EditorEvent.AppBarButtonPressed:
+      case EditorEvent.appBarButtonPressed:
         if (event.data is EditorToolBar) {
-          if (state.toolbarVisibility == true &&
+          if (state.toolBarVisibility == true &&
               event.data == state.selectedToolbar) {
-            state.toolbarVisibility = false;
+            state.toolBarVisibility = false;
           } else {
             state.selectedToolbar = event.data;
-            state.toolbarVisibility = true;
+            state.toolBarVisibility = true;
           }
         }
         yield EditorState.from(state);
         break;
-      case EditorEvent.ToolButtonPressed:
+      case EditorEvent.toolButtonPressed:
         if (event.data is EditorTool) {
           switch (event.data) {
             //TODO: implement all tools
-            case EditorTool.TextInsert:
-              state.mode = EditorMode.Insertion;
-              state.subject = EditorSubject.Text;
+            case EditorTool.textInsert:
+              state.mode = EditorMode.insertion;
+              state.subject = EditorSubject.text;
               break;
           }
           yield EditorState.from(state);
