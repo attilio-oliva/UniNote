@@ -134,7 +134,6 @@ class _TextState extends State<TextComponent> {
             visible: isEditorVisible,
             child: SizedBox(
               width: maxWidth,
-              height: maxWidth,
               child: Column(
                 children: [
                   SizedBox(
