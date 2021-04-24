@@ -5,13 +5,13 @@ import 'package:uninote/frames/ListSelection.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/NotePainter.dart';
 
-class EditCanvas extends StatefulWidget {
-  EditCanvas({Key key}) : super(key: key);
+class NoteEditor extends StatefulWidget {
+  NoteEditor({Key key}) : super(key: key);
   @override
-  _EditState createState() => _EditState();
+  _NoteEditorState createState() => _NoteEditorState();
 }
 
-class _EditState extends State<EditCanvas> {
+class _NoteEditorState extends State<NoteEditor> {
   List _options = ['Settings1', 'Settings2', 'Settings3'];
   double maxHeight;
   double maxWidth;

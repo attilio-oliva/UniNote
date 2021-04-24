@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/bloc/ListBloc.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/CustomList.dart';
-import 'EditCanvas.dart';
+import 'NoteEditor.dart';
 
 class ListSelection extends StatelessWidget {
   ListSelection({Key key, this.title}) : super(key: key);
@@ -25,11 +25,11 @@ class ListSelection extends StatelessWidget {
     final ListBloc listBloc = BlocProvider.of<ListBloc>(context);
     return BlocConsumer<ListBloc, ListState>(
       listener: (context, state) {
-        if (state.swapToEditCanvas) {
+        if (state.swapToNoteEditor) {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (BuildContext context) => EditCanvas()));
+                  builder: (BuildContext context) => NoteEditor()));
         }
       },
       builder: (context, state) => Scaffold(

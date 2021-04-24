@@ -35,7 +35,7 @@ class ListBloc extends Bloc<ListEventData, ListState> {
         if (state.subject == ListSubject.notebook) {
           yield ListState(ListSubject.note, event.data);
         } else if (state.subject == ListSubject.note) {
-          state.swapToEditCanvas = true;
+          state.swapToNoteEditor = true;
           yield ListState.from(state);
         }
         break;

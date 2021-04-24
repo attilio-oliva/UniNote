@@ -53,7 +53,6 @@ class MyApp extends StatelessWidget {
         create: (context) => ListBloc(ListState.fromList(openedNotebooks)),
         child: ListSelection(title: 'notebook'),
       ),
-      //home: EditCanvas(),
     );
   }
 }

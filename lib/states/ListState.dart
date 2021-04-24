@@ -19,7 +19,7 @@ class ListState {
   ListSubject subject = ListSubject.notebook;
   List<Item> itemList = List.empty(growable: true);
   String selectedItem = "";
-  bool swapToEditCanvas = false;
+  bool swapToNoteEditor = false;
   ListState([ListSubject subject, String selectedNote, List<Item> itemList]) {
     this.subject = subject ?? this.subject;
     this.itemList = itemList ?? this.itemList;
@@ -29,7 +29,7 @@ class ListState {
     this.subject = state?.subject;
     this.itemList = state?.itemList;
     this.selectedItem = state?.selectedItem;
-    this.swapToEditCanvas = state?.swapToEditCanvas;
+    this.swapToNoteEditor = state?.swapToNoteEditor;
   }
   ListState.fromList(List<Item> itemList) {
     this.itemList = itemList ?? this.itemList;
