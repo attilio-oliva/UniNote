@@ -1,16 +1,18 @@
 import 'package:uninote/globals/types.dart';
 
-enum ListSubject { notebook, note }
+enum ListSubject { notebook, section, note }
 
 extension ListSubjectExtension on ListSubject {
   String get name {
     switch (this) {
       case ListSubject.notebook:
         return 'notebook';
+      case ListSubject.section:
+        return 'section';
       case ListSubject.note:
         return 'note';
       default:
-        return null;
+        return "";
     }
   }
 }
@@ -20,6 +22,7 @@ class ListState {
   List<Item> itemList = List.empty(growable: true);
   String selectedItem = "";
   bool swapToEditCanvas = false;
+  int editingIndex;
   ListState([ListSubject subject, String selectedNote, List<Item> itemList]) {
     this.subject = subject ?? this.subject;
     this.itemList = itemList ?? this.itemList;
@@ -30,6 +33,7 @@ class ListState {
     this.itemList = state?.itemList;
     this.selectedItem = state?.selectedItem;
     this.swapToEditCanvas = state?.swapToEditCanvas;
+    this.editingIndex = state.editingIndex;
   }
   ListState.fromList(List<Item> itemList) {
     this.itemList = itemList ?? this.itemList;

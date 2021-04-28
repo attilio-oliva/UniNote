@@ -36,7 +36,7 @@ class NoteEditor extends StatefulWidget {
 
 class _NoteEditorState extends State<NoteEditor> {
   AppBarButton lastPressedButton = null;
-  List options = ['Settings1', 'Settings2', 'Settings3', 'marco', 'melorio'];
+  List options = ['Settings1', 'Settings2', 'Settings3'];
   double maxHeight;
   double maxWidth;
   double maxListWidth;
@@ -114,8 +114,8 @@ class _NoteEditorState extends State<NoteEditor> {
     if (button == lastPressedButton) {
       isToolBarVisible = !isToolBarVisible;
     } else if (lastPressedButton == null) {
-      lastPressedButton = button;
       isToolBarVisible = !isToolBarVisible;
+      lastPressedButton = button;
     } else if (isToolBarVisible == false && lastPressedButton != button) {
       isToolBarVisible = !isToolBarVisible;
       lastPressedButton = button;
