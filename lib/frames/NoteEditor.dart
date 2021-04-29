@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/bloc/ListBloc.dart';
 import 'package:uninote/frames/ListSelection.dart';
-import 'package:uninote/globals/colors.dart';
+import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/NotePainter.dart';
 import 'package:uninote/widgets/ToolBar.dart';
@@ -50,20 +51,6 @@ class _NoteEditorState extends State<NoteEditor> {
   bool shouldListBeVisible = false;
   bool isToolBarVisible = false;
 
-  /*final GlobalKey _appBarKey = GlobalKey();
-  Size appBarSize;
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => getSizeAndPosition());
-  }
-
-  Future<void> getSizeAndPosition() async {
-    setState(() {
-      RenderBox _appBarBox = _appBarKey.currentContext.findRenderObject();
-      appBarSize = _appBarBox.size;
-    });
-  }*/
   void updateSize() {
     setState(() {
       maxHeight =
@@ -125,19 +112,19 @@ class _NoteEditorState extends State<NoteEditor> {
     setState(() {});
   }
 
-  List<Widget> getToolBarContent(AppBarButton button) {
+  List<Widget> getToolBarContent(EditorToolBar button) {
     List<Widget> list = List<Widget>.empty(growable: true);
-    if (button == AppBarButton.insert) {
+    if (button == EditorToolBar.insert) {
       list.add(IconButton(
         icon: Icon(Icons.text_fields),
         onPressed: () {},
       ));
-    } else if (button == AppBarButton.textStyle) {
+    } else if (button == EditorToolBar.text) {
       list.add(IconButton(
         icon: Icon(Icons.pages_outlined),
         onPressed: () {},
       ));
-    } else if (button == AppBarButton.view) {
+    } else if (button == EditorToolBar.view) {
       list.add(IconButton(
         icon: Icon(Icons.coronavirus_outlined),
         onPressed: () {},
@@ -148,155 +135,175 @@ class _NoteEditorState extends State<NoteEditor> {
 
   @override
   Widget build(BuildContext context) {
-    //WidgetsBinding.instance.addPostFrameCallback((_) => getSizeAndPosition());
+    final EditorBloc editorBloc = BlocProvider.of<EditorBloc>(context);
     updateSize();
-    return Scaffold(
-      appBar: AppBar(
-        //key: _appBarKey,
-        titleSpacing: 0,
-        leadingWidth: 40,
-        elevation: 5,
-        leading: Builder(builder: (BuildContext context) {
-          return IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
-              setState(() {
-                isListVisible = !isListVisible;
-                shouldListBeVisible = isListVisible;
-                listWidth = defaultListWidth;
-              });
-            },
-          );
-        }),
-        title: Row(
-          children: [
-            Spacer(),
-            Flexible(
-              flex: 4,
-              child: IconButton(
-                padding: EdgeInsets.only(left: 5),
-                icon: Icon(Icons.undo),
-                onPressed: () {},
-              ),
-            ),
-            Flexible(
-              flex: 4,
-              child: IconButton(
-                padding: EdgeInsets.only(right: 5),
-                icon: Icon(Icons.redo),
-                onPressed: () {},
-              ),
-            ),
-            Spacer(
-              flex: 2,
-            ),
-            Flexible(
-              flex: 7,
-              child: TextButton(
-                onPressed: () {
-                  onPressedAppBarButton(AppBarButton.insert);
-                },
-                child: Text('Insert'),
-                style: TextButton.styleFrom(
-                  primary: Colors.white,
+    return BlocConsumer<EditorBloc, EditorState>(
+      listener: (context, state) {},
+      builder: (context, state) => Scaffold(
+        appBar: AppBar(
+          titleSpacing: 0,
+          leadingWidth: 40,
+          elevation: 5,
+          leading: Builder(builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                setState(() {
+                  isListVisible = !isListVisible;
+                  shouldListBeVisible = isListVisible;
+                  listWidth = defaultListWidth;
+                });
+              },
+            );
+          }),
+          title: Row(
+            children: [
+              Spacer(),
+              Flexible(
+                flex: 4,
+                child: IconButton(
+                  padding: EdgeInsets.only(left: 5),
+                  icon: Icon(Icons.undo),
+                  onPressed: () {},
                 ),
               ),
-            ),
-            Flexible(
-              flex: 6,
-              child: TextButton(
-                onPressed: () {
-                  onPressedAppBarButton(AppBarButton.textStyle);
-                },
-                child: Text('Text style'),
-                style: TextButton.styleFrom(
-                  primary: Colors.white,
+              Flexible(
+                flex: 4,
+                child: IconButton(
+                  padding: EdgeInsets.only(right: 5),
+                  icon: Icon(Icons.redo),
+                  onPressed: () {},
                 ),
               ),
-            ),
-            Flexible(
-              flex: 6,
-              child: TextButton(
-                onPressed: () {
-                  onPressedAppBarButton(AppBarButton.view);
-                },
-                child: Text('View'),
-                style: TextButton.styleFrom(
-                  primary: Colors.white,
+              Spacer(
+                flex: 2,
+              ),
+              Flexible(
+                flex: 7,
+                child: TextButton(
+                  onPressed: () {
+                    editorBloc.add(
+                      EditorEventData(
+                        EditorEvent.appBarButtonPressed,
+                        EditorToolBar.insert,
+                      ),
+                    );
+                    //onPressedAppBarButton(AppBarButton.insert);
+                  },
+                  child: Text('Insert'),
+                  style: TextButton.styleFrom(
+                    primary: Colors.white,
+                  ),
                 ),
               ),
-            ),
-            Spacer(
-              flex: 1,
-            )
+              Flexible(
+                flex: 6,
+                child: TextButton(
+                  onPressed: () {
+                    editorBloc.add(
+                      EditorEventData(
+                        EditorEvent.appBarButtonPressed,
+                        EditorToolBar.text,
+                      ),
+                    );
+                    //onPressedAppBarButton(AppBarButton.textStyle);
+                  },
+                  child: Text('Text style'),
+                  style: TextButton.styleFrom(
+                    primary: Colors.white,
+                  ),
+                ),
+              ),
+              Flexible(
+                flex: 6,
+                child: TextButton(
+                  onPressed: () {
+                    editorBloc.add(
+                      EditorEventData(
+                        EditorEvent.appBarButtonPressed,
+                        EditorToolBar.view,
+                      ),
+                    );
+                    //onPressedAppBarButton(AppBarButton.view);
+                  },
+                  child: Text('View'),
+                  style: TextButton.styleFrom(
+                    primary: Colors.white,
+                  ),
+                ),
+              ),
+              Spacer(
+                flex: 1,
+              )
+            ],
+          ),
+          actions: [
+            PopupMenuButton(itemBuilder: (BuildContext context) {
+              return options.map((element) {
+                return PopupMenuItem(
+                  child: Text(element),
+                  value: element,
+                );
+              }).toList();
+            }
+                /*onSelected: () {
+                print(route);
+
+                Navigator.pushNamed(context, route);
+              },*/
+                ),
           ],
         ),
-        actions: [
-          PopupMenuButton(itemBuilder: (BuildContext context) {
-            return options.map((element) {
-              return PopupMenuItem(
-                child: Text(element),
-                value: element,
-              );
-            }).toList();
-          }
-              /*onSelected: () {
-              print(route);
-
-              Navigator.pushNamed(context, route);
-            },*/
-              ),
-        ],
-      ),
-      body: Row(children: [
-        Visibility(
-          visible: isListVisible,
-          child: Container(
-            width: listWidth,
-            height: maxHeight,
-            child: Row(
-              children: [
-                Container(
-                  child: BlocProvider<ListBloc>(
-                      create: (context) => ListBloc(ListState()),
-                      child: ListSelection()),
-                  width: (listWidth - listDividerWidth),
-                ),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onPanUpdate: (details) => onDragUpdate(details),
-                  onPanEnd: (details) => onDragEnd(details),
-                  child: SizedBox(
-                    width: listDividerWidth,
-                    height: maxHeight,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
+        body: Row(children: [
+          Visibility(
+            visible: isListVisible,
+            child: Container(
+              width: listWidth,
+              height: maxHeight,
+              child: Row(
+                children: [
+                  Container(
+                    child: BlocProvider<ListBloc>(
+                        create: (context) => ListBloc(ListState()),
+                        child: ListSelection()),
+                    width: (listWidth - listDividerWidth),
+                  ),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onPanUpdate: (details) => onDragUpdate(details),
+                    onPanEnd: (details) => onDragEnd(details),
+                    child: SizedBox(
+                      width: listDividerWidth,
+                      height: maxHeight,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                        ),
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            width: (maxWidth - listWidth),
+            child: Column(
+              children: [
+                Visibility(
+                  visible: state.toolBarVisibility,
+                  child: ToolBar(
+                    children: getToolBarContent(state.selectedToolbar),
+                  ),
+                ),
+                Expanded(
+                  child: Painter(),
                 ),
               ],
             ),
           ),
-        ),
-        Container(
-          width: (maxWidth - listWidth),
-          child: Column(
-            children: [
-              Visibility(
-                visible: isToolBarVisible,
-                child: ToolBar(
-                  children: getToolBarContent(lastPressedButton),
-                ),
-              ),
-              Expanded(
-                child: Painter(),
-              ),
-            ],
-          ),
-        ),
-      ]),
+        ]),
+      ),
     );
   }
 }

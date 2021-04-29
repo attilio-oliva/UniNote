@@ -54,7 +54,7 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
         } else if (state.subject == ListSubject.section) {
           yield ListState(ListSubject.note, event['data']);
         } else if (state.subject == ListSubject.note) {
-          state.swapToEditCanvas = true;
+          state.swapToNoteEditor = true;
           yield ListState.from(state);
         }
         break;

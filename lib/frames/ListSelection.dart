@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/bloc/ListBloc.dart';
 import 'package:uninote/globals/colors.dart' as globalColors;
+import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/CustomList.dart';
 import 'NoteEditor.dart';
@@ -28,10 +30,20 @@ class ListSelection extends StatelessWidget {
     final ListBloc listBloc = BlocProvider.of<ListBloc>(context);
     return BlocConsumer<ListBloc, ListState>(
       listener: (context, state) {
-        if (state.swapToEditCanvas) {
+        if (state.swapToNoteEditor) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (BuildContext context) => NoteEditor()),
+            MaterialPageRoute(
+              builder: (BuildContext context) => BlocProvider<EditorBloc>(
+                create: (context) => EditorBloc(
+                  EditorState(
+                    EditorMode.insertion,
+                    EditorSubject.text,
+                  ),
+                ),
+                child: NoteEditor(),
+              ),
+            ),
           );
         }
       },

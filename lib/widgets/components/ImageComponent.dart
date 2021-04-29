@@ -32,7 +32,7 @@ class _ImageState extends State<ImageComponent> {
     currentWidth = maxWidth;
     currentHeight = maxHeigth;
   }
-  Widget CustomImageWidget() {
+  Widget getImageWidget() {
     return Image.network(
       location,
       fit: BoxFit.fill,
@@ -52,9 +52,9 @@ class _ImageState extends State<ImageComponent> {
         }),
         child: Visibility(
           visible: isSelected,
-          replacement: CustomImageWidget(),
+          replacement: getImageWidget(),
           child: ResizableWidget(
-            child: CustomImageWidget(),
+            child: getImageWidget(),
           ),
         ),
       ),
