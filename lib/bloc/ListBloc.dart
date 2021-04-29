@@ -75,14 +75,12 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
         int index = event['index'];
         String title = event['data'];
         if (title != "") {
-          String defaultName = defaultNoteBookName;
-          if (state.subject == ListSubject.section) {
-            defaultName = defaultSectionName;
-          } else if (state.subject == ListSubject.note) {
-            defaultName = defaultNoteName;
+          String countString = "";
+          int n = count(state, title);
+          if (n > 0) {
+            countString = n.toString();
           }
-          state.itemList[index].title =
-              defaultName + (count(state, defaultName)).toString();
+          state.itemList[index].title = title + countString;
         }
         state.editingIndex = null;
         if (state.itemList[index].key == defaultKey) {

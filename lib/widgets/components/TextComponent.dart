@@ -131,7 +131,6 @@ class _TextState extends State<TextComponent> {
         controller: _controller,
         focusNode: _focusNode,
         autofocus: true,
-        maxLines: 1,
         maxLength: 35,
         cursorColor: Colors.white,
         style: TextStyle(color: Colors.white),
@@ -187,7 +186,7 @@ class _TextState extends State<TextComponent> {
       listener: (context, state) {},
       builder: (context, state) => Positioned(
         left: state.position.dx,
-        top: state.position.dy - topFieldBarHeight,
+        top: state.position.dy,
         width: state.width,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,

@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
         //highlightColor: Colors.pink,
         textSelectionTheme: TextSelectionThemeData(
           selectionColor: Colors.pinkAccent.shade400,
+          cursorColor: Colors.white,
           //selectionColor: Colors.orange.shade800,
           //selectionColor: Colors.grey.shade700,
         ),
