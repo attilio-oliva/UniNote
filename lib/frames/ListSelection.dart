@@ -88,7 +88,7 @@ class ListSelection extends StatelessWidget {
                   if (state.editingIndex != null) {
                     listBloc.add({
                       'key': ListEvent.editRequested,
-                      'data': "",
+                      'data': state.editingContent,
                       'index': state.editingIndex
                     });
                   } else {

@@ -13,6 +13,7 @@ const defaultNoteName = "Note";
 enum ListEvent {
   itemSelected,
   itemAdded,
+  editUpdate,
   editRequested,
   importRemoteResource,
   importLocalResource
@@ -71,6 +72,12 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
         state.editingIndex = state.itemList.length - 1;
         yield ListState.from(state);
         break;
+      case ListEvent.editUpdate:
+        if (state.editingIndex != null) {
+          state.editingContent = event["data"];
+        }
+        yield ListState.from(state);
+        break;
       case ListEvent.editRequested:
         int index = event['index'];
         String title = event['data'];
@@ -83,6 +90,7 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
           state.itemList[index].title = title + countString;
         }
         state.editingIndex = null;
+        state.editingContent = "";
         if (state.itemList[index].key == defaultKey) {
           state.itemList[index].key = _getHashedKey(title);
         }

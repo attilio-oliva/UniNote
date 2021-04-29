@@ -81,13 +81,15 @@ class _ReordableState extends State<CustomList> {
                   height: 40,
                   child: TextField(
                     focusNode: getAutoFocusNode(context, state),
-                    onSubmitted: (value) {
-                      listBloc.add({
-                        'key': ListEvent.editRequested,
-                        'index': index,
-                        'data': value
-                      });
-                    },
+                    onChanged: (value) => listBloc.add({
+                      'key': ListEvent.editUpdate,
+                      'data': value,
+                    }),
+                    onSubmitted: (value) => listBloc.add({
+                      'key': ListEvent.editRequested,
+                      'index': index,
+                      'data': value
+                    }),
                     textInputAction: TextInputAction.search,
                   ),
                 ),
