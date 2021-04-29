@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/bloc/ListBloc.dart';
+import 'package:uninote/globals/colors.dart' as globalColors;
 import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/CustomList.dart';
@@ -16,6 +17,8 @@ class ListSelection extends StatelessWidget {
     switch (state.subject) {
       case ListSubject.notebook:
         return "Select notebook";
+      case ListSubject.section:
+        return state.selectedItem;
       case ListSubject.note:
         return state.selectedItem;
     }
@@ -49,28 +52,49 @@ class ListSelection extends StatelessWidget {
           title: Text(getAppBarTitle(state)),
           centerTitle: true,
         ),
-        body: CustomList(items: state.itemList, bloc: listBloc),
+        body: CustomList(items: state.itemList),
         bottomNavigationBar: BottomAppBar(
           child: Row(children: [
             Expanded(
               child: IconButton(
+                color: globalColors.bottomButtonColor,
                 icon: Icon(Icons.cloud_download_outlined),
                 onPressed: () =>
-                    listBloc.add(ListEventData(ListEvent.importRemoteResource)),
+                    listBloc.add({'key': ListEvent.importRemoteResource}),
               ),
             ),
             Expanded(
               child: IconButton(
+                color: globalColors.bottomButtonColor,
                 icon: Icon(Icons.file_download),
                 onPressed: () =>
-                    listBloc.add(ListEventData(ListEvent.importLocalResource)),
+                    listBloc.add({'key': ListEvent.importLocalResource}),
+              ),
+            ),
+            Visibility(
+              visible: state.subject == ListSubject.note,
+              child: Expanded(
+                child: IconButton(
+                    color: globalColors.bottomButtonColor,
+                    icon: Icon(Icons.add_circle),
+                    onPressed: () {}),
               ),
             ),
             Expanded(
               child: IconButton(
-                icon: Icon(Icons.add_circle_outline),
-                onPressed: () =>
-                    listBloc.add(ListEventData(ListEvent.itemAdded)),
+                color: globalColors.bottomButtonColor,
+                icon: Icon(Icons.add_rounded),
+                onPressed: () {
+                  if (state.editingIndex != null) {
+                    listBloc.add({
+                      'key': ListEvent.editRequested,
+                      'data': "",
+                      'index': state.editingIndex
+                    });
+                  } else {
+                    listBloc.add({'key': ListEvent.itemAdded});
+                  }
+                },
               ),
             ),
           ]),

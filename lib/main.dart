@@ -13,9 +13,9 @@ void main() {
 
 class MyApp extends StatelessWidget {
   final List<Item> openedNotebooks = [
-    Item("University", 0xffe040fb),
-    Item("Work", 0xff448aff),
-    Item("Memos", 0xffeeff41),
+    Item("University", 0xffe040fb, 0xFFFFFA.toString()),
+    Item("Work", 0xff448aff, 0xFFFFFB.toString()),
+    Item("Memos", 0xffeeff41, 0xFFFFFC.toString()),
   ];
 
   @override
