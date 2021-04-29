@@ -27,9 +27,13 @@ class MyApp extends StatelessWidget {
           color: globalColors.primaryColor,
         ),
         primaryColor: globalColors.primaryColor,
-        accentColor: Colors.pink,
+        accentColor: Colors.amber.shade800,
         //highlightColor: Colors.pink,
-        textSelectionTheme: TextSelectionThemeData(selectionColor: Colors.pink),
+        textSelectionTheme: TextSelectionThemeData(
+          selectionColor: Colors.pinkAccent.shade400,
+          //selectionColor: Colors.orange.shade800,
+          //selectionColor: Colors.grey.shade700,
+        ),
         textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(primary: globalColors.secondaryColor)),
         iconTheme: IconThemeData(color: globalColors.secondaryColor),

@@ -4,6 +4,7 @@ import 'package:uninote/states/EditorState.dart';
 enum EditorEvent {
   appBarButtonPressed,
   toolButtonPressed,
+  canvasPressed,
 }
 enum EditorTool {
   textInsert,
@@ -43,9 +44,13 @@ class EditorBloc extends Bloc<EditorEventData, EditorState> {
               state.subject = EditorSubject.text;
               break;
           }
-          yield EditorState.from(state);
-          break;
         }
+        yield EditorState.from(state);
+        break;
+      case EditorEvent.canvasPressed:
+        //TODO: implement feature
+        yield EditorState.from(state);
+        break;
     }
   }
 }

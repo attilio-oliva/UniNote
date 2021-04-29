@@ -1,53 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:katex_flutter/katex_flutter.dart';
+import 'package:uninote/bloc/ComponentBloc.dart';
+import 'package:uninote/bloc/EditorBloc.dart';
+import 'package:uninote/states/ComponentState.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'Component.dart';
 
 const double defaultMaxWidth = 300;
 const Offset defaultPosition = Offset(0, 0);
+const double topFieldBarHeight = 5;
 
-class TextComponent extends StatefulWidget {
+class TextComponent extends StatefulWidget with Component {
   //Initial value parameters
-  final Offset position;
   final double maxWidth;
   final String text;
-  final bool autofocus;
+  final EditorBloc editorBloc;
   TextComponent(
-      {this.position = defaultPosition,
+      {position = defaultPosition,
       this.maxWidth = defaultMaxWidth,
       this.text = "",
-      this.autofocus = true});
+      this.editorBloc});
   @override
-  State<TextComponent> createState() => _TextState(
-      position: position, maxWidth: maxWidth, text: text, autofocus: autofocus);
+  State<TextComponent> createState() =>
+      _TextState(maxWidth: maxWidth, text: text);
 }
 
 class _TextState extends State<TextComponent> {
-  Offset position;
   double maxWidth;
   List<String> textModeList = ["md", "latex", "rich"];
   int textMode = 0;
   TextEditingController _controller;
   FocusNode _focusNode;
   bool isEditorVisible = true;
-  bool autofocus;
 
-  _TextState({this.position, this.maxWidth, text, this.autofocus}) {
-    isEditorVisible = autofocus;
+  _TextState({this.maxWidth, text}) {
+    isEditorVisible = true;
     _controller = TextEditingController(text: text);
     _focusNode = FocusNode(
       onKey: (node, key) => _onKey(key),
     );
     _focusNode.addListener(_handleFocus);
   }
-
+/*
   void onDragUpdate(DragUpdateDetails details) {
     setState(() {
       position += details.delta;
     });
   }
-
+*/
   bool _onKey(RawKeyEvent key) {
     if (key.character == "PageUp") {
       textMode = (textMode + 1) % textModeList.length;
@@ -60,9 +64,9 @@ class _TextState extends State<TextComponent> {
   }
 
   void _handleFocus() {
-    if ((_focusNode.hasFocus) && (isEditorVisible = false)) {
+    if (_focusNode.hasFocus && isEditorVisible == false) {
       switchToEditor();
-    } else if ((!_focusNode.hasFocus) && (isEditorVisible = true)) {
+    } else if (!_focusNode.hasFocus && isEditorVisible == true) {
       switchToParsed();
     }
   }
@@ -121,56 +125,101 @@ class _TextState extends State<TextComponent> {
     return textWidget;
   }
 
+  Widget textFieldWidget(ComponentState state) {
+    if (state.data["isTitle"] ?? false) {
+      return TextField(
+        controller: _controller,
+        focusNode: _focusNode,
+        autofocus: true,
+        maxLines: 1,
+        maxLength: 35,
+        cursorColor: Colors.white,
+        style: TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          hintStyle: TextStyle(color: Colors.grey.shade400),
+          hintText: "Insert title",
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(
+              width: 4,
+              color: Colors.white,
+            ),
+          ),
+          enabledBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.zero,
+            borderSide: const BorderSide(color: Colors.transparent),
+          ),
+        ),
+      );
+    } else {
+      return TextField(
+        controller: _controller,
+        focusNode: _focusNode,
+        autofocus: true,
+        maxLines: null,
+        cursorColor: Colors.white,
+        style: TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.zero,
+            borderSide: const BorderSide(color: Colors.white),
+          ),
+          enabledBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.zero,
+            borderSide: const BorderSide(color: Colors.transparent),
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      left: position.dx,
-      top: position.dy,
-      width: maxWidth,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onPanUpdate: (details) => onDragUpdate(details),
-        child: Visibility(
-            visible: isEditorVisible,
-            child: SizedBox(
-              width: maxWidth,
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: maxWidth,
-                    height: 5,
-                    child: DecoratedBox(
-                      decoration: const BoxDecoration(color: Colors.white),
-                    ),
-                  ),
-                  TextField(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    autofocus: autofocus,
-                    maxLines: null,
-                    cursorColor: Colors.white,
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: const BorderSide(color: Colors.white),
-                      ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: const BorderSide(color: Colors.transparent),
+    final TextComponentBloc componentBloc =
+        BlocProvider.of<TextComponentBloc>(context);
+    widget.bloc = componentBloc;
+    return BlocConsumer<TextComponentBloc, ComponentState>(
+      listener: (context, state) {},
+      builder: (context, state) => Positioned(
+        left: state.position.dx,
+        top: state.position.dy - topFieldBarHeight,
+        width: state.width,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onPanUpdate: (details) => componentBloc.add({
+            "key": ComponentEvent.moved,
+            "data": details.delta,
+          }),
+          child: Visibility(
+              visible: isEditorVisible,
+              child: SizedBox(
+                width: state.width,
+                child: Column(
+                  children: [
+                    Visibility(
+                      visible: state.canMove,
+                      child: SizedBox(
+                        width: state.width,
+                        height: topFieldBarHeight,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(color: Colors.white),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    textFieldWidget(state),
+                  ],
+                ),
               ),
-            ),
-            replacement: GestureDetector(
-              onTapUp: (details) => switchToEditor(),
-              child: textWidget(),
-            )),
+              replacement: GestureDetector(
+                onTapUp: (details) => switchToEditor(),
+                child: textWidget(),
+              )),
+        ),
       ),
     );
   }

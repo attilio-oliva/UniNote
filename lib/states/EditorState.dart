@@ -1,7 +1,7 @@
 enum EditorMode {
   selection,
   insertion,
-  reading,
+  readOnly,
 }
 
 enum EditorSubject {
