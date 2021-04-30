@@ -1,21 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uninote/bloc/ComponentBloc.dart';
+import 'package:uninote/states/ComponentState.dart';
 
 const ballDiameter = 10.0;
+const double editBorderWidth = 2;
+final double editOffset = ballDiameter / 2 - editBorderWidth / 2;
 
 class ResizableWidget extends StatefulWidget {
   final Widget child;
-  ResizableWidget({this.child});
+  final double height;
+  final double width;
+  final Offset position;
+  final ComponentBloc bloc;
+  ResizableWidget(
+      {this.child,
+      this.position = const Offset(0, 0),
+      this.width = 200,
+      this.height = 200,
+      this.bloc});
   @override
-  _ResizableWidgetState createState() => _ResizableWidgetState();
+  _ResizableWidgetState createState() =>
+      _ResizableWidgetState(position, width, height);
 }
 
 class _ResizableWidgetState extends State<ResizableWidget> {
-  double height = 200;
-  double width = 200;
-
+  double height;
+  double width;
   double top = 0;
   double left = 0;
+  Offset startPosition;
+  void onResize() {
+    widget.bloc.add({
+      "key": ComponentEvent.resized,
+      "width": width,
+      "height": height,
+    });
+  }
 
+  void onMove() {
+    widget.bloc.add({
+      "key": ComponentEvent.moved,
+      "absolute": startPosition + Offset(left, top),
+    });
+  }
+
+  _ResizableWidgetState(this.startPosition, this.width, this.height);
   void onDrag(double dx, double dy) {
     var newHeight = height + dy;
     var newWidth = width + dx;
@@ -24,177 +54,198 @@ class _ResizableWidgetState extends State<ResizableWidget> {
       height = newHeight > 0 ? newHeight : 0;
       width = newWidth > 0 ? newWidth : 0;
     });
+    onResize();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Positioned(
-          top: top,
-          left: left,
-          height: height,
-          width: width,
-          child: Container(
-            decoration: BoxDecoration(
-                border: Border.all(width: 5, color: Colors.white)),
-            child: widget.child,
+    return BlocBuilder<ComponentBloc, ComponentState>(
+      bloc: widget.bloc,
+      builder: (context, state) => Stack(
+        children: <Widget>[
+          Positioned(
+            left: editOffset,
+            top: editOffset,
+            width: state.width,
+            height: state.height,
+            child: Container(
+              padding: EdgeInsets.zero,
+              decoration: BoxDecoration(
+                  border:
+                      Border.all(width: editBorderWidth, color: Colors.white)),
+              child: widget.child,
+            ),
           ),
-        ),
-        // top left
-        Positioned(
-          top: top - ballDiameter / 2,
-          left: left - ballDiameter / 2,
-          child: ManipulatingBall(
-            onDrag: (dx, dy) {
-              var mid = (dx + dy) / 2;
-              var newHeight = height - 2 * mid;
-              var newWidth = width - 2 * mid;
-              //var newHeight = height - dy;
-              //var newWidth = width - dx;
-              setState(() {
+          // top left
+          Positioned(
+            top: 0,
+            left: 0,
+            child: ManipulatingBall(
+              onDrag: (dx, dy) {
+                var mid = (dx + dy) / 2;
+                var newHeight = height - 2 * mid;
+                var newWidth = width - 2 * mid;
+                //var newHeight = height - dy;
+                //var newWidth = width - dx;
+                //setState(() {
                 height = newHeight > 0 ? newHeight : 0;
                 width = newWidth > 0 ? newWidth : 0;
                 top = top + mid * 0.2;
                 left = left + mid * 0.2;
                 //top = top + dx;
                 //left = left + dy;
-              });
-            },
+                //});
+                onResize();
+                onMove();
+              },
+            ),
           ),
-        ),
-        // top middle
-        Positioned(
-          top: top - ballDiameter / 2,
-          left: left + width / 2 - ballDiameter / 2,
-          child: ManipulatingBall(
-            onDrag: (dx, dy) {
-              var newHeight = height - dy;
+          // top middle
+          Positioned(
+            top: 0,
+            left: width / 2 - ballDiameter / 2,
+            child: ManipulatingBall(
+              onDrag: (dx, dy) {
+                var newHeight = height - dy;
 
-              setState(() {
-                height = newHeight > 0 ? newHeight : 0;
-                top = top + dy;
-              });
-            },
+                setState(() {
+                  height = newHeight > 0 ? newHeight : 0;
+                  top = top + dy;
+                });
+                onResize();
+                onMove();
+              },
+            ),
           ),
-        ),
-        // top right
-        Positioned(
-          top: top - ballDiameter / 2,
-          left: left + width - ballDiameter / 2,
-          child: ManipulatingBall(
-            onDrag: (dx, dy) {
-              var mid = (dx + (dy * -1)) / 2;
+          // top right
+          Positioned(
+            top: 0,
+            left: width - ballDiameter / 2,
+            child: ManipulatingBall(
+              onDrag: (dx, dy) {
+                var mid = (dx + (dy * -1)) / 2;
 
-              var newHeight = height + 2 * mid;
-              var newWidth = width + 2 * mid;
+                var newHeight = height + 2 * mid;
+                var newWidth = width + 2 * mid;
 
-              setState(() {
-                height = newHeight > 0 ? newHeight : 0;
-                width = newWidth > 0 ? newWidth : 0;
-                top = top - mid;
-                left = left - mid;
-              });
-            },
-          ),
-        ),
-        // center right
-        Positioned(
-          top: top + height / 2 - ballDiameter / 2,
-          left: left + width - ballDiameter / 2,
-          child: ManipulatingBall(
-            onDrag: (dx, dy) {
-              var newWidth = width + dx;
-
-              setState(() {
-                width = newWidth > 0 ? newWidth : 0;
-              });
-            },
-          ),
-        ),
-        // bottom right
-        Positioned(
-          top: top + height - ballDiameter / 2,
-          left: left + width - ballDiameter / 2,
-          child: ManipulatingBall(
-            onDrag: (dx, dy) {
-              var mid = (dx + dy) / 2;
-
-              var newHeight = height + 2 * mid;
-              var newWidth = width + 2 * mid;
-
-              setState(() {
+                //setState(() {
                 height = newHeight > 0 ? newHeight : 0;
                 width = newWidth > 0 ? newWidth : 0;
                 top = top - mid;
                 left = left - mid;
-              });
-            },
+                //});
+                onResize();
+                onMove();
+              },
+            ),
           ),
-        ),
-        // bottom center
-        Positioned(
-          top: top + height - ballDiameter / 2,
-          left: left + width / 2 - ballDiameter / 2,
-          child: ManipulatingBall(
-            onDrag: (dx, dy) {
-              var newHeight = height + dy;
+          // center right
+          Positioned(
+            top: height / 2 - ballDiameter / 2,
+            left: width - ballDiameter / 2,
+            child: ManipulatingBall(
+              onDrag: (dx, dy) {
+                var newWidth = width + dx;
 
-              setState(() {
-                height = newHeight > 0 ? newHeight : 0;
-              });
-            },
+                //setState(() {
+                width = newWidth > 0 ? newWidth : 0;
+                //});
+                onResize();
+              },
+            ),
           ),
-        ),
-        // bottom left
-        Positioned(
-          top: top + height - ballDiameter / 2,
-          left: left - ballDiameter / 2,
-          child: ManipulatingBall(
-            onDrag: (dx, dy) {
-              var mid = ((dx * -1) + dy) / 2;
+          // bottom right
+          Positioned(
+            top: height - ballDiameter / 2,
+            left: width - ballDiameter / 2,
+            child: ManipulatingBall(
+              onDrag: (dx, dy) {
+                var mid = (dx + dy) / 2;
 
-              var newHeight = height + 2 * mid;
-              var newWidth = width + 2 * mid;
+                var newHeight = height + 2 * mid;
+                var newWidth = width + 2 * mid;
 
-              setState(() {
+                //setState(() {
                 height = newHeight > 0 ? newHeight : 0;
                 width = newWidth > 0 ? newWidth : 0;
                 top = top - mid;
                 left = left - mid;
-              });
-            },
+                //});
+                onResize();
+                onMove();
+              },
+            ),
           ),
-        ),
-        //left center
-        Positioned(
-          top: top + height / 2 - ballDiameter / 2,
-          left: left - ballDiameter / 2,
-          child: ManipulatingBall(
-            onDrag: (dx, dy) {
-              var newWidth = width - dx;
+          // bottom center
+          Positioned(
+            top: height - ballDiameter / 2,
+            left: width / 2 - ballDiameter / 2,
+            child: ManipulatingBall(
+              onDrag: (dx, dy) {
+                var newHeight = height + dy;
 
-              setState(() {
+                //setState(() {
+                height = newHeight > 0 ? newHeight : 0;
+                //});
+                onResize();
+              },
+            ),
+          ),
+          // bottom left
+          Positioned(
+            top: height - ballDiameter / 2,
+            left: 0,
+            child: ManipulatingBall(
+              onDrag: (dx, dy) {
+                var mid = ((dx * -1) + dy) / 2;
+
+                var newHeight = height + 2 * mid;
+                var newWidth = width + 2 * mid;
+
+                //setState(() {
+                height = newHeight > 0 ? newHeight : 0;
+                width = newWidth > 0 ? newWidth : 0;
+                top = top - mid;
+                left = left - mid;
+                //});
+                onResize();
+                onMove();
+              },
+            ),
+          ),
+          //left center
+          Positioned(
+            top: height / 2 - ballDiameter / 2,
+            left: 0,
+            child: ManipulatingBall(
+              onDrag: (dx, dy) {
+                var newWidth = width - dx;
+
+                //setState(() {
                 width = newWidth > 0 ? newWidth : 0;
                 left = left + dx;
-              });
-            },
+                //});
+                onResize();
+                onMove();
+              },
+            ),
           ),
-        ),
-        // center center
-        Positioned(
-          top: top + height / 2 - ballDiameter / 2,
-          left: left + width / 2 - ballDiameter / 2,
-          child: ManipulatingBall(
-            onDrag: (dx, dy) {
-              setState(() {
+          // center center
+          Positioned(
+            top: height / 2 - ballDiameter / 2,
+            left: width / 2 - ballDiameter / 2,
+            child: ManipulatingBall(
+              onDrag: (dx, dy) {
+                //setState(() {
                 top = top + dy;
                 left = left + dx;
-              });
-            },
+                //});
+                onMove();
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -236,6 +287,7 @@ class _ManipulatingBallState extends State<ManipulatingBall> {
       onPanStart: _handleDrag,
       onPanUpdate: _handleUpdate,
       child: Container(
+        padding: EdgeInsets.zero,
         width: ballDiameter,
         height: ballDiameter,
         decoration: BoxDecoration(

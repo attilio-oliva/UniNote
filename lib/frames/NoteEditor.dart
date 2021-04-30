@@ -112,12 +112,23 @@ class _NoteEditorState extends State<NoteEditor> {
     setState(() {});
   }
 
-  List<Widget> getToolBarContent(EditorToolBar button) {
+  List<Widget> getToolBarContent(EditorBloc bloc) {
+    EditorToolBar button = bloc.state.selectedToolbar;
     List<Widget> list = List<Widget>.empty(growable: true);
     if (button == EditorToolBar.insert) {
       list.add(IconButton(
         icon: Icon(Icons.text_fields),
-        onPressed: () {},
+        onPressed: () => bloc.add({
+          "key": EditorEvent.toolButtonPressed,
+          "type": EditorTool.textInsert
+        }),
+      ));
+      list.add(IconButton(
+        icon: Icon(Icons.image_sharp),
+        onPressed: () => bloc.add({
+          "key": EditorEvent.toolButtonPressed,
+          "type": EditorTool.imageInsert,
+        }),
       ));
     } else if (button == EditorToolBar.text) {
       list.add(IconButton(
@@ -183,10 +194,10 @@ class _NoteEditorState extends State<NoteEditor> {
                 child: TextButton(
                   onPressed: () {
                     editorBloc.add(
-                      EditorEventData(
-                        EditorEvent.appBarButtonPressed,
-                        EditorToolBar.insert,
-                      ),
+                      {
+                        "key": EditorEvent.appBarButtonPressed,
+                        "data": EditorToolBar.insert,
+                      },
                     );
                     //onPressedAppBarButton(AppBarButton.insert);
                   },
@@ -200,12 +211,10 @@ class _NoteEditorState extends State<NoteEditor> {
                 flex: 6,
                 child: TextButton(
                   onPressed: () {
-                    editorBloc.add(
-                      EditorEventData(
-                        EditorEvent.appBarButtonPressed,
-                        EditorToolBar.text,
-                      ),
-                    );
+                    editorBloc.add({
+                      "key": EditorEvent.appBarButtonPressed,
+                      "data": EditorToolBar.text,
+                    });
                     //onPressedAppBarButton(AppBarButton.textStyle);
                   },
                   child: Text('Text style'),
@@ -218,12 +227,10 @@ class _NoteEditorState extends State<NoteEditor> {
                 flex: 6,
                 child: TextButton(
                   onPressed: () {
-                    editorBloc.add(
-                      EditorEventData(
-                        EditorEvent.appBarButtonPressed,
-                        EditorToolBar.view,
-                      ),
-                    );
+                    editorBloc.add({
+                      "key": EditorEvent.appBarButtonPressed,
+                      "data": EditorToolBar.view,
+                    });
                     //onPressedAppBarButton(AppBarButton.view);
                   },
                   child: Text('View'),
@@ -293,7 +300,7 @@ class _NoteEditorState extends State<NoteEditor> {
                 Visibility(
                   visible: state.toolBarVisibility,
                   child: ToolBar(
-                    children: getToolBarContent(state.selectedToolbar),
+                    children: getToolBarContent(editorBloc),
                   ),
                 ),
                 Expanded(

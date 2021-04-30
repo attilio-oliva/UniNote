@@ -10,6 +10,7 @@ enum EditorTool {
   textInsert,
   textSize,
   textColor,
+  imageInsert,
 }
 
 class EditorEventData {
@@ -18,31 +19,34 @@ class EditorEventData {
   EditorEventData(this.key, [this.data]);
 }
 
-class EditorBloc extends Bloc<EditorEventData, EditorState> {
+class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
   EditorBloc(EditorState initialState) : super(initialState);
   @override
-  Stream<EditorState> mapEventToState(EditorEventData event) async* {
-    switch (event.key) {
+  Stream<EditorState> mapEventToState(Map<String, dynamic> event) async* {
+    switch (event['key']) {
       case EditorEvent.appBarButtonPressed:
-        if (event.data is EditorToolBar) {
+        if (event['data'] is EditorToolBar) {
           if (state.toolBarVisibility == true &&
-              event.data == state.selectedToolbar) {
+              event['data'] == state.selectedToolbar) {
             state.toolBarVisibility = false;
           } else {
-            state.selectedToolbar = event.data;
+            state.selectedToolbar = event['data'];
             state.toolBarVisibility = true;
           }
         }
         yield EditorState.from(state);
         break;
       case EditorEvent.toolButtonPressed:
-        if (event.data is EditorTool) {
-          switch (event.data) {
+        if (event['type'] is EditorTool) {
+          switch (event['type']) {
             //TODO: implement all tools
             case EditorTool.textInsert:
               state.mode = EditorMode.insertion;
               state.subject = EditorSubject.text;
               break;
+            case EditorTool.imageInsert:
+              state.mode = EditorMode.insertion;
+              state.subject = EditorSubject.image;
           }
         }
         yield EditorState.from(state);

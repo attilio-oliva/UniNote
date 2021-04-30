@@ -8,7 +8,7 @@ const double minPosY = 10;
 class ComponentState {
   Offset _position;
   double width;
-  double heigth;
+  double height;
   String content = "";
   Map<String, dynamic> data = {};
   bool canMove = true;
@@ -30,14 +30,14 @@ class ComponentState {
     _position = Offset(newX, newY);
   }
 
-  ComponentState(position, this.width, this.heigth,
+  ComponentState(position, this.width, this.height,
       [this.content = "", this.canMove = true, this.data]) {
     this.position = position;
   }
   ComponentState.from(ComponentState state) {
     this.position = state.position;
     this.width = state.width;
-    this.heigth = state.heigth;
+    this.height = state.height;
     this.content = state.content;
     this.canMove = state.canMove;
     this.data = state.data;

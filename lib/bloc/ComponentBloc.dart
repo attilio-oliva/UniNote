@@ -25,7 +25,7 @@ class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
     if (state.position.dx <= point.dx &&
         point.dx <= state.position.dx + state.width) {
       if (state.position.dy <= point.dy &&
-          point.dy <= state.position.dy + state.heigth) {
+          point.dy <= state.position.dy + state.height) {
         return true;
       }
     }
@@ -36,14 +36,14 @@ class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
   Stream<ComponentState> mapEventToState(Map<String, dynamic> event) async* {
     switch (event["key"]) {
       case ComponentEvent.resized:
-        if (event["data"] is Offset) {
-          state.width = event["data"].dx;
-          state.heigth = event["data"].dy;
-        }
+        state.width = event["width"];
+        state.height = event["height"];
         yield ComponentState.from(state);
         break;
       case ComponentEvent.moved:
-        if (event["data"] is Offset) {
+        if (event["absolute"] != null) {
+          state.position = event["absolute"];
+        } else if (event["data"] is Offset) {
           state.position += event["data"];
         }
         yield ComponentState.from(state);

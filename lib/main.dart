@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
+import 'bloc/EditorBloc.dart';
 import 'bloc/ListBloc.dart';
 import 'frames/ListSelection.dart';
 import 'package:uninote/globals/colors.dart' as globalColors;
 
+import 'frames/NoteEditor.dart';
 import 'globals/types.dart';
 
 void main() {
@@ -54,10 +57,19 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: BlocProvider<ListBloc>(
-        create: (context) => ListBloc(ListState.fromList(openedNotebooks)),
-        child: ListSelection(title: 'notebook'),
+      home: BlocProvider<EditorBloc>(
+        create: (context) => EditorBloc(
+          EditorState(
+            EditorMode.insertion,
+            EditorSubject.text,
+          ),
+        ),
+        child: NoteEditor(),
       ),
+      //home: BlocProvider<ListBloc>(
+      //  create: (context) => ListBloc(ListState.fromList(openedNotebooks)),
+      //  child: ListSelection(title: 'notebook'),
+      //),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:uninote/bloc/ComponentBloc.dart';
 import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/states/ComponentState.dart';
 import 'package:uninote/states/EditorState.dart';
+import 'package:uninote/widgets/components/ImageComponent.dart';
 import 'package:uninote/widgets/components/TextComponent.dart';
 
 import 'components/Component.dart';
@@ -40,10 +41,22 @@ class _PainterState extends State<Painter> {
                     data,
                   ),
                 ),
-            child: TextComponent(position: pos, text: content)));
+            child: TextComponent(text: content)));
         break;
       case EditorSubject.image:
-        // TODO: Handle this case.
+        content = imageDefaultLocation;
+        list.add(BlocProvider<ComponentBloc>(
+            create: (context) => ComponentBloc(
+                  ComponentState(
+                    cursor,
+                    imageDefaultMaxWidth,
+                    imageDefaultMaxHeight,
+                    content,
+                    canMove,
+                    data,
+                  ),
+                ),
+            child: ImageComponent(position: cursor, location: content)));
         break;
       case EditorSubject.stroke:
         // TODO: Handle this case.
@@ -58,7 +71,7 @@ class _PainterState extends State<Painter> {
       BuildContext context, TapUpDetails details, EditorState editorState) {
     if (!focusNode.hasFocus) {
       bool backgroundClicked = true;
-      for (BlocProvider<TextComponentBloc> item in list) {
+      for (BlocProvider<ComponentBloc> item in list) {
         if (item.child is Component) {
           Component component = item.child as Component;
           if (component.bloc.hitTest(details.localPosition)) {
