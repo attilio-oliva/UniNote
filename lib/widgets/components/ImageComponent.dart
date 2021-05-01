@@ -17,14 +17,28 @@ class ImageComponent extends StatefulWidget with Component {
   final double width;
   final double height;
   final String location;
-  ImageComponent(
-      {this.position = imageDefaultPosition,
-      this.width = imageDefaultMaxWidth,
-      this.height = imageDefaultMaxWidth,
-      this.location = imageDefaultLocation});
+  final ComponentBloc bloc;
+  ImageComponent({
+    this.position = imageDefaultPosition,
+    this.width = imageDefaultMaxWidth,
+    this.height = imageDefaultMaxWidth,
+    this.location = imageDefaultLocation,
+    this.bloc,
+  });
 
   State<ImageComponent> createState() =>
       _ImageState(position, width, height, location);
+
+  @override
+  bool hitTest(Offset point) {
+    return bloc.hitTest(point);
+  }
+
+  @override
+  String parse() {
+    // TODO: implement parse
+    throw UnimplementedError();
+  }
 }
 
 class _ImageState extends State<ImageComponent> {
@@ -47,16 +61,14 @@ class _ImageState extends State<ImageComponent> {
 
   @override
   Widget build(BuildContext context) {
-    final ComponentBloc componentBloc = BlocProvider.of<ComponentBloc>(context);
-    widget.bloc = componentBloc;
     return BlocConsumer<ComponentBloc, ComponentState>(
-      bloc: componentBloc,
+      bloc: widget.bloc,
       listener: (context, state) {},
       builder: (context, state) => Positioned(
-        left: state.position.dx - ballDiameter / 2 - editBorderWidth / 2,
-        top: state.position.dy - ballDiameter / 2 - editBorderWidth / 2,
-        width: state.width + ballDiameter / 2 - editBorderWidth / 2,
-        height: state.height + ballDiameter / 2 - editBorderWidth / 2,
+        left: state.position.dx - editOffset,
+        top: state.position.dy - editOffset,
+        width: state.width + editOffset * 2,
+        height: state.height + editOffset * 2,
         child: GestureDetector(
           onTapUp: (details) => setState(() {
             isSelected = !isSelected;
@@ -64,17 +76,17 @@ class _ImageState extends State<ImageComponent> {
           child: Visibility(
             visible: isSelected,
             replacement: Container(
-              padding: EdgeInsets.all(editOffset),
+              padding: EdgeInsets.all(editOffset + editBorderWidth),
               width: state.width,
               height: state.height,
               child: getImageWidget(),
             ),
             child: ResizableWidget(
               child: getImageWidget(),
-              position: position,
-              width: state.width,
-              height: state.height,
-              bloc: componentBloc,
+              position: state.position,
+              width: state.width + editOffset,
+              height: state.height + editOffset,
+              bloc: widget.bloc,
             ),
           ),
         ),

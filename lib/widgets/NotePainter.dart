@@ -30,33 +30,43 @@ class _PainterState extends State<Painter> {
     String content = "";
     switch (subject) {
       case EditorSubject.text:
-        list.add(BlocProvider<TextComponentBloc>(
-            create: (context) => TextComponentBloc(
-                  ComponentState(
-                    cursor,
-                    defaultMaxWidth,
-                    topFieldBarHeight,
-                    content,
-                    canMove,
-                    data,
-                  ),
-                ),
-            child: TextComponent(text: content)));
+        TextComponentBloc bloc = TextComponentBloc(ComponentState(
+          cursor,
+          defaultMaxWidth,
+          topFieldBarHeight,
+          content,
+          canMove,
+          data,
+        ));
+        list.add(
+          BlocProvider<TextComponentBloc>(
+            create: (context) => bloc,
+            child: TextComponent(
+              text: content,
+              bloc: bloc,
+            ),
+          ),
+        );
         break;
       case EditorSubject.image:
         content = imageDefaultLocation;
+        ComponentBloc bloc = ComponentBloc(
+          ComponentState(
+            cursor,
+            imageDefaultMaxWidth,
+            imageDefaultMaxHeight,
+            content,
+            canMove,
+            data,
+          ),
+        );
         list.add(BlocProvider<ComponentBloc>(
-            create: (context) => ComponentBloc(
-                  ComponentState(
-                    cursor,
-                    imageDefaultMaxWidth,
-                    imageDefaultMaxHeight,
-                    content,
-                    canMove,
-                    data,
-                  ),
-                ),
-            child: ImageComponent(position: cursor, location: content)));
+            create: (context) => bloc,
+            child: ImageComponent(
+              position: cursor,
+              location: content,
+              bloc: bloc,
+            )));
         break;
       case EditorSubject.stroke:
         // TODO: Handle this case.
@@ -74,7 +84,7 @@ class _PainterState extends State<Painter> {
       for (BlocProvider<ComponentBloc> item in list) {
         if (item.child is Component) {
           Component component = item.child as Component;
-          if (component.bloc.hitTest(details.localPosition)) {
+          if (component.hitTest(details.localPosition)) {
             backgroundClicked = false;
             break;
           }

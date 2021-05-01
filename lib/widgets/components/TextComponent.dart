@@ -19,14 +19,28 @@ class TextComponent extends StatefulWidget with Component {
   final double maxWidth;
   final String text;
   final EditorBloc editorBloc;
-  TextComponent(
-      {position = defaultPosition,
-      this.maxWidth = defaultMaxWidth,
-      this.text = "",
-      this.editorBloc});
+  final TextComponentBloc bloc;
+  TextComponent({
+    position = defaultPosition,
+    this.maxWidth = defaultMaxWidth,
+    this.text = "",
+    this.editorBloc,
+    this.bloc,
+  });
   @override
   State<TextComponent> createState() =>
       _TextState(maxWidth: maxWidth, text: text);
+
+  @override
+  bool hitTest(Offset point) {
+    return bloc.hitTest(point);
+  }
+
+  @override
+  String parse() {
+    // TODO: implement parse
+    throw UnimplementedError();
+  }
 }
 
 class _TextState extends State<TextComponent> {
@@ -179,9 +193,6 @@ class _TextState extends State<TextComponent> {
 
   @override
   Widget build(BuildContext context) {
-    final TextComponentBloc componentBloc =
-        BlocProvider.of<TextComponentBloc>(context);
-    widget.bloc = componentBloc;
     return BlocConsumer<TextComponentBloc, ComponentState>(
       listener: (context, state) {},
       builder: (context, state) => Positioned(
@@ -190,7 +201,7 @@ class _TextState extends State<TextComponent> {
         width: state.width,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onPanUpdate: (details) => componentBloc.add({
+          onPanUpdate: (details) => widget.bloc.add({
             "key": ComponentEvent.moved,
             "data": details.delta,
           }),

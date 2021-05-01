@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/bloc/ComponentBloc.dart';
@@ -82,16 +84,22 @@ class _ResizableWidgetState extends State<ResizableWidget> {
             left: 0,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
-                var mid = (dx + dy) / 2;
-                var newHeight = height - 2 * mid;
-                var newWidth = width - 2 * mid;
+                //var mid = (dx + dy) / 2;
+                Offset point = Offset(dx, dy);
+                int sign =
+                    point.direction >= 0 && point.direction <= math.pi / 2
+                        ? 1
+                        : -1;
+                double mid = sign * (point.distance / 2);
+                var newHeight = height - mid;
+                var newWidth = width - mid;
                 //var newHeight = height - dy;
                 //var newWidth = width - dx;
                 //setState(() {
                 height = newHeight > 0 ? newHeight : 0;
                 width = newWidth > 0 ? newWidth : 0;
-                top = top + mid * 0.2;
-                left = left + mid * 0.2;
+                top = top + mid;
+                left = left + mid;
                 //top = top + dx;
                 //left = left + dy;
                 //});
@@ -123,16 +131,21 @@ class _ResizableWidgetState extends State<ResizableWidget> {
             left: width - ballDiameter / 2,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
-                var mid = (dx + (dy * -1)) / 2;
-
-                var newHeight = height + 2 * mid;
-                var newWidth = width + 2 * mid;
+                //var mid = (dx + (dy * -1)) / 2;
+                Offset point = Offset(dx, dy);
+                int sign =
+                    point.direction >= math.pi / 2 && point.direction <= math.pi
+                        ? -1
+                        : 1;
+                double mid = sign * (point.distance / 2);
+                var newHeight = height + mid;
+                var newWidth = width + mid;
 
                 //setState(() {
                 height = newHeight > 0 ? newHeight : 0;
                 width = newWidth > 0 ? newWidth : 0;
                 top = top - mid;
-                left = left - mid;
+                //left = left - mid;
                 //});
                 onResize();
                 onMove();
@@ -160,16 +173,22 @@ class _ResizableWidgetState extends State<ResizableWidget> {
             left: width - ballDiameter / 2,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
-                var mid = (dx + dy) / 2;
+                //var mid = (dx + dy) / 2;
+                Offset point = Offset(dx, dy);
+                int sign =
+                    point.direction >= 0 && point.direction <= math.pi / 2
+                        ? 1
+                        : -1;
+                double mid = sign * (point.distance / 2);
 
-                var newHeight = height + 2 * mid;
-                var newWidth = width + 2 * mid;
+                var newHeight = height + mid;
+                var newWidth = width + mid;
 
                 //setState(() {
                 height = newHeight > 0 ? newHeight : 0;
                 width = newWidth > 0 ? newWidth : 0;
-                top = top - mid;
-                left = left - mid;
+                //top = top - mid;
+                //left = left - mid;
                 //});
                 onResize();
                 onMove();
@@ -197,15 +216,20 @@ class _ResizableWidgetState extends State<ResizableWidget> {
             left: 0,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
-                var mid = ((dx * -1) + dy) / 2;
-
-                var newHeight = height + 2 * mid;
-                var newWidth = width + 2 * mid;
+                //var mid = ((dx * -1) + dy) / 2;
+                Offset point = Offset(dx, dy);
+                int sign =
+                    point.direction <= 0 && point.direction >= -math.pi / 2
+                        ? -1
+                        : 1;
+                double mid = sign * (point.distance / 2);
+                var newHeight = height + mid;
+                var newWidth = width + mid;
 
                 //setState(() {
                 height = newHeight > 0 ? newHeight : 0;
                 width = newWidth > 0 ? newWidth : 0;
-                top = top - mid;
+                //top = top - mid;
                 left = left - mid;
                 //});
                 onResize();
