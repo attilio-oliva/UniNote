@@ -31,11 +31,36 @@ String _getHashedKey(String title) {
   return sha1.convert(plainText).toString();
 }
 
-int count(ListState state, String defaultName) {
-  return state.itemList
-      .where((item) => item.title.indexOf(defaultName) != -1)
-      .toList()
-      .length;
+int count(List<Item> list, String value, [int indexToSkip]) {
+  int length = 0;
+  int n = list.length;
+  indexToSkip = indexToSkip ?? n;
+  for (int i = 0; i < n; i++) {
+    if (i != indexToSkip) {
+      if (list[i].title == value) {
+        length++;
+      }
+    }
+  }
+  return length;
+}
+
+//TODO: handle case max attempts are reached
+String getDuplicateId(List<Item> list, String value, [int indexToSkip]) {
+  int maxAttempts = 256;
+  int id;
+  String result = "";
+  indexToSkip = indexToSkip ?? maxAttempts;
+  for (id = 0; id < maxAttempts; id++) {
+    String attempt = value + (id > 0 ? id.toString() : "");
+    if (count(list, attempt, indexToSkip) == 0) {
+      break;
+    }
+  }
+  if (id > 0) {
+    result = id.toString();
+  }
+  return result;
 }
 
 class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
@@ -66,8 +91,10 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
         } else if (state.subject == ListSubject.note) {
           defaultName = defaultNoteName;
         }
-        Item newItem = Item(defaultName + count(state, defaultName).toString(),
-            getRandomColour(), defaultKey);
+        Item newItem = Item(
+            defaultName + getDuplicateId(state.itemList, defaultName),
+            getRandomColour(),
+            defaultKey);
         state.itemList.add(newItem);
         state.editingIndex = state.itemList.length - 1;
         yield ListState.from(state);
@@ -82,12 +109,8 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
         int index = event['index'];
         String title = event['data'];
         if (title != "") {
-          String countString = "";
-          int n = count(state, title);
-          if (n > 0) {
-            countString = n.toString();
-          }
-          state.itemList[index].title = title + countString;
+          state.itemList[index].title =
+              title + getDuplicateId(state.itemList, title, index);
         }
         state.editingIndex = null;
         state.editingContent = "";
