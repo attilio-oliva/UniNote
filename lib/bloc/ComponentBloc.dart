@@ -75,3 +75,36 @@ class TextComponentBloc extends ComponentBloc {
   //  state.data["isEditing"] = ;
   //}
 }
+
+class StrokeComponentBloc extends ComponentBloc {
+  static List<Offset> editingStrokeData = [];
+  static StrokeComponentBloc editingBloc;
+  StrokeComponentBloc(ComponentState initialState) : super(initialState) {
+    if (state.data["isEditing"] ?? false) {
+      if (state.data.containsKey("points") ?? false) {
+        editingStrokeData = state.data["points"];
+        editingBloc = this;
+      }
+    }
+  }
+
+  @override
+  void onContentChange(Map<String, dynamic> event) {
+    bool isEditing = state.data["isEditing"] ?? false;
+    bool shouldBeEditing = event["isEditing"] ?? false;
+    if (isEditing) {
+      if (state.data.containsKey("points")) {
+        if (event.containsKey("newPoint")) {
+          state.data["points"] = List<Offset>.from(state.data["points"]);
+          state.data["points"].add(event["newPoint"] as Offset);
+          editingStrokeData = state.data["points"];
+          editingBloc = this;
+        }
+      }
+    }
+    if (!shouldBeEditing && isEditing && editingBloc == this) {
+      editingStrokeData = [];
+      editingBloc = null;
+    }
+  }
+}

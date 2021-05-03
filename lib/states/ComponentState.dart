@@ -1,5 +1,5 @@
 import 'dart:ui';
-
+import 'dart:math' as math;
 import 'package:uninote/widgets/components/TextComponent.dart';
 
 const double minPosX = 10;
@@ -40,6 +40,6 @@ class ComponentState {
     this.height = state.height;
     this.content = state.content;
     this.canMove = state.canMove;
-    this.data = state.data;
+    this.data = Map.from(state.data);
   }
 }

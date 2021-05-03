@@ -5,6 +5,7 @@ import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/states/ComponentState.dart';
 import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/widgets/components/ImageComponent.dart';
+import 'package:uninote/widgets/components/StrokeComponent.dart';
 import 'package:uninote/widgets/components/TextComponent.dart';
 
 import 'components/Component.dart';
@@ -69,9 +70,112 @@ class _PainterState extends State<Painter> {
             )));
         break;
       case EditorSubject.stroke:
-        // TODO: Handle this case.
+        StrokeComponentBloc bloc = StrokeComponentBloc(
+          ComponentState(
+            cursor,
+            double.infinity,
+            double.infinity,
+            content,
+            canMove,
+            data,
+          ),
+        );
+        list.add(BlocProvider<StrokeComponentBloc>(
+            create: (context) => bloc,
+            child: StrokeComponent(
+              bloc: bloc,
+            )));
         break;
       case EditorSubject.attachment:
+        // TODO: Handle this case.
+        break;
+    }
+  }
+
+  void onDragUpdate(DragUpdateDetails details, EditorState editorState) {
+    switch (editorState.mode) {
+      case EditorMode.selection:
+        // TODO: Handle this case.
+        break;
+      case EditorMode.insertion:
+        if (editorState.subject == EditorSubject.stroke) {
+          if (StrokeComponentBloc.editingBloc != null) {
+            StrokeComponentBloc.editingBloc.add({
+              "key": ComponentEvent.contentChanged,
+              "isEditing": true,
+              "newPoint": details.localPosition,
+            });
+          }
+        }
+        break;
+      case EditorMode.readOnly:
+        // TODO: Handle this case.
+        break;
+    }
+    setState(() {});
+  }
+
+  void onDragEnd(DragEndDetails details, EditorState editorState) {
+    switch (editorState.mode) {
+      case EditorMode.selection:
+        // TODO: Handle this case.
+        break;
+      case EditorMode.insertion:
+        if (editorState.subject == EditorSubject.stroke) {
+          StrokeComponentBloc.editingBloc.add({
+            "key": ComponentEvent.contentChanged,
+            "isEditing": false,
+          });
+        }
+        break;
+      case EditorMode.readOnly:
+        // TODO: Handle this case.
+        break;
+    }
+  }
+
+  void onTapDown(TapDownDetails details, EditorState editorState) {
+    cursor = details.localPosition;
+    switch (editorState.mode) {
+      case EditorMode.selection:
+        // TODO: Handle this case.
+        break;
+      case EditorMode.insertion:
+        if (editorState.subject == EditorSubject.stroke) {
+          addComponent(EditorSubject.stroke, cursor, {
+            "isEditing": true,
+            "points": [cursor]
+          });
+        }
+        if (StrokeComponentBloc.editingBloc != null) {
+          StrokeComponentBloc.editingBloc.add({
+            "key": ComponentEvent.contentChanged,
+            "isEditing": false,
+          });
+        }
+        break;
+      case EditorMode.readOnly:
+        // TODO: Handle this case.
+        break;
+    }
+    setState(() {});
+  }
+
+  void onDragStart(DragStartDetails details, EditorState editorState) {
+    cursor = details.localPosition;
+    switch (editorState.mode) {
+      case EditorMode.selection:
+        // TODO: Handle this case.
+        break;
+      case EditorMode.insertion:
+        if (editorState.subject == EditorSubject.stroke) {
+          addComponent(EditorSubject.stroke, cursor, {
+            "isEditing": true,
+            "points": [cursor]
+          });
+        }
+        break;
+      case EditorMode.readOnly:
         // TODO: Handle this case.
         break;
     }
@@ -133,6 +237,10 @@ class _PainterState extends State<Painter> {
             child: GestureDetector(
               onTapUp: (TapUpDetails details) =>
                   onTapUp(context, details, state),
+              onTapDown: (details) => onTapDown(details, state),
+              onPanStart: (details) => onDragStart(details, state),
+              onPanUpdate: (details) => onDragUpdate(details, state),
+              onPanEnd: (details) => onDragEnd(details, state),
               /*
             onTapUp: (TapUpDetails details) => editorBloc.add(EditorEventData(
                 EditorEvent.canvasPressed, details.localPosition)),
