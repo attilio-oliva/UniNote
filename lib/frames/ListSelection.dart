@@ -31,6 +31,7 @@ class ListSelection extends StatelessWidget {
     return BlocConsumer<ListBloc, ListState>(
       listener: (context, state) {
         if (state.swapToNoteEditor) {
+          FocusScope.of(context).unfocus();
           Navigator.push(
             context,
             MaterialPageRoute(

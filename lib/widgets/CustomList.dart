@@ -36,6 +36,7 @@ class _ReordableState extends State<CustomList> {
       case ListSubject.section:
         return Icons.insert_drive_file_sharp;
       case ListSubject.note:
+      default:
         return null;
     }
   }
@@ -90,7 +91,7 @@ class _ReordableState extends State<CustomList> {
                       'index': index,
                       'data': value
                     }),
-                    textInputAction: TextInputAction.search,
+                    textInputAction: TextInputAction.done,
                   ),
                 ),
                 child: Text(widget.items[index].title),

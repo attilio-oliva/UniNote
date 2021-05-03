@@ -7,6 +7,7 @@ import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/NotePainter.dart';
 import 'package:uninote/widgets/ToolBar.dart';
+import 'package:uninote/globals/colors.dart' as globals;
 
 enum AppBarButton {
   insert,
@@ -116,29 +117,43 @@ class _NoteEditorState extends State<NoteEditor> {
     EditorToolBar button = bloc.state.selectedToolbar;
     List<Widget> list = List<Widget>.empty(growable: true);
     if (button == EditorToolBar.insert) {
-      list.add(IconButton(
-        icon: Icon(Icons.text_fields),
-        onPressed: () => bloc.add({
-          "key": EditorEvent.toolButtonPressed,
-          "type": EditorTool.textInsert
-        }),
+      list.add(
+          //Related to issue https://github.com/flutter/flutter/issues/30658
+          Material(
+        color: globals.primaryColor,
+        child: IconButton(
+          icon: Icon(Icons.text_fields),
+          onPressed: () => bloc.add({
+            "key": EditorEvent.toolButtonPressed,
+            "type": EditorTool.textInsert
+          }),
+        ),
       ));
-      list.add(IconButton(
-        icon: Icon(Icons.image_sharp),
-        onPressed: () => bloc.add({
-          "key": EditorEvent.toolButtonPressed,
-          "type": EditorTool.imageInsert,
-        }),
+      list.add(Material(
+        color: globals.primaryColor,
+        child: IconButton(
+          icon: Icon(Icons.image_sharp),
+          onPressed: () => bloc.add({
+            "key": EditorEvent.toolButtonPressed,
+            "type": EditorTool.imageInsert,
+          }),
+        ),
       ));
     } else if (button == EditorToolBar.text) {
-      list.add(IconButton(
-        icon: Icon(Icons.pages_outlined),
-        onPressed: () {},
+      list.add(Material(
+        color: globals.primaryColor,
+        child: IconButton(
+          icon: Icon(Icons.pages_outlined),
+          onPressed: () {},
+        ),
       ));
     } else if (button == EditorToolBar.view) {
-      list.add(IconButton(
-        icon: Icon(Icons.coronavirus_outlined),
-        onPressed: () {},
+      list.add(Material(
+        color: globals.primaryColor,
+        child: IconButton(
+          icon: Icon(Icons.coronavirus_outlined),
+          onPressed: () {},
+        ),
       ));
     }
     return list;
@@ -265,6 +280,11 @@ class _NoteEditorState extends State<NoteEditor> {
           Visibility(
             visible: isListVisible,
             child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(),
+                ),
+              ),
               width: listWidth,
               height: maxHeight,
               child: Row(
@@ -279,12 +299,15 @@ class _NoteEditorState extends State<NoteEditor> {
                     behavior: HitTestBehavior.opaque,
                     onPanUpdate: (details) => onDragUpdate(details),
                     onPanEnd: (details) => onDragEnd(details),
-                    child: SizedBox(
+                    child: Container(
                       width: listDividerWidth,
                       height: maxHeight,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
+                          color: globals.primaryColor,
+                          border: Border(
+                            left: BorderSide(width: 0, style: BorderStyle.none),
+                          ),
                         ),
                       ),
                     ),
