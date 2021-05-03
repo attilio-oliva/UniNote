@@ -11,6 +11,7 @@ enum EditorTool {
   textSize,
   textColor,
   imageInsert,
+  strokeInsert,
 }
 
 class EditorEventData {
@@ -47,6 +48,11 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
             case EditorTool.imageInsert:
               state.mode = EditorMode.insertion;
               state.subject = EditorSubject.image;
+              break;
+            case EditorTool.strokeInsert:
+              state.mode = EditorMode.insertion;
+              state.subject = EditorSubject.stroke;
+              break;
           }
         }
         yield EditorState.from(state);

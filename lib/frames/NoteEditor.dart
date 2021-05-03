@@ -139,6 +139,13 @@ class _NoteEditorState extends State<NoteEditor> {
           }),
         ),
       ));
+      list.add(IconButton(
+        icon: Icon(Icons.format_paint_sharp),
+        onPressed: () => bloc.add({
+          "key": EditorEvent.toolButtonPressed,
+          "type": EditorTool.strokeInsert,
+        }),
+      ));
     } else if (button == EditorToolBar.text) {
       list.add(Material(
         color: globals.primaryColor,
