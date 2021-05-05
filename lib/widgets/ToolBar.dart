@@ -18,7 +18,6 @@ class _ToolBarState extends State<ToolBar> {
         color: primaryColor,
         border: Border(
           top: BorderSide(color: Colors.black, width: 1),
-          left: BorderSide(color: Colors.black, width: 1),
         ),
       ),
       height: 40,

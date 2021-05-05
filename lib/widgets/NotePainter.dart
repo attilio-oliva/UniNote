@@ -218,6 +218,11 @@ class _PainterState extends State<Painter> {
     }
   }
 
+  Color getBackgroundColor(BuildContext context, EditorState state) {
+    //setState(() {});
+    return Colors.pink;
+  }
+
   @override
   Widget build(BuildContext context) {
     final EditorBloc editorBloc = BlocProvider.of<EditorBloc>(context);
@@ -232,6 +237,7 @@ class _PainterState extends State<Painter> {
               : NeverScrollableScrollPhysics(),
           scrollDirection: Axis.horizontal,
           child: Container(
+            color: getBackgroundColor(context, state),
             height: 2000,
             width: 2000,
             child: GestureDetector(

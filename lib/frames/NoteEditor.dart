@@ -6,6 +6,7 @@ import 'package:uninote/frames/ListSelection.dart';
 import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/NotePainter.dart';
+import 'package:uninote/widgets/Palette.dart';
 import 'package:uninote/widgets/ToolBar.dart';
 import 'package:uninote/globals/colors.dart' as globals;
 
@@ -51,6 +52,7 @@ class _NoteEditorState extends State<NoteEditor> {
   bool isListVisible = false;
   bool shouldListBeVisible = false;
   bool isToolBarVisible = false;
+  bool isPaletteVisible = false;
 
   void updateSize() {
     setState(() {
@@ -165,6 +167,16 @@ class _NoteEditorState extends State<NoteEditor> {
           onPressed: () {},
         ),
       ));
+      list.add(Material(
+        color: globals.primaryColor,
+        child: IconButton(
+            icon: Icon(Icons.palette_outlined),
+            onPressed: () {
+              setState(() {
+                isPaletteVisible = !isPaletteVisible;
+              });
+            }),
+      ));
     }
     return list;
   }
@@ -270,79 +282,87 @@ class _NoteEditorState extends State<NoteEditor> {
             ],
           ),
           actions: [
-            PopupMenuButton(itemBuilder: (BuildContext context) {
-              return options.map((element) {
-                return PopupMenuItem(
-                  child: Text(element),
-                  value: element,
-                );
-              }).toList();
-            }
-                /*onSelected: () {
+            PopupMenuButton(
+              itemBuilder: (BuildContext context) {
+                return options.map((element) {
+                  return PopupMenuItem(
+                    child: Text(element),
+                    value: element,
+                  );
+                }).toList();
+              },
+              /*onSelected: () {
                 print(route);
 
                 Navigator.pushNamed(context, route);
               },*/
-                ),
+            ),
           ],
         ),
-        body: Row(children: [
-          Visibility(
-            visible: isListVisible,
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(),
-                ),
+        body: Column(
+          children: [
+            Visibility(
+              visible: state.toolBarVisibility,
+              child: ToolBar(
+                children: getToolBarContent(editorBloc),
               ),
-              width: listWidth,
-              height: maxHeight,
+            ),
+            Visibility(
+              visible: isPaletteVisible,
+              child: Palette(),
+            ),
+            Expanded(
               child: Row(
                 children: [
-                  Container(
-                    child: BlocProvider<ListBloc>(
-                        create: (context) => ListBloc(ListState()),
-                        child: ListSelection()),
-                    width: (listWidth - listDividerWidth),
-                  ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onPanUpdate: (details) => onDragUpdate(details),
-                    onPanEnd: (details) => onDragEnd(details),
+                  Visibility(
+                    visible: isListVisible,
                     child: Container(
-                      width: listDividerWidth,
-                      height: maxHeight,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: globals.primaryColor,
-                          border: Border(
-                            left: BorderSide(width: 0, style: BorderStyle.none),
-                          ),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(),
                         ),
                       ),
+                      width: listWidth,
+                      height: maxHeight,
+                      child: Row(
+                        children: [
+                          Container(
+                            child: BlocProvider<ListBloc>(
+                                create: (context) => ListBloc(ListState()),
+                                child: ListSelection()),
+                            width: (listWidth - listDividerWidth),
+                          ),
+                          GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onPanUpdate: (details) => onDragUpdate(details),
+                            onPanEnd: (details) => onDragEnd(details),
+                            child: Container(
+                              width: listDividerWidth,
+                              height: maxHeight,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: globals.primaryColor,
+                                  border: Border(
+                                    left: BorderSide(
+                                        width: 0, style: BorderStyle.none),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                  ),
+                  Container(
+                    width: (maxWidth - listWidth),
+                    child: Painter(),
                   ),
                 ],
               ),
             ),
-          ),
-          Container(
-            width: (maxWidth - listWidth),
-            child: Column(
-              children: [
-                Visibility(
-                  visible: state.toolBarVisibility,
-                  child: ToolBar(
-                    children: getToolBarContent(editorBloc),
-                  ),
-                ),
-                Expanded(
-                  child: Painter(),
-                ),
-              ],
-            ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }
