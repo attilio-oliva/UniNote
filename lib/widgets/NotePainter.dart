@@ -26,7 +26,7 @@ class _PainterState extends State<Painter> {
       [Map<String, dynamic> data = const {}]) {
     bool canMove = true;
     if (data.containsKey("isTitle")) {
-      canMove = !data["isTitle"] ?? true;
+      canMove = !data["isTitle"]!;
     }
     String content = "";
     switch (subject) {
@@ -99,13 +99,11 @@ class _PainterState extends State<Painter> {
         break;
       case EditorMode.insertion:
         if (editorState.subject == EditorSubject.stroke) {
-          if (StrokeComponentBloc.editingBloc != null) {
-            StrokeComponentBloc.editingBloc.add({
-              "key": ComponentEvent.contentChanged,
-              "isEditing": true,
-              "newPoint": details.localPosition,
-            });
-          }
+          StrokeComponentBloc.editingBloc?.add({
+            "key": ComponentEvent.contentChanged,
+            "isEditing": true,
+            "newPoint": details.localPosition,
+          });
         }
         break;
       case EditorMode.readOnly:
@@ -121,12 +119,10 @@ class _PainterState extends State<Painter> {
         // TODO: Handle this case.
         break;
       case EditorMode.insertion:
-        if (editorState.subject == EditorSubject.stroke) {
-          StrokeComponentBloc.editingBloc.add({
-            "key": ComponentEvent.contentChanged,
-            "isEditing": false,
-          });
-        }
+        StrokeComponentBloc.editingBloc?.add({
+          "key": ComponentEvent.contentChanged,
+          "isEditing": false,
+        });
         break;
       case EditorMode.readOnly:
         // TODO: Handle this case.
@@ -147,12 +143,10 @@ class _PainterState extends State<Painter> {
             "points": [cursor]
           });
         }
-        if (StrokeComponentBloc.editingBloc != null) {
-          StrokeComponentBloc.editingBloc.add({
-            "key": ComponentEvent.contentChanged,
-            "isEditing": false,
-          });
-        }
+        StrokeComponentBloc.editingBloc?.add({
+          "key": ComponentEvent.contentChanged,
+          "isEditing": false,
+        });
         break;
       case EditorMode.readOnly:
         // TODO: Handle this case.
@@ -185,12 +179,14 @@ class _PainterState extends State<Painter> {
       BuildContext context, TapUpDetails details, EditorState editorState) {
     if (!focusNode.hasFocus) {
       bool backgroundClicked = true;
-      for (BlocProvider<ComponentBloc> item in list) {
-        if (item.child is Component) {
-          Component component = item.child as Component;
-          if (component.hitTest(details.localPosition)) {
-            backgroundClicked = false;
-            break;
+      for (Widget item in list) {
+        if (item is BlocProvider<ComponentBloc>) {
+          if (item.child is Component) {
+            Component component = item.child as Component;
+            if (component.hitTest(details.localPosition)) {
+              backgroundClicked = false;
+              break;
+            }
           }
         }
       }

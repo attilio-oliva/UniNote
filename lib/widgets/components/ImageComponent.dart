@@ -8,6 +8,8 @@ import 'Component.dart';
 
 const double imageDefaultMaxWidth = 300;
 const double imageDefaultMaxHeight = 300;
+const double imageDefaultMinWidth = 100;
+const double imageDefaultMinHeight = 100;
 const Offset imageDefaultPosition = Offset(0, 0);
 const String imageDefaultLocation =
     "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Eilat_Dolphin_Reef_%283%29.jpg/500px-Eilat_Dolphin_Reef_%283%29.jpg";
@@ -23,7 +25,7 @@ class ImageComponent extends StatefulWidget with Component {
     this.width = imageDefaultMaxWidth,
     this.height = imageDefaultMaxWidth,
     this.location = imageDefaultLocation,
-    this.bloc,
+    required this.bloc,
   });
 
   State<ImageComponent> createState() =>
@@ -42,12 +44,12 @@ class ImageComponent extends StatefulWidget with Component {
 }
 
 class _ImageState extends State<ImageComponent> {
-  Offset position;
-  double maxWidth;
-  String location;
-  double width;
-  double height;
-  double maxHeigth;
+  late Offset position;
+  late double maxWidth;
+  late double maxHeigth;
+  late String location;
+  late double width;
+  late double height;
   bool isSelected = true;
 
   _ImageState(this.position, this.width, this.height, this.location);

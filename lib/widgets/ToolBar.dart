@@ -3,7 +3,7 @@ import 'package:uninote/globals/colors.dart';
 
 class ToolBar extends StatefulWidget {
   final List<Widget> children;
-  ToolBar({this.children});
+  ToolBar({this.children = const <Widget>[]});
   @override
   State<ToolBar> createState() => _ToolBarState();
 }

@@ -4,13 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:uninote/bloc/ComponentBloc.dart';
 import 'package:uninote/states/ComponentState.dart';
-import 'package:uninote/states/EditorState.dart';
 
 import 'Component.dart';
 
 class StrokeComponent extends StatefulWidget with Component {
   final StrokeComponentBloc bloc;
-  StrokeComponent({this.bloc});
+  StrokeComponent({required this.bloc});
   @override
   State<StatefulWidget> createState() => _StrokeState();
 
@@ -41,8 +40,8 @@ class _StrokeState extends State<StrokeComponent> {
 
 class _StrokePainter extends CustomPainter {
   final double pointThreshold = 0;
-  List<Offset> pointList;
-  Paint paintStyle;
+  List<Offset> pointList = [];
+  late Paint paintStyle;
   _StrokePainter(this.pointList) {
     paintStyle = Paint()
       ..style = PaintingStyle.stroke
@@ -56,8 +55,8 @@ class _StrokePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     //canvas.drawPoints(PointMode.polygon, pointList, paintStyle);
-    if (pointList?.length == 0) return;
-    if (pointList?.length == 1) {
+    if (pointList.length == 0) return;
+    if (pointList.length == 1) {
       canvas.drawPoints(PointMode.points, pointList, paintStyle);
       return;
     }

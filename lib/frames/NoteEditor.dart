@@ -25,27 +25,26 @@ extension appBarButtonExtension on AppBarButton {
       case AppBarButton.view:
         return 'view';
       default:
-        return null;
+        return '';
     }
   }
 }
 
 class NoteEditor extends StatefulWidget {
-  NoteEditor({Key key}) : super(key: key);
+  NoteEditor();
   @override
   _NoteEditorState createState() => _NoteEditorState();
 }
 
 class _NoteEditorState extends State<NoteEditor> {
-  AppBarButton lastPressedButton = null;
   List options = ['Settings1', 'Settings2', 'Settings3'];
-  double maxHeight;
-  double maxWidth;
-  double maxListWidth;
-  double minListWidth;
-  double hideTreshold;
-  double defaultListWidth;
-  double listWidth;
+  late double maxHeight;
+  late double maxWidth;
+  late double maxListWidth;
+  late double minListWidth;
+  late double hideTreshold;
+  late double defaultListWidth;
+  late double listWidth;
   double listDividerWidth = 10;
   bool isFirstBuild = true;
   bool isListVisible = false;
@@ -96,21 +95,6 @@ class _NoteEditorState extends State<NoteEditor> {
         listWidth = defaultListWidth;
       });
     }
-  }
-
-  void onPressedAppBarButton(AppBarButton button) {
-    if (button == lastPressedButton) {
-      isToolBarVisible = !isToolBarVisible;
-    } else if (lastPressedButton == null) {
-      isToolBarVisible = !isToolBarVisible;
-      lastPressedButton = button;
-    } else if (isToolBarVisible == false && lastPressedButton != button) {
-      isToolBarVisible = !isToolBarVisible;
-      lastPressedButton = button;
-    } else {
-      lastPressedButton = button;
-    }
-    setState(() {});
   }
 
   List<Widget> getToolBarContent(EditorBloc bloc) {

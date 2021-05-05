@@ -78,10 +78,10 @@ class TextComponentBloc extends ComponentBloc {
 
 class StrokeComponentBloc extends ComponentBloc {
   static List<Offset> editingStrokeData = [];
-  static StrokeComponentBloc editingBloc;
+  static StrokeComponentBloc? editingBloc;
   StrokeComponentBloc(ComponentState initialState) : super(initialState) {
     if (state.data["isEditing"] ?? false) {
-      if (state.data.containsKey("points") ?? false) {
+      if (state.data.containsKey("points")) {
         editingStrokeData = state.data["points"];
         editingBloc = this;
       }

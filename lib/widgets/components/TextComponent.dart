@@ -4,7 +4,6 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:katex_flutter/katex_flutter.dart';
 import 'package:uninote/bloc/ComponentBloc.dart';
-import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/states/ComponentState.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -18,14 +17,12 @@ class TextComponent extends StatefulWidget with Component {
   //Initial value parameters
   final double maxWidth;
   final String text;
-  final EditorBloc editorBloc;
   final TextComponentBloc bloc;
   TextComponent({
     position = defaultPosition,
     this.maxWidth = defaultMaxWidth,
     this.text = "",
-    this.editorBloc,
-    this.bloc,
+    required this.bloc,
   });
   @override
   State<TextComponent> createState() =>
@@ -44,14 +41,14 @@ class TextComponent extends StatefulWidget with Component {
 }
 
 class _TextState extends State<TextComponent> {
-  double maxWidth;
+  late double maxWidth;
   List<String> textModeList = ["md", "latex", "rich"];
   int textMode = 0;
-  TextEditingController _controller;
-  FocusNode _focusNode;
+  late TextEditingController _controller;
+  late FocusNode _focusNode;
   bool isEditorVisible = true;
 
-  _TextState({this.maxWidth, text}) {
+  _TextState({this.maxWidth = defaultMaxWidth, String text = ""}) {
     isEditorVisible = true;
     _controller = TextEditingController(text: text);
     _focusNode = FocusNode(
@@ -108,7 +105,7 @@ class _TextState extends State<TextComponent> {
       textWidget = Markdown(
         shrinkWrap: true,
         //selectable: true,
-        onTapLink: (text, href, title) => _launchURL(href),
+        onTapLink: (text, href, title) => _launchURL(href!),
         styleSheet: MarkdownStyleSheet(
           codeblockDecoration: BoxDecoration(
             color: Colors.deepPurple,

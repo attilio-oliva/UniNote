@@ -17,10 +17,10 @@ enum EditorToolBar {
 }
 
 class EditorState {
-  EditorMode mode;
-  EditorSubject subject;
-  EditorToolBar selectedToolbar;
-  bool toolBarVisibility;
+  EditorMode mode = EditorMode.insertion;
+  EditorSubject subject = EditorSubject.text;
+  EditorToolBar selectedToolbar = EditorToolBar.text;
+  bool toolBarVisibility = false;
   EditorState(this.mode, this.subject,
       [this.selectedToolbar = EditorToolBar.text,
       this.toolBarVisibility = false]);
@@ -31,7 +31,6 @@ class EditorState {
     toolBarVisibility = state.toolBarVisibility;
   }
   String toString() {
-    print(
-        "{Mode: $mode, Subject: $subject, SelectedToolbar: $selectedToolbar, toolbarVisibility: $toolBarVisibility\n");
+    return "{mode: $mode, subject: $subject, selectedToolbar: $selectedToolbar, toolbarVisibility: $toolBarVisibility\n";
   }
 }
