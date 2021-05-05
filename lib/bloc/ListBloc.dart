@@ -31,7 +31,7 @@ String _getHashedKey(String title) {
   return sha1.convert(plainText).toString();
 }
 
-int count(List<Item> list, String value, [int indexToSkip]) {
+int count(List<Item> list, String value, [int? indexToSkip]) {
   int length = 0;
   int n = list.length;
   indexToSkip = indexToSkip ?? n;
@@ -46,7 +46,7 @@ int count(List<Item> list, String value, [int indexToSkip]) {
 }
 
 //TODO: handle case max attempts are reached
-String getDuplicateId(List<Item> list, String value, [int indexToSkip]) {
+String getDuplicateId(List<Item> list, String value, [int? indexToSkip]) {
   int maxAttempts = 256;
   int id;
   String result = "";

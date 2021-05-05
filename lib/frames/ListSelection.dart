@@ -9,7 +9,7 @@ import 'package:uninote/widgets/CustomList.dart';
 import 'NoteEditor.dart';
 
 class ListSelection extends StatelessWidget {
-  ListSelection({Key key, this.title}) : super(key: key);
+  ListSelection({this.title = ""});
 
   final String title;
 
@@ -21,8 +21,9 @@ class ListSelection extends StatelessWidget {
         return state.selectedItem;
       case ListSubject.note:
         return state.selectedItem;
+      default:
+        return "Select ${state.subject.name}";
     }
-    return "Select ${state.subject.name}";
   }
 
   @override
@@ -53,7 +54,7 @@ class ListSelection extends StatelessWidget {
           title: Text(getAppBarTitle(state)),
           centerTitle: true,
         ),
-        body: CustomList(items: state.itemList),
+        body: CustomList(state.itemList),
         bottomNavigationBar: BottomAppBar(
           child: Row(children: [
             Expanded(

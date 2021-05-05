@@ -15,12 +15,13 @@ class ResizableWidget extends StatefulWidget {
   final double width;
   final Offset position;
   final ComponentBloc bloc;
-  ResizableWidget(
-      {this.child,
-      this.position = const Offset(0, 0),
-      this.width = 200,
-      this.height = 200,
-      this.bloc});
+  ResizableWidget({
+    required this.child,
+    required this.bloc,
+    this.position = const Offset(0, 0),
+    this.width = 200,
+    this.height = 200,
+  });
   @override
   _ResizableWidgetState createState() =>
       _ResizableWidgetState(position, width, height);
@@ -275,20 +276,17 @@ class _ResizableWidgetState extends State<ResizableWidget> {
 }
 
 class ManipulatingBall extends StatefulWidget {
-  ManipulatingBall({
-    Key key,
-    this.onDrag,
-  });
-
   final Function onDrag;
-
+  ManipulatingBall({
+    required this.onDrag,
+  });
   @override
   _ManipulatingBallState createState() => _ManipulatingBallState();
 }
 
 class _ManipulatingBallState extends State<ManipulatingBall> {
-  double initX;
-  double initY;
+  late double initX;
+  late double initY;
 
   _handleDrag(details) {
     setState(() {

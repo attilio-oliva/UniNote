@@ -12,32 +12,30 @@ extension ListSubjectExtension on ListSubject {
       case ListSubject.note:
         return 'note';
       default:
-        return "";
+        return '';
     }
   }
 }
 
 class ListState {
   ListSubject subject = ListSubject.notebook;
-  List<Item> itemList = List.empty(growable: true);
+  List<Item> itemList = [];
   String selectedItem = "";
-  int editingIndex;
+  int? editingIndex;
   String editingContent = "";
   bool swapToNoteEditor = false;
-  ListState([ListSubject subject, String selectedNote, List<Item> itemList]) {
-    this.subject = subject ?? this.subject;
-    this.itemList = itemList ?? this.itemList;
-    this.selectedItem = selectedNote ?? this.selectedItem;
-  }
+  ListState([
+    this.subject = ListSubject.notebook,
+    this.selectedItem = "",
+    this.itemList = const [],
+  ]);
   ListState.from(ListState state) {
-    this.subject = state?.subject;
-    this.itemList = state?.itemList;
-    this.selectedItem = state?.selectedItem;
+    this.subject = state.subject;
+    this.itemList = state.itemList;
+    this.selectedItem = state.selectedItem;
     this.editingIndex = state.editingIndex;
     this.editingContent = state.editingContent;
-    this.swapToNoteEditor = state?.swapToNoteEditor;
+    this.swapToNoteEditor = state.swapToNoteEditor;
   }
-  ListState.fromList(List<Item> itemList) {
-    this.itemList = itemList ?? this.itemList;
-  }
+  ListState.fromList(this.itemList);
 }

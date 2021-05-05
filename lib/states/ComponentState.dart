@@ -1,14 +1,12 @@
 import 'dart:ui';
-import 'dart:math' as math;
-import 'package:uninote/widgets/components/TextComponent.dart';
 
 const double minPosX = 10;
 const double minPosY = 10;
 
 class ComponentState {
-  Offset _position;
-  double width;
-  double height;
+  Offset _position = Offset(minPosX, minPosY);
+  double width = 100;
+  double height = 100;
   String content = "";
   Map<String, dynamic> data = {};
   bool canMove = true;
@@ -18,7 +16,7 @@ class ComponentState {
   }
 
   set position(Offset newPos) {
-    if (!canMove && position != null) return;
+    if (!canMove) return;
     double newX = newPos.dx;
     double newY = newPos.dy;
     if (minPosX > newPos.dx) {
@@ -31,7 +29,7 @@ class ComponentState {
   }
 
   ComponentState(position, this.width, this.height,
-      [this.content = "", this.canMove = true, this.data]) {
+      [this.content = "", this.canMove = true, this.data = const {}]) {
     this.position = position;
   }
   ComponentState.from(ComponentState state) {

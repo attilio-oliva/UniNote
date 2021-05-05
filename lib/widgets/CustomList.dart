@@ -5,9 +5,8 @@ import 'package:uninote/globals/types.dart';
 import 'package:uninote/states/ListState.dart';
 
 class CustomList extends StatefulWidget {
-  CustomList({Key key, this.items}) : super(key: key);
-
   final List<Item> items;
+  CustomList(this.items);
   @override
   State<StatefulWidget> createState() => _ReordableState();
 }
@@ -37,11 +36,11 @@ class _ReordableState extends State<CustomList> {
         return Icons.insert_drive_file_sharp;
       case ListSubject.note:
       default:
-        return null;
+        return Icons.error_outline;
     }
   }
 
-  bool isEditing(int editingIndex, int index) {
+  bool isEditing(int? editingIndex, int index) {
     if (editingIndex != null) {
       if (index == editingIndex) {
         return true;
