@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum EditorMode {
   selection,
   insertion,
@@ -21,6 +23,8 @@ class EditorState {
   EditorSubject subject = EditorSubject.text;
   EditorToolBar selectedToolbar = EditorToolBar.text;
   bool toolBarVisibility = false;
+  bool subToolBarVisibility = false;
+  Color backgroundColor = Colors.black;
   EditorState(this.mode, this.subject,
       [this.selectedToolbar = EditorToolBar.text,
       this.toolBarVisibility = false]);
@@ -29,6 +33,8 @@ class EditorState {
     subject = state.subject;
     selectedToolbar = state.selectedToolbar;
     toolBarVisibility = state.toolBarVisibility;
+    subToolBarVisibility = state.subToolBarVisibility;
+    backgroundColor = state.backgroundColor;
   }
   String toString() {
     return "{mode: $mode, subject: $subject, selectedToolbar: $selectedToolbar, toolbarVisibility: $toolBarVisibility\n";

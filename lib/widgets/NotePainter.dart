@@ -16,6 +16,7 @@ class Painter extends StatefulWidget {
 }
 
 class _PainterState extends State<Painter> {
+  Color backgroundColor = Colors.pink;
   Offset cursor = Offset(0, 0);
   List<Widget> list = [];
   FocusNode focusNode = FocusNode();
@@ -86,6 +87,9 @@ class _PainterState extends State<Painter> {
               bloc: bloc,
             )));
         break;
+      /*case EditorSubject.color:
+        backgroundColor = 
+        break;*/
       case EditorSubject.attachment:
         // TODO: Handle this case.
         break;
@@ -214,11 +218,6 @@ class _PainterState extends State<Painter> {
     }
   }
 
-  Color getBackgroundColor(BuildContext context, EditorState state) {
-    //setState(() {});
-    return Colors.pink;
-  }
-
   @override
   Widget build(BuildContext context) {
     final EditorBloc editorBloc = BlocProvider.of<EditorBloc>(context);
@@ -233,7 +232,7 @@ class _PainterState extends State<Painter> {
               : NeverScrollableScrollPhysics(),
           scrollDirection: Axis.horizontal,
           child: Container(
-            color: getBackgroundColor(context, state),
+            color: state.backgroundColor,
             height: 2000,
             width: 2000,
             child: GestureDetector(

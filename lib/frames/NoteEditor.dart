@@ -50,8 +50,6 @@ class _NoteEditorState extends State<NoteEditor> {
   bool isFirstBuild = true;
   bool isListVisible = false;
   bool shouldListBeVisible = false;
-  bool isToolBarVisible = false;
-  bool isPaletteVisible = false;
 
   void updateSize() {
     setState(() {
@@ -147,19 +145,24 @@ class _NoteEditorState extends State<NoteEditor> {
       list.add(Material(
         color: globals.primaryColor,
         child: IconButton(
-          icon: Icon(Icons.coronavirus_outlined),
-          onPressed: () {},
+          icon: Icon(Icons.palette_outlined),
+          onPressed: () => bloc.add({
+            "key": EditorEvent.toolButtonPressed,
+            "type": EditorTool.showBackgroundPalette,
+          }),
         ),
       ));
       list.add(Material(
         color: globals.primaryColor,
         child: IconButton(
-            icon: Icon(Icons.palette_outlined),
-            onPressed: () {
-              setState(() {
-                isPaletteVisible = !isPaletteVisible;
-              });
-            }),
+          icon: (bloc.state.mode == EditorMode.readOnly)
+              ? Icon(Icons.lock_sharp)
+              : Icon(Icons.lock_open),
+          onPressed: () => bloc.add({
+            "key": EditorEvent.toolButtonPressed,
+            "type": EditorTool.lockInsertion,
+          }),
+        ),
       ));
     }
     return list;
@@ -292,7 +295,7 @@ class _NoteEditorState extends State<NoteEditor> {
               ),
             ),
             Visibility(
-              visible: isPaletteVisible,
+              visible: state.subToolBarVisibility,
               child: Palette(),
             ),
             Expanded(

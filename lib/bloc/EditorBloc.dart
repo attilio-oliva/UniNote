@@ -12,12 +12,24 @@ enum EditorTool {
   textColor,
   imageInsert,
   strokeInsert,
+  lockInsertion,
+  showBackgroundPalette,
+  changedColor,
 }
 
 class EditorEventData {
   final EditorEvent key;
   final dynamic data;
   EditorEventData(this.key, [this.data]);
+}
+
+void subToolBar(EditorState state) {
+  if (state.toolBarVisibility == false) {
+    state.subToolBarVisibility = false;
+  } else if (state.toolBarVisibility == true &&
+      state.selectedToolbar != EditorToolBar.view) {
+    state.subToolBarVisibility = false;
+  }
 }
 
 class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
@@ -39,6 +51,7 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
         break;
       case EditorEvent.toolButtonPressed:
         if (event['type'] is EditorTool) {
+          state.subToolBarVisibility = false;
           switch (event['type']) {
             //TODO: implement all tools
             case EditorTool.textInsert:
@@ -53,6 +66,20 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
               state.mode = EditorMode.insertion;
               state.subject = EditorSubject.stroke;
               break;
+            case EditorTool.showBackgroundPalette:
+              state.subToolBarVisibility = !state.subToolBarVisibility;
+              break;
+            case EditorTool.changedColor:
+              state.backgroundColor = event["data"];
+              state.subToolBarVisibility = true;
+              break;
+            case EditorTool.lockInsertion:
+              if (state.mode == EditorMode.readOnly) {
+                state.mode = EditorMode.insertion;
+              } else {
+                state.mode = EditorMode.readOnly;
+              }
+              break;
           }
         }
         yield EditorState.from(state);
@@ -62,5 +89,6 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
         yield EditorState.from(state);
         break;
     }
+    subToolBar(state);
   }
 }

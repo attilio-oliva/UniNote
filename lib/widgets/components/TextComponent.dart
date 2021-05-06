@@ -146,6 +146,7 @@ class _TextState extends State<TextComponent> {
         cursorColor: Colors.white,
         style: TextStyle(color: Colors.white),
         decoration: InputDecoration(
+          counterText: "",
           border: OutlineInputBorder(
             borderRadius: BorderRadius.zero,
           ),
