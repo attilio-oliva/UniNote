@@ -15,11 +15,24 @@ extension ListSubjectExtension on ListSubject {
         return '';
     }
   }
+
+  int get depth {
+    switch (this) {
+      case ListSubject.notebook:
+        return 1;
+      case ListSubject.section:
+        return 2;
+      case ListSubject.note:
+        return 3;
+      default:
+        return 1;
+    }
+  }
 }
 
 class ListState {
   ListSubject subject = ListSubject.notebook;
-  List<Item> itemList = [];
+  List<Node<Item>> itemList = [];
   String selectedItem = "";
   int? editingIndex;
   String editingContent = "";
@@ -27,8 +40,12 @@ class ListState {
   ListState([
     this.subject = ListSubject.notebook,
     this.selectedItem = "",
-    this.itemList = const [],
-  ]);
+    List<Node<Item>>? list,
+  ]) {
+    if (list != null) {
+      itemList = list;
+    }
+  }
   ListState.from(ListState state) {
     this.subject = state.subject;
     this.itemList = state.itemList;

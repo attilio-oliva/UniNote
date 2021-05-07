@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/globals/types.dart';
 import 'package:uninote/states/ListState.dart';
@@ -31,13 +33,13 @@ String _getHashedKey(String title) {
   return sha1.convert(plainText).toString();
 }
 
-int count(List<Item> list, String value, [int? indexToSkip]) {
+int count(List<Node<Item>> list, String value, [int? indexToSkip]) {
   int length = 0;
   int n = list.length;
   indexToSkip = indexToSkip ?? n;
   for (int i = 0; i < n; i++) {
     if (i != indexToSkip) {
-      if (list[i].title == value) {
+      if (list[i].value!.title == value) {
         length++;
       }
     }
@@ -46,7 +48,7 @@ int count(List<Item> list, String value, [int? indexToSkip]) {
 }
 
 //TODO: handle case max attempts are reached
-String getDuplicateId(List<Item> list, String value, [int? indexToSkip]) {
+String getDuplicateId(List<Node<Item>> list, String value, [int? indexToSkip]) {
   int maxAttempts = 256;
   int id;
   String result = "";
@@ -64,7 +66,12 @@ String getDuplicateId(List<Item> list, String value, [int? indexToSkip]) {
 }
 
 class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
-  ListBloc(ListState initialState) : super(initialState);
+  Tree<Item> fileSystem = Tree<Item>();
+  late Node<Item> selectedNode;
+  ListBloc(ListState initialState) : super(initialState) {
+    selectedNode = fileSystem.root;
+    state.itemList = selectedNode.children;
+  }
 
   //TODO: use a list of presets instead
   int getRandomColour() {
@@ -76,13 +83,21 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
     switch (event['key']) {
       case ListEvent.itemSelected:
         if (state.subject == ListSubject.notebook) {
-          yield ListState(ListSubject.section, event['data']);
+          state.subject = ListSubject.section;
         } else if (state.subject == ListSubject.section) {
-          yield ListState(ListSubject.note, event['data']);
+          state.subject = ListSubject.note;
         } else if (state.subject == ListSubject.note) {
           state.swapToNoteEditor = true;
-          yield ListState.from(state);
         }
+        selectedNode = selectedNode.children
+            .firstWhere((element) => element.value?.title == event['data']);
+        state.selectedItem = event['data'];
+        if (state.subject == ListSubject.note) {
+          state.itemList = fileSystem.preOrder(selectedNode);
+        } else {
+          state.itemList = selectedNode.children;
+        }
+        yield ListState.from(state);
         break;
       case ListEvent.itemAdded:
         String defaultName = defaultNoteBookName;
@@ -95,7 +110,17 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
             defaultName + getDuplicateId(state.itemList, defaultName),
             getRandomColour(),
             defaultKey);
-        state.itemList.add(newItem);
+        fileSystem.addChild(selectedNode, newItem);
+
+        if (state.subject == ListSubject.note) {
+          /* Use to test groups
+          fileSystem.addChild(
+              selectedNode.children[0],
+              Item(newItem.title, newItem.colorValue,
+                  _getHashedKey(newItem.title + 'A')));
+                  */
+          state.itemList = fileSystem.preOrder(selectedNode);
+        }
         state.editingIndex = state.itemList.length - 1;
         yield ListState.from(state);
         break;
@@ -109,13 +134,13 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
         int index = event['index'];
         String title = event['data'];
         if (title != "") {
-          state.itemList[index].title =
+          state.itemList[index].value!.title =
               title + getDuplicateId(state.itemList, title, index);
         }
         state.editingIndex = null;
         state.editingContent = "";
-        if (state.itemList[index].key == defaultKey) {
-          state.itemList[index].key = _getHashedKey(title);
+        if (state.itemList[index].value!.key == defaultKey) {
+          state.itemList[index].value!.key = _getHashedKey(title);
         }
         yield ListState.from(state);
         break;

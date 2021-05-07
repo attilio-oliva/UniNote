@@ -5,7 +5,7 @@ import 'package:uninote/globals/types.dart';
 import 'package:uninote/states/ListState.dart';
 
 class CustomList extends StatefulWidget {
-  final List<Item> items;
+  final List<Node<Item>> items;
   CustomList(this.items);
   @override
   State<StatefulWidget> createState() => _ReordableState();
@@ -28,15 +28,23 @@ class _ReordableState extends State<CustomList> {
     });
   }
 
-  IconData getIconData(ListSubject subject) {
+  IconData? getIconData(ListSubject subject, Node<Item> nodeItem) {
     switch (subject) {
       case ListSubject.notebook:
         return Icons.book;
       case ListSubject.section:
         return Icons.insert_drive_file_sharp;
       case ListSubject.note:
+        if (nodeItem.children.length > 0) {
+          return Icons.folder;
+        }
+        if (ListSubject.note.depth + 1 == nodeItem.degree) {
+          return Icons.subdirectory_arrow_right;
+        } else {
+          return null;
+        }
       default:
-        return Icons.error_outline;
+        return null;
     }
   }
 
@@ -74,7 +82,7 @@ class _ReordableState extends State<CustomList> {
             return ListTile(
               contentPadding: EdgeInsets.fromLTRB(0, 0, 8, 0),
               minLeadingWidth: 0,
-              key: ValueKey(widget.items[index].key),
+              key: ValueKey(widget.items[index].value!.key),
               title: Visibility(
                 visible: !isEditing(state.editingIndex, index),
                 replacement: Container(
@@ -93,7 +101,7 @@ class _ReordableState extends State<CustomList> {
                     textInputAction: TextInputAction.done,
                   ),
                 ),
-                child: Text(widget.items[index].title),
+                child: Text(widget.items[index].value!.title),
               ),
               leading: Visibility(
                 visible: state.subject != ListSubject.section,
@@ -102,17 +110,18 @@ class _ReordableState extends State<CustomList> {
                   width: 10,
                   height: 48,
                   decoration: BoxDecoration(
-                      color:
-                          Color(widget.items[index].colorValue).withOpacity(1)),
+                      color: Color(widget.items[index].value!.colorValue)
+                          .withOpacity(1)),
                 ),
                 child: Icon(
-                  getIconData(state.subject),
-                  color: Color(widget.items[index].colorValue).withOpacity(1),
+                  getIconData(state.subject, widget.items[index]),
+                  color: Color(widget.items[index].value!.colorValue)
+                      .withOpacity(1),
                 ),
               ),
               onTap: () => listBloc.add({
                 'key': ListEvent.itemSelected,
-                'data': widget.items[index].title
+                'data': widget.items[index].value!.title
               }),
             );
           },

@@ -60,11 +60,9 @@ class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
 class TextComponentBloc extends ComponentBloc {
   final double maxWidthTitle = 400;
   TextComponentBloc(ComponentState initialState) : super(initialState) {
-    if (state.data != null) {
-      if (state.data.containsKey("isTitle")) {
-        if (state.data["isTitle"] ?? false) {
-          state.width = maxWidthTitle;
-        }
+    if (state.data.containsKey("isTitle")) {
+      if (state.data["isTitle"] ?? false) {
+        state.width = maxWidthTitle;
       }
     }
   }
