@@ -51,6 +51,7 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
         break;
       case EditorEvent.toolButtonPressed:
         if (event['type'] is EditorTool) {
+          bool prevSubToolBarVisible = state.subToolBarVisibility;
           state.subToolBarVisibility = false;
           switch (event['type']) {
             //TODO: implement all tools
@@ -67,7 +68,7 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
               state.subject = EditorSubject.stroke;
               break;
             case EditorTool.showBackgroundPalette:
-              state.subToolBarVisibility = !state.subToolBarVisibility;
+              state.subToolBarVisibility = !prevSubToolBarVisible;
               break;
             case EditorTool.changedColor:
               state.backgroundColor = event["data"];

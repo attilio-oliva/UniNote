@@ -35,7 +35,7 @@ class _ReordableState extends State<CustomList> {
       case ListSubject.section:
         return Icons.insert_drive_file_sharp;
       case ListSubject.note:
-        if (nodeItem.children.length > 0) {
+        if (nodeItem.value!.isGroup) {
           return Icons.folder;
         }
         if (ListSubject.note.depth + 1 == nodeItem.degree) {
@@ -121,7 +121,7 @@ class _ReordableState extends State<CustomList> {
               ),
               onTap: () => listBloc.add({
                 'key': ListEvent.itemSelected,
-                'data': widget.items[index].value!.title
+                'index': index,
               }),
             );
           },

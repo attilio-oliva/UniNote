@@ -79,7 +79,17 @@ class ListSelection extends StatelessWidget {
                 child: IconButton(
                     color: globalColors.bottomButtonColor,
                     icon: Icon(Icons.add_circle),
-                    onPressed: () {}),
+                    onPressed: () {
+                      if (state.editingIndex != null) {
+                        listBloc.add({
+                          'key': ListEvent.editRequested,
+                          'data': state.editingContent,
+                          'index': state.editingIndex
+                        });
+                      } else {
+                        listBloc.add({'key': ListEvent.groupAdded});
+                      }
+                    }),
               ),
             ),
             Expanded(

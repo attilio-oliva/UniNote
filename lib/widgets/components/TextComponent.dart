@@ -99,14 +99,16 @@ class _TextState extends State<TextComponent> {
   void _launchURL(String url) async =>
       await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
 
-  Widget textWidget() {
+  Widget textWidget(ComponentState state) {
     Widget textWidget;
     if (textModeList[textMode] == "md") {
       textWidget = Markdown(
         shrinkWrap: true,
+        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 13),
         //selectable: true,
         onTapLink: (text, href, title) => _launchURL(href!),
         styleSheet: MarkdownStyleSheet(
+          p: TextStyle(fontSize: 16),
           codeblockDecoration: BoxDecoration(
             color: Colors.deepPurple,
             //border: Border.all(width: 4, color: Colors.white),
@@ -152,11 +154,11 @@ class _TextState extends State<TextComponent> {
           ),
           hintStyle: TextStyle(color: Colors.grey.shade400),
           hintText: "Insert title",
-          focusedBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(
-              width: 4,
-              color: Colors.white,
-            ),
+          isDense: true,
+          contentPadding: EdgeInsets.symmetric(horizontal: 5, vertical: 17),
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.zero,
+            borderSide: const BorderSide(color: Colors.transparent),
           ),
           enabledBorder: const OutlineInputBorder(
             borderRadius: BorderRadius.zero,
@@ -203,30 +205,43 @@ class _TextState extends State<TextComponent> {
             "key": ComponentEvent.moved,
             "data": details.delta,
           }),
-          child: Visibility(
-              visible: isEditorVisible,
-              child: SizedBox(
-                width: state.width,
-                child: Column(
-                  children: [
-                    Visibility(
-                      visible: state.canMove,
-                      child: SizedBox(
-                        width: state.width,
-                        height: topFieldBarHeight,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(color: Colors.white),
-                        ),
+          child: Container(
+            padding: EdgeInsets.zero,
+            decoration: (state.data["isTitle"] ?? false)
+                ? BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        width: 4,
+                        color: Colors.white,
                       ),
                     ),
-                    textFieldWidget(state),
-                  ],
+                  )
+                : null,
+            child: Visibility(
+                visible: isEditorVisible,
+                child: SizedBox(
+                  width: state.width,
+                  child: Column(
+                    children: [
+                      Visibility(
+                        visible: state.canMove,
+                        child: SizedBox(
+                          width: state.width,
+                          height: topFieldBarHeight,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      textFieldWidget(state),
+                    ],
+                  ),
                 ),
-              ),
-              replacement: GestureDetector(
-                onTapUp: (details) => switchToEditor(),
-                child: textWidget(),
-              )),
+                replacement: GestureDetector(
+                  onTapUp: (details) => switchToEditor(),
+                  child: textWidget(state),
+                )),
+          ),
         ),
       ),
     );

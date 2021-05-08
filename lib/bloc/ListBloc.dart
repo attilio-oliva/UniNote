@@ -11,10 +11,12 @@ final String defaultKey = 0xFFFFFF.toString();
 const defaultNoteBookName = "Notebook";
 const defaultSectionName = "Section";
 const defaultNoteName = "Note";
+const defaultGroupName = "Group";
 
 enum ListEvent {
   itemSelected,
   itemAdded,
+  groupAdded,
   editUpdate,
   editRequested,
   importRemoteResource,
@@ -82,16 +84,27 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
   Stream<ListState> mapEventToState(Map<String, dynamic> event) async* {
     switch (event['key']) {
       case ListEvent.itemSelected:
+        if (event['index'] != null) {
+          selectedNode = selectedNode.children[event['index']];
+        } else if (event['data'] != null) {
+          selectedNode = selectedNode.children
+              .firstWhere((element) => element.value?.title == event['data']);
+        }
+        state.selectedItem = selectedNode.value!.title;
+
         if (state.subject == ListSubject.notebook) {
           state.subject = ListSubject.section;
         } else if (state.subject == ListSubject.section) {
           state.subject = ListSubject.note;
         } else if (state.subject == ListSubject.note) {
-          state.swapToNoteEditor = true;
+          if (selectedNode.value!.isGroup) {
+            selectedNode.areChildrenVisible = !selectedNode.areChildrenVisible;
+            selectedNode = selectedNode.parent!;
+          } else {
+            state.swapToNoteEditor = true;
+          }
         }
-        selectedNode = selectedNode.children
-            .firstWhere((element) => element.value?.title == event['data']);
-        state.selectedItem = event['data'];
+
         if (state.subject == ListSubject.note) {
           state.itemList = fileSystem.preOrder(selectedNode);
         } else {
@@ -100,27 +113,37 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
         yield ListState.from(state);
         break;
       case ListEvent.itemAdded:
+      case ListEvent.groupAdded:
+        bool isGroupAdded = (event['key'] == ListEvent.groupAdded);
         String defaultName = defaultNoteBookName;
         if (state.subject == ListSubject.section) {
           defaultName = defaultSectionName;
+        } else if (isGroupAdded) {
+          defaultName = defaultGroupName;
         } else if (state.subject == ListSubject.note) {
           defaultName = defaultNoteName;
         }
-        Item newItem = Item(
+        if (!isGroupAdded) {
+          Item newItem = Item(
             defaultName + getDuplicateId(state.itemList, defaultName),
             getRandomColour(),
-            defaultKey);
-        fileSystem.addChild(selectedNode, newItem);
-
-        if (state.subject == ListSubject.note) {
-          /* Use to test groups
-          fileSystem.addChild(
-              selectedNode.children[0],
-              Item(newItem.title, newItem.colorValue,
-                  _getHashedKey(newItem.title + 'A')));
-                  */
-          state.itemList = fileSystem.preOrder(selectedNode);
+            defaultKey,
+            isGroupAdded,
+          );
+          fileSystem.addChild(selectedNode, newItem);
+        } else {
+          String title =
+              defaultName + getDuplicateId(state.itemList, defaultName);
+          Item newItem = Item(
+            title,
+            getRandomColour(),
+            _getHashedKey(title),
+            isGroupAdded,
+          );
+          fileSystem.addChild(fileSystem.addChild(selectedNode, newItem),
+              Item(defaultNoteName, newItem.colorValue, defaultKey));
         }
+        state.itemList = fileSystem.preOrder(selectedNode);
         state.editingIndex = state.itemList.length - 1;
         yield ListState.from(state);
         break;

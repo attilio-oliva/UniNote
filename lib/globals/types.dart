@@ -3,15 +3,18 @@ import 'dart:core';
 import 'dart:core' as core;
 
 class Item {
-  Item(this.title, this.colorValue, this.key);
   String title;
   String key;
   int colorValue;
+  bool isGroup;
+  Item(this.title, this.colorValue, this.key, [this.isGroup = false]);
 
+  @override
   String toString() {
     String result = "";
     result += "{Title: $title";
     result += ", color: $colorValue";
+    result += ", isGroup: $isGroup";
     result += ", key: $key";
     result += "}";
     return result;
@@ -22,10 +25,28 @@ class Node<E> {
   late E? value;
   //intensive usage of nodes' degree, to speedup lookups we save this information
   late int degree;
-  List<Node<E>> children = [];
+  bool areChildrenVisible = true;
+  List<Node<E>> _children = [];
   Node<E>? parent;
+
+  set children(List<Node<E>> childrenList) {
+    _children = childrenList;
+  }
+
+  List<Node<E>> get allChildren {
+    return _children;
+  }
+
+  List<Node<E>> get children {
+    if (areChildrenVisible) {
+      return _children;
+    } else {
+      return [];
+    }
+  }
+
   Node(this.degree, this.value, this.parent, [List<Node<E>>? children]) {
-    this.children = children ?? [];
+    _children = children ?? [];
   }
   Node.root() {
     degree = 0;
@@ -76,7 +97,8 @@ class Tree<E> {
     _size--;
   }
 
-  List<Node<E>> preOrder(Node<E> parentNode, [bool parentInclusion = false]) {
+  List<Node<E>> preOrder(Node<E> parentNode,
+      [bool parentInclusion = false, bool showHiddenChildren = false]) {
     List<Node<E>> list = [];
 
     ListQueue<Node<E>> stack = ListQueue<Node<E>>();
@@ -84,11 +106,13 @@ class Tree<E> {
 
     while (stack.isNotEmpty) {
       Node<E> top = stack.removeLast();
-      for (Node<E> child in top.children.reversed) {
+      for (Node<E> child in top.allChildren.reversed) {
         stack.addLast(child);
       }
       if (top != parentNode && !parentInclusion) {
-        list.add(top);
+        if (top.parent!.areChildrenVisible || showHiddenChildren) {
+          list.add(top);
+        }
       }
     }
     return list;
@@ -97,7 +121,7 @@ class Tree<E> {
   String toString() {
     String separator = "-" * 40;
     String result = separator + "\n";
-    preOrder(root).forEach((element) {
+    preOrder(root, false, true).forEach((element) {
       result += '|' * element.degree;
       result += ' ' + element.value.toString();
       result += '\n';
