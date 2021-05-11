@@ -85,7 +85,7 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
     switch (event['key']) {
       case ListEvent.itemSelected:
         if (event['index'] != null) {
-          selectedNode = selectedNode.children[event['index']];
+          selectedNode = state.itemList[event['index']];
         } else if (event['data'] != null) {
           selectedNode = selectedNode.children
               .firstWhere((element) => element.value?.title == event['data']);
@@ -105,7 +105,7 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
           }
         }
 
-        if (state.subject == ListSubject.note) {
+        if (state.subject == ListSubject.note && !state.swapToNoteEditor) {
           state.itemList = fileSystem.preOrder(selectedNode);
         } else {
           state.itemList = selectedNode.children;
