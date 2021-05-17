@@ -148,7 +148,7 @@ class _NoteEditorState extends State<NoteEditor> {
           icon: Icon(Icons.palette_outlined),
           onPressed: () => bloc.add({
             "key": EditorEvent.toolButtonPressed,
-            "type": EditorTool.showBackgroundPalette,
+            "type": EditorTool.backgroundPalette,
           }),
         ),
       ));
@@ -161,6 +161,16 @@ class _NoteEditorState extends State<NoteEditor> {
           onPressed: () => bloc.add({
             "key": EditorEvent.toolButtonPressed,
             "type": EditorTool.lockInsertion,
+          }),
+        ),
+      ));
+      list.add(Material(
+        color: globals.primaryColor,
+        child: IconButton(
+          icon: Icon(Icons.grid_on_sharp),
+          onPressed: () => bloc.add({
+            "key": EditorEvent.toolButtonPressed,
+            "type": EditorTool.grid,
           }),
         ),
       ));

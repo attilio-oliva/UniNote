@@ -112,6 +112,26 @@ class _PaletteState extends State<Palette> {
                 ),
               ),
             ),
+            InkWell(
+              onTap: () {
+                editorBloc.add(
+                  {
+                    "key": EditorEvent.toolButtonPressed,
+                    "type": EditorTool.changedColor,
+                    "data": Colors.white,
+                  },
+                );
+              },
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(width: 1, color: Colors.black),
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -7,6 +7,7 @@ import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/widgets/components/ImageComponent.dart';
 import 'package:uninote/widgets/components/StrokeComponent.dart';
 import 'package:uninote/widgets/components/TextComponent.dart';
+import 'package:uninote/widgets/CustomGrid.dart';
 
 import 'components/Component.dart';
 
@@ -218,6 +219,24 @@ class _PainterState extends State<Painter> {
     }
   }
 
+  List<Widget> background(List<Widget> list, EditorState state) {
+    List<Widget> result = List<Widget>.from(list);
+    result.insert(
+      0,
+      CustomGrid(
+        color: state.theme["gridColor"] ?? Colors.white,
+        interval: 25,
+        divisions: 1,
+        subdivisions: 1,
+        child: Container(
+          height: 2000,
+          width: 2000,
+        ),
+      ),
+    );
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     final EditorBloc editorBloc = BlocProvider.of<EditorBloc>(context);
@@ -232,7 +251,7 @@ class _PainterState extends State<Painter> {
               : NeverScrollableScrollPhysics(),
           scrollDirection: Axis.horizontal,
           child: Container(
-            color: state.backgroundColor,
+            color: state.theme["backgroundColor"] ?? Colors.black,
             height: 2000,
             width: 2000,
             child: GestureDetector(
@@ -243,12 +262,12 @@ class _PainterState extends State<Painter> {
               onPanUpdate: (details) => onDragUpdate(details, state),
               onPanEnd: (details) => onDragEnd(details, state),
               /*
-            onTapUp: (TapUpDetails details) => editorBloc.add(EditorEventData(
-                EditorEvent.canvasPressed, details.localPosition)),
-            */
+              onTapUp: (TapUpDetails details) => editorBloc.add(EditorEventData(
+                  EditorEvent.canvasPressed, details.localPosition)),
+              */
               behavior: HitTestBehavior.translucent,
               child: Stack(
-                children: list,
+                children: background(list, state),
               ),
             ),
           ),

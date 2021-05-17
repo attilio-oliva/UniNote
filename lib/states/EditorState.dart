@@ -24,7 +24,10 @@ class EditorState {
   EditorToolBar selectedToolbar = EditorToolBar.text;
   bool toolBarVisibility = false;
   bool subToolBarVisibility = false;
-  Color backgroundColor = Colors.black;
+  Map<String, Color> theme = {
+    "backgroundColor": Colors.black,
+    "gridColor": Colors.white,
+  };
   EditorState(this.mode, this.subject,
       [this.selectedToolbar = EditorToolBar.text,
       this.toolBarVisibility = false]);
@@ -34,7 +37,7 @@ class EditorState {
     selectedToolbar = state.selectedToolbar;
     toolBarVisibility = state.toolBarVisibility;
     subToolBarVisibility = state.subToolBarVisibility;
-    backgroundColor = state.backgroundColor;
+    theme = state.theme;
   }
   String toString() {
     return "{mode: $mode, subject: $subject, selectedToolbar: $selectedToolbar, toolbarVisibility: $toolBarVisibility\n";
