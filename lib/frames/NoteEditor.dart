@@ -47,6 +47,7 @@ class _NoteEditorState extends State<NoteEditor> {
   late double defaultListWidth;
   late double listWidth;
   double listDividerWidth = 10;
+  double subToolBarHeight = 30;
   bool isFirstBuild = true;
   bool isListVisible = false;
   bool shouldListBeVisible = false;
@@ -174,6 +175,61 @@ class _NoteEditorState extends State<NoteEditor> {
           }),
         ),
       ));
+    }
+    return list;
+  }
+
+  List<Widget> getSubToolBarContent(EditorBloc bloc) {
+    List<Widget> list = List<Widget>.empty(growable: true);
+    if (bloc.state.paletteVisibility) {
+      list.add(Palette());
+    }
+    if (bloc.state.gridModifierVisibility) {
+      list.add(
+        Container(
+          height: subToolBarHeight,
+          decoration: BoxDecoration(
+            color: globals.primaryColor,
+            border: Border(
+              right: BorderSide(color: Colors.black),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                child: IconButton(
+                  padding: EdgeInsets.all(0),
+                  icon: Icon(Icons.crop_square_sharp, size: 20),
+                  onPressed: () {
+                    bloc.add(
+                      {
+                        "key": EditorEvent.toolButtonPressed,
+                        "type": EditorTool.changedGridSize,
+                        "data": 40,
+                      },
+                    );
+                  },
+                ),
+              ),
+              Container(
+                child: IconButton(
+                  padding: EdgeInsets.all(0),
+                  icon: Icon(Icons.crop_square_sharp, size: 15),
+                  onPressed: () {
+                    bloc.add(
+                      {
+                        "key": EditorEvent.toolButtonPressed,
+                        "type": EditorTool.changedGridSize,
+                        "data": 25,
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
     return list;
   }
@@ -306,7 +362,21 @@ class _NoteEditorState extends State<NoteEditor> {
             ),
             Visibility(
               visible: state.subToolBarVisibility,
-              child: Palette(),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: globals.primaryColor,
+                  border: Border(
+                    top: BorderSide(color: Colors.black),
+                  ),
+                ),
+                padding: EdgeInsets.all(0),
+                alignment: Alignment.centerLeft,
+                width: MediaQuery.of(context).size.width,
+                height: subToolBarHeight,
+                child: Row(
+                  children: getSubToolBarContent(editorBloc),
+                ),
+              ),
             ),
             Expanded(
               child: Row(

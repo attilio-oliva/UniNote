@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uninote/bloc/EditorBloc.dart';
+import 'package:uninote/states/EditorState.dart';
 
 class _GridPaperPainter extends CustomPainter {
   const _GridPaperPainter({
@@ -43,7 +46,7 @@ class CustomGrid extends StatelessWidget {
   const CustomGrid({
     Key? key,
     this.color = Colors.white,
-    this.interval = 100.0,
+    this.interval = 100,
     this.divisions = 2,
     this.subdivisions = 5,
     this.child,

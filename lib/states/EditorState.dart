@@ -24,9 +24,12 @@ class EditorState {
   EditorToolBar selectedToolbar = EditorToolBar.text;
   bool toolBarVisibility = false;
   bool subToolBarVisibility = false;
-  Map<String, Color> theme = {
+  bool paletteVisibility = false;
+  bool gridModifierVisibility = false;
+  Map<String, dynamic> theme = {
     "backgroundColor": Colors.black,
     "gridColor": Colors.white,
+    "gridSize": 25,
   };
   EditorState(this.mode, this.subject,
       [this.selectedToolbar = EditorToolBar.text,
@@ -37,6 +40,8 @@ class EditorState {
     selectedToolbar = state.selectedToolbar;
     toolBarVisibility = state.toolBarVisibility;
     subToolBarVisibility = state.subToolBarVisibility;
+    paletteVisibility = state.paletteVisibility;
+    gridModifierVisibility = state.gridModifierVisibility;
     theme = state.theme;
   }
   String toString() {

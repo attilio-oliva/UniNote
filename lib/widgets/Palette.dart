@@ -21,12 +21,12 @@ class _PaletteState extends State<Palette> {
       builder: (context, state) => Container(
         padding: EdgeInsets.only(left: 5),
         alignment: Alignment.centerLeft,
-        width: MediaQuery.of(context).size.width,
+        width: 110,
         height: 30,
         decoration: BoxDecoration(
           color: globals.primaryColor,
           border: Border(
-            top: BorderSide(color: Colors.black),
+            right: BorderSide(color: Colors.black),
           ),
         ),
         child: Row(

@@ -16,6 +16,7 @@ enum EditorTool {
   backgroundPalette,
   grid,
   changedColor,
+  changedGridSize,
 }
 
 extension editorToolExtension on EditorTool {
@@ -67,6 +68,9 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
           EditorTool pressedTool = event['type'];
           bool prevSubToolBarVisible = state.subToolBarVisibility;
           state.subToolBarVisibility = false;
+          state.paletteVisibility = false;
+          state.gridModifierVisibility = false;
+          print(event['type']);
           switch (event['type']) {
             //TODO: implement all tools
             case EditorTool.textInsert:
@@ -86,6 +90,7 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
                 state.subToolBarVisibility = !prevSubToolBarVisible;
               } else {
                 state.subToolBarVisibility = true;
+                state.paletteVisibility = true;
               }
               break;
             case EditorTool.grid:
@@ -94,14 +99,25 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
               } else {
                 state.subToolBarVisibility = true;
               }
+              state.paletteVisibility = true;
+              state.gridModifierVisibility = true;
+              break;
+            case EditorTool.changedGridSize:
+              state.theme["gridSize"] = event["data"];
+              state.subToolBarVisibility = true;
+              state.paletteVisibility = true;
+              state.gridModifierVisibility = true;
               break;
             case EditorTool.changedColor:
               if (lastPressedTool == EditorTool.backgroundPalette) {
                 state.theme["backgroundColor"] = event["data"];
-              } else if (lastPressedTool == EditorTool.grid) {
+              } else if (lastPressedTool == EditorTool.grid ||
+                  lastPressedTool == EditorTool.changedGridSize) {
                 state.theme["gridColor"] = event["data"];
+                state.gridModifierVisibility = true;
               }
               state.subToolBarVisibility = true;
+              state.paletteVisibility = true;
               break;
             case EditorTool.lockInsertion:
               if (state.mode == EditorMode.readOnly) {

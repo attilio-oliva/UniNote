@@ -225,7 +225,7 @@ class _PainterState extends State<Painter> {
       0,
       CustomGrid(
         color: state.theme["gridColor"] ?? Colors.white,
-        interval: 25,
+        interval: state.theme["gridSize"],
         divisions: 1,
         subdivisions: 1,
         child: Container(
