@@ -29,7 +29,7 @@ class EditorState {
   Map<String, dynamic> theme = {
     "backgroundColor": Colors.black,
     "gridColor": Colors.white,
-    "gridSize": 25,
+    "gridSize": 25.0,
   };
   EditorState(this.mode, this.subject,
       [this.selectedToolbar = EditorToolBar.text,

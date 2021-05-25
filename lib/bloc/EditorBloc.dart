@@ -70,7 +70,6 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
           state.subToolBarVisibility = false;
           state.paletteVisibility = false;
           state.gridModifierVisibility = false;
-          print(event['type']);
           switch (event['type']) {
             //TODO: implement all tools
             case EditorTool.textInsert:
