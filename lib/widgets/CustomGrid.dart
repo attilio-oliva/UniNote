@@ -18,14 +18,15 @@ class _GridPaperPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint linePaint = Paint()..color = color;
+    final Paint linePaint = Paint()
+      ..color = color
+      ..strokeWidth = 0.4;
+
     final double allDivisions = (divisions * subdivisions).toDouble();
     for (double x = 0.0; x <= size.width; x += interval / allDivisions) {
-      linePaint.strokeWidth = 0.5;
       canvas.drawLine(Offset(x, 0.0), Offset(x, size.height), linePaint);
     }
     for (double y = 0.0; y <= size.height; y += interval / allDivisions) {
-      linePaint.strokeWidth = 0.5;
       canvas.drawLine(Offset(0.0, y), Offset(size.width, y), linePaint);
     }
   }

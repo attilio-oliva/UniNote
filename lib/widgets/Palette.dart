@@ -38,7 +38,7 @@ class _PaletteState extends State<Palette> {
                   {
                     "key": EditorEvent.toolButtonPressed,
                     "type": EditorTool.changedColor,
-                    "data": Colors.yellow,
+                    "data": Colors.amber,
                   },
                 );
               },
@@ -46,7 +46,7 @@ class _PaletteState extends State<Palette> {
                 width: 20,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: Colors.yellow,
+                  color: Colors.amber,
                   shape: BoxShape.circle,
                   border: Border.all(width: 1, color: Colors.black),
                 ),
@@ -78,7 +78,7 @@ class _PaletteState extends State<Palette> {
                   {
                     "key": EditorEvent.toolButtonPressed,
                     "type": EditorTool.changedColor,
-                    "data": Colors.pink,
+                    "data": Colors.pink.shade900,
                   },
                 );
               },
@@ -86,7 +86,7 @@ class _PaletteState extends State<Palette> {
                 width: 20,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: Colors.pink,
+                  color: Colors.pink.shade900,
                   shape: BoxShape.circle,
                   border: Border.all(width: 1, color: Colors.black),
                 ),
@@ -98,7 +98,7 @@ class _PaletteState extends State<Palette> {
                   {
                     "key": EditorEvent.toolButtonPressed,
                     "type": EditorTool.changedColor,
-                    "data": Colors.blue,
+                    "data": Colors.blue.shade800,
                   },
                 );
               },
@@ -106,7 +106,7 @@ class _PaletteState extends State<Palette> {
                 width: 20,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: Colors.blue,
+                  color: Colors.blue.shade800,
                   shape: BoxShape.circle,
                   border: Border.all(width: 1, color: Colors.black),
                 ),
@@ -118,7 +118,7 @@ class _PaletteState extends State<Palette> {
                   {
                     "key": EditorEvent.toolButtonPressed,
                     "type": EditorTool.changedColor,
-                    "data": Colors.white,
+                    "data": Colors.grey,
                   },
                 );
               },
@@ -126,7 +126,7 @@ class _PaletteState extends State<Palette> {
                 width: 20,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.grey,
                   shape: BoxShape.circle,
                   border: Border.all(width: 1, color: Colors.black),
                 ),

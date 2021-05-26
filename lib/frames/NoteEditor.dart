@@ -220,7 +220,7 @@ class _NoteEditorState extends State<NoteEditor> {
                       {
                         "key": EditorEvent.toolButtonPressed,
                         "type": EditorTool.changedGridSize,
-                        "data": 40,
+                        "data": 40.0,
                       },
                     );
                   },
@@ -235,7 +235,7 @@ class _NoteEditorState extends State<NoteEditor> {
                       {
                         "key": EditorEvent.toolButtonPressed,
                         "type": EditorTool.changedGridSize,
-                        "data": 25,
+                        "data": 25.0,
                       },
                     );
                   },

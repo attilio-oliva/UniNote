@@ -29,7 +29,7 @@ class EditorState {
   bool gridModifierVisibility = false;
   Map<String, dynamic> theme = {
     "backgroundColor": Colors.black,
-    "gridColor": Colors.white,
+    "gridColor": Colors.blue,
     "gridSize": 25.0,
   };
   EditorState(this.mode, this.subject,
