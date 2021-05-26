@@ -15,7 +15,10 @@ class StrokeComponent extends StatefulWidget with Component {
 
   @override
   bool hitTest(Offset point) {
-    return false;
+    List<Offset> pointList = bloc.state.data["points"] ?? [];
+    bool result =
+        pointList.any((element) => (element - point).distanceSquared <= 8);
+    return result;
   }
 
   @override

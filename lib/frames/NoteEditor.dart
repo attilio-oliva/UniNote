@@ -3,12 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/bloc/ListBloc.dart';
 import 'package:uninote/frames/ListSelection.dart';
+import 'package:uninote/globals/types.dart';
 import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/NotePainter.dart';
 import 'package:uninote/widgets/Palette.dart';
 import 'package:uninote/widgets/ToolBar.dart';
 import 'package:uninote/globals/colors.dart' as globals;
+
+import '../parser.dart';
 
 enum AppBarButton {
   insert,
@@ -32,7 +35,15 @@ extension appBarButtonExtension on AppBarButton {
 }
 
 class NoteEditor extends StatefulWidget {
-  NoteEditor();
+  late ListBloc listBloc;
+  NoteEditor([ListBloc? listBloc]) {
+    if (listBloc != null) {
+      this.listBloc = listBloc;
+    } else {
+      Tree<Item> tree = pathsToTree(usedFilesPaths());
+      listBloc = ListBloc(ListState(), tree);
+    }
+  }
   @override
   _NoteEditorState createState() => _NoteEditorState();
 }
@@ -50,6 +61,10 @@ class _NoteEditorState extends State<NoteEditor> {
   bool isFirstBuild = true;
   bool isListVisible = false;
   bool shouldListBeVisible = false;
+  Future<bool> _onWillPop(ListBloc listBloc) async {
+    listBloc.add({"key": ListEvent.editorToListSwitch});
+    return true;
+  }
 
   void updateSize() {
     setState(() {
@@ -171,6 +186,7 @@ class _NoteEditorState extends State<NoteEditor> {
   @override
   Widget build(BuildContext context) {
     final EditorBloc editorBloc = BlocProvider.of<EditorBloc>(context);
+    final ListBloc listBloc = BlocProvider.of<ListBloc>(context);
     updateSize();
     return BlocConsumer<EditorBloc, EditorState>(
       listener: (context, state) {},
@@ -313,11 +329,13 @@ class _NoteEditorState extends State<NoteEditor> {
                       height: maxHeight,
                       child: Row(
                         children: [
-                          Container(
-                            child: BlocProvider<ListBloc>(
-                                create: (context) => ListBloc(ListState()),
-                                child: ListSelection()),
-                            width: (listWidth - listDividerWidth),
+                          WillPopScope(
+                            onWillPop: () => _onWillPop(listBloc),
+                            child: Container(
+                              child: BlocProvider<ListBloc>.value(
+                                  value: listBloc, child: ListSelection()),
+                              width: (listWidth - listDividerWidth),
+                            ),
                           ),
                           GestureDetector(
                             behavior: HitTestBehavior.opaque,

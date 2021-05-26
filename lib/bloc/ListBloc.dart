@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/globals/types.dart';
+import 'package:uninote/parser.dart';
 import 'package:uninote/states/ListState.dart';
 import 'dart:math' as math;
 import 'package:crypto/crypto.dart';
@@ -20,7 +21,8 @@ enum ListEvent {
   editUpdate,
   editRequested,
   importRemoteResource,
-  importLocalResource
+  importLocalResource,
+  editorToListSwitch
 }
 
 class ListEventData {
@@ -70,7 +72,8 @@ String getDuplicateId(List<Node<Item>> list, String value, [int? indexToSkip]) {
 class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
   Tree<Item> fileSystem = Tree<Item>();
   late Node<Item> selectedNode;
-  ListBloc(ListState initialState) : super(initialState) {
+  ListBloc(ListState initialState, [Tree<Item>? tree]) : super(initialState) {
+    fileSystem = tree ?? Tree<Item>();
     selectedNode = fileSystem.root;
     state.itemList = selectedNode.children;
   }
@@ -80,9 +83,33 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
     return math.Random().nextInt(0xFFFFFF);
   }
 
+  List<Node<Item>> itemListFromNode(Node<Item> node) {
+    List<Node<Item>> itemList = [];
+    if (state.subject == ListSubject.note) {
+      itemList = fileSystem.preOrder(node);
+    } else {
+      itemList = node.children;
+    }
+    return itemList;
+  }
+
+  void listToEditor() {
+    state.swapToNoteEditor = true;
+  }
+
+  void editorToList() {
+    state.swapToNoteEditor = false;
+    state.selectedItem = selectedNode.value!.title;
+    state.itemList = itemListFromNode(selectedNode);
+  }
+
   @override
   Stream<ListState> mapEventToState(Map<String, dynamic> event) async* {
     switch (event['key']) {
+      case ListEvent.editorToListSwitch:
+        editorToList();
+        yield ListState.from(state);
+        break;
       case ListEvent.itemSelected:
         if (event['index'] != null) {
           selectedNode = state.itemList[event['index']];
@@ -101,15 +128,12 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
             selectedNode.areChildrenVisible = !selectedNode.areChildrenVisible;
             selectedNode = selectedNode.parent!;
           } else {
-            state.swapToNoteEditor = true;
+            selectedNode = selectedNode.parent!;
+            listToEditor();
           }
         }
 
-        if (state.subject == ListSubject.note && !state.swapToNoteEditor) {
-          state.itemList = fileSystem.preOrder(selectedNode);
-        } else {
-          state.itemList = selectedNode.children;
-        }
+        state.itemList = itemListFromNode(selectedNode);
         yield ListState.from(state);
         break;
       case ListEvent.itemAdded:

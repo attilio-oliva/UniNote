@@ -1,0 +1,14 @@
+<file title="University" key="uniKey" color="200">
+	<section title="Math" key="mathKey" color="400">
+	<note title="Groups" key="mathKeyNote1" color="410"/>
+	<group title="Functions" key="mathKeyGroup1" color="420">
+		<note title="Linear" key="mathKeyNote2" color="440"/>
+		<note title="Non-linear" key="mathKeyNote3" color="450"/>
+	</group>
+	<note title="Limits" key="mathKeyNote4" color="460"/>
+	</section>
+	<section title="Physics" key="phyKey" color="600">
+		<note title="Groups" key="phyKeyNote1" color="610"/>
+		<note title="Functions" key="phyKeyNote2" color="620"/>
+	</section>
+</file>

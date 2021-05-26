@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uninote/parser.dart';
 import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
+import 'package:xml/xml.dart';
 import 'bloc/EditorBloc.dart';
 import 'bloc/ListBloc.dart';
 import 'frames/ListSelection.dart';
@@ -11,16 +15,12 @@ import 'frames/NoteEditor.dart';
 import 'globals/types.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MyApp(pathsToTree(usedFilesPaths())));
 }
 
 class MyApp extends StatelessWidget {
-  final List<Item> openedNotebooks = [
-    Item("University", 0xffe040fb, 0xFFFFFA.toString()),
-    Item("Work", 0xff448aff, 0xFFFFFB.toString()),
-    Item("Memos", 0xffeeff41, 0xFFFFFC.toString()),
-  ];
-
+  Tree<Item> fileTree;
+  MyApp(this.fileTree);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -57,19 +57,19 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: BlocProvider<EditorBloc>(
-        create: (context) => EditorBloc(
-          EditorState(
-            EditorMode.insertion,
-            EditorSubject.text,
-          ),
-        ),
-        child: NoteEditor(),
-      ),
-      //home: BlocProvider<ListBloc>(
-      //  create: (context) => ListBloc(ListState.fromList(openedNotebooks)),
-      //  child: ListSelection(title: 'notebook'),
+      //home: BlocProvider<EditorBloc>(
+      //  create: (context) => EditorBloc(
+      //    EditorState(
+      //      EditorMode.insertion,
+      //      EditorSubject.text,
+      //    ),
+      //  ),
+      //  child: NoteEditor(),
       //),
+      home: BlocProvider<ListBloc>(
+        create: (context) => ListBloc(ListState(), fileTree),
+        child: ListSelection(title: 'notebook'),
+      ),
     );
   }
 }

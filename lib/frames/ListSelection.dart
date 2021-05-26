@@ -36,14 +36,19 @@ class ListSelection extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (BuildContext context) => BlocProvider<EditorBloc>(
-                create: (context) => EditorBloc(
-                  EditorState(
-                    EditorMode.insertion,
-                    EditorSubject.text,
+              builder: (BuildContext context) => MultiBlocProvider(
+                providers: [
+                  BlocProvider<EditorBloc>(
+                    create: (context) => EditorBloc(
+                      EditorState(
+                        EditorMode.insertion,
+                        EditorSubject.text,
+                      ),
+                    ),
                   ),
-                ),
-                child: NoteEditor(),
+                  BlocProvider<ListBloc>.value(value: listBloc)
+                ],
+                child: NoteEditor(listBloc),
               ),
             ),
           );

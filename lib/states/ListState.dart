@@ -55,4 +55,16 @@ class ListState {
     this.swapToNoteEditor = state.swapToNoteEditor;
   }
   ListState.fromList(this.itemList);
+
+  String toString() {
+    String result = "{";
+    result += " subject: " + subject.name;
+    result += ", items: " + itemList.toString();
+    result += ", selectedItem: " + selectedItem;
+    result += ", editingIndex: " + editingIndex.toString();
+    result += ", editingContent: " + editingContent;
+    result += ", swapToNoteEditor: " + swapToNoteEditor.toString();
+    result += "}";
+    return result;
+  }
 }

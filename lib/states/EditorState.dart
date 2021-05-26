@@ -22,6 +22,7 @@ class EditorState {
   EditorMode mode = EditorMode.insertion;
   EditorSubject subject = EditorSubject.text;
   EditorToolBar selectedToolbar = EditorToolBar.text;
+  List<Widget> selectedComponents = [];
   bool toolBarVisibility = false;
   bool subToolBarVisibility = false;
   Color backgroundColor = Colors.black;
@@ -35,6 +36,7 @@ class EditorState {
     toolBarVisibility = state.toolBarVisibility;
     subToolBarVisibility = state.subToolBarVisibility;
     backgroundColor = state.backgroundColor;
+    selectedComponents = state.selectedComponents;
   }
   String toString() {
     return "{mode: $mode, subject: $subject, selectedToolbar: $selectedToolbar, toolbarVisibility: $toolBarVisibility\n";

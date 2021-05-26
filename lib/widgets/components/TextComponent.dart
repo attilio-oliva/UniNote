@@ -201,6 +201,7 @@ class _TextState extends State<TextComponent> {
         width: state.width,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
+          //onTap: () => print("comp"),
           onPanUpdate: (details) => widget.bloc.add({
             "key": ComponentEvent.moved,
             "data": details.delta,
