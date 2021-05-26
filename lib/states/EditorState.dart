@@ -25,7 +25,13 @@ class EditorState {
   List<Widget> selectedComponents = [];
   bool toolBarVisibility = false;
   bool subToolBarVisibility = false;
-  Color backgroundColor = Colors.black;
+  bool paletteVisibility = false;
+  bool gridModifierVisibility = false;
+  Map<String, dynamic> theme = {
+    "backgroundColor": Colors.black,
+    "gridColor": Colors.white,
+    "gridSize": 25.0,
+  };
   EditorState(this.mode, this.subject,
       [this.selectedToolbar = EditorToolBar.text,
       this.toolBarVisibility = false]);
@@ -35,8 +41,9 @@ class EditorState {
     selectedToolbar = state.selectedToolbar;
     toolBarVisibility = state.toolBarVisibility;
     subToolBarVisibility = state.subToolBarVisibility;
-    backgroundColor = state.backgroundColor;
-    selectedComponents = state.selectedComponents;
+    paletteVisibility = state.paletteVisibility;
+    gridModifierVisibility = state.gridModifierVisibility;
+    theme = state.theme;
   }
   String toString() {
     return "{mode: $mode, subject: $subject, selectedToolbar: $selectedToolbar, toolbarVisibility: $toolBarVisibility\n";

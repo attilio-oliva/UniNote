@@ -21,12 +21,12 @@ class _PaletteState extends State<Palette> {
       builder: (context, state) => Container(
         padding: EdgeInsets.only(left: 5),
         alignment: Alignment.centerLeft,
-        width: MediaQuery.of(context).size.width,
+        width: 110,
         height: 30,
         decoration: BoxDecoration(
           color: globals.primaryColor,
           border: Border(
-            top: BorderSide(color: Colors.black),
+            right: BorderSide(color: Colors.black),
           ),
         ),
         child: Row(
@@ -107,6 +107,26 @@ class _PaletteState extends State<Palette> {
                 height: 20,
                 decoration: BoxDecoration(
                   color: Colors.blue,
+                  shape: BoxShape.circle,
+                  border: Border.all(width: 1, color: Colors.black),
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                editorBloc.add(
+                  {
+                    "key": EditorEvent.toolButtonPressed,
+                    "type": EditorTool.changedColor,
+                    "data": Colors.white,
+                  },
+                );
+              },
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.white,
                   shape: BoxShape.circle,
                   border: Border.all(width: 1, color: Colors.black),
                 ),

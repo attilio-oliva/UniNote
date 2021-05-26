@@ -13,8 +13,21 @@ enum EditorTool {
   imageInsert,
   strokeInsert,
   lockInsertion,
-  showBackgroundPalette,
+  backgroundPalette,
+  grid,
   changedColor,
+  changedGridSize,
+}
+
+extension editorToolExtension on EditorTool {
+  bool get isSubTool {
+    switch (this) {
+      case EditorTool.changedColor:
+        return true;
+      default:
+        return false;
+    }
+  }
 }
 
 class EditorEventData {
@@ -33,6 +46,7 @@ void subToolBar(EditorState state) {
 }
 
 class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
+  EditorTool? lastPressedTool;
   EditorBloc(EditorState initialState) : super(initialState);
   @override
   Stream<EditorState> mapEventToState(Map<String, dynamic> event) async* {
@@ -51,8 +65,11 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
         break;
       case EditorEvent.toolButtonPressed:
         if (event['type'] is EditorTool) {
+          EditorTool pressedTool = event['type'];
           bool prevSubToolBarVisible = state.subToolBarVisibility;
           state.subToolBarVisibility = false;
+          state.paletteVisibility = false;
+          state.gridModifierVisibility = false;
           switch (event['type']) {
             case EditorTool.textInsert:
               state.mode = EditorMode.insertion;
@@ -66,12 +83,39 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
               state.mode = EditorMode.insertion;
               state.subject = EditorSubject.stroke;
               break;
-            case EditorTool.showBackgroundPalette:
-              state.subToolBarVisibility = !prevSubToolBarVisible;
+            case EditorTool.backgroundPalette:
+              if (lastPressedTool == EditorTool.backgroundPalette) {
+                state.subToolBarVisibility = !prevSubToolBarVisible;
+              } else {
+                state.subToolBarVisibility = true;
+                state.paletteVisibility = true;
+              }
+              break;
+            case EditorTool.grid:
+              if (lastPressedTool == EditorTool.grid) {
+                state.subToolBarVisibility = !prevSubToolBarVisible;
+              } else {
+                state.subToolBarVisibility = true;
+              }
+              state.paletteVisibility = true;
+              state.gridModifierVisibility = true;
+              break;
+            case EditorTool.changedGridSize:
+              state.theme["gridSize"] = event["data"];
+              state.subToolBarVisibility = true;
+              state.paletteVisibility = true;
+              state.gridModifierVisibility = true;
               break;
             case EditorTool.changedColor:
-              state.backgroundColor = event["data"];
+              if (lastPressedTool == EditorTool.backgroundPalette) {
+                state.theme["backgroundColor"] = event["data"];
+              } else if (lastPressedTool == EditorTool.grid ||
+                  lastPressedTool == EditorTool.changedGridSize) {
+                state.theme["gridColor"] = event["data"];
+                state.gridModifierVisibility = true;
+              }
               state.subToolBarVisibility = true;
+              state.paletteVisibility = true;
               break;
             case EditorTool.lockInsertion:
               if (state.mode == EditorMode.readOnly) {
@@ -80,6 +124,9 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
                 state.mode = EditorMode.readOnly;
               }
               break;
+          }
+          if (!pressedTool.isSubTool) {
+            lastPressedTool = event["type"];
           }
         }
         yield EditorState.from(state);
