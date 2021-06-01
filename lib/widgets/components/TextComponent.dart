@@ -4,6 +4,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:katex_flutter/katex_flutter.dart';
 import 'package:uninote/bloc/ComponentBloc.dart';
+import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/states/ComponentState.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -18,11 +19,13 @@ class TextComponent extends StatefulWidget with Component {
   final double maxWidth;
   final String text;
   final TextComponentBloc bloc;
+  final EditorBloc editorBloc;
   TextComponent({
     position = defaultPosition,
     this.maxWidth = defaultMaxWidth,
     this.text = "",
     required this.bloc,
+    required this.editorBloc,
   });
   @override
   State<TextComponent> createState() =>
@@ -75,9 +78,15 @@ class _TextState extends State<TextComponent> {
   }
 
   void _handleFocus() {
-    if (_focusNode.hasFocus && isEditorVisible == false) {
+    if (_focusNode.hasFocus && !widget.bloc.state.isSelected) {
       switchToEditor();
-    } else if (!_focusNode.hasFocus && isEditorVisible == true) {
+      widget.editorBloc.add({
+        "key": EditorEvent.canvasPressed,
+        "position": widget.bloc.state.position,
+        "inputType": InputType.tap,
+        "inputState": InputState.start,
+      });
+    } else if (!_focusNode.hasFocus && widget.bloc.state.isSelected) {
       switchToParsed();
     }
   }
@@ -194,7 +203,12 @@ class _TextState extends State<TextComponent> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<TextComponentBloc, ComponentState>(
-      listener: (context, state) {},
+      bloc: widget.bloc,
+      listener: (context, state) {
+        if (!state.isSelected && _focusNode.hasFocus) {
+          _focusNode.unfocus();
+        }
+      },
       builder: (context, state) => Positioned(
         left: state.position.dx,
         top: state.position.dy,
@@ -219,7 +233,7 @@ class _TextState extends State<TextComponent> {
                   )
                 : null,
             child: Visibility(
-                visible: isEditorVisible,
+                visible: state.isSelected || (state.data["isTitle"] ?? false),
                 child: SizedBox(
                   width: state.width,
                   child: Column(

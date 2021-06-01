@@ -8,6 +8,7 @@ import 'package:uninote/states/ComponentState.dart';
 const ballDiameter = 10.0;
 const double editBorderWidth = 2;
 final double editOffset = ballDiameter / 2 - editBorderWidth / 2;
+//final double editOffset = ballDiameter / 2 + editBorderWidth / 2;
 
 class ResizableWidget extends StatefulWidget {
   final Widget child;
@@ -33,6 +34,7 @@ class _ResizableWidgetState extends State<ResizableWidget> {
   double top = 0;
   double left = 0;
   Offset startPosition;
+
   void onResize() {
     widget.bloc.add({
       "key": ComponentEvent.resized,
@@ -53,10 +55,11 @@ class _ResizableWidgetState extends State<ResizableWidget> {
     var newHeight = height + dy;
     var newWidth = width + dx;
 
-    setState(() {
-      height = newHeight > 0 ? newHeight : 0;
-      width = newWidth > 0 ? newWidth : 0;
-    });
+    height = newHeight.clamp(
+        widget.bloc.state.minHeight, widget.bloc.state.maxHeight);
+    width =
+        newWidth.clamp(widget.bloc.state.minWidth, widget.bloc.state.maxWidth);
+
     onResize();
   }
 
@@ -67,22 +70,28 @@ class _ResizableWidgetState extends State<ResizableWidget> {
       builder: (context, state) => Stack(
         children: <Widget>[
           Positioned(
-            left: editOffset,
-            top: editOffset,
-            width: state.width,
-            height: state.height,
+            left: state.position.dx - editBorderWidth,
+            top: state.position.dy - editBorderWidth,
+            width: state.width + editBorderWidth,
+            height: state.height + editBorderWidth,
             child: Container(
               padding: EdgeInsets.zero,
               decoration: BoxDecoration(
                   border:
                       Border.all(width: editBorderWidth, color: Colors.white)),
-              child: widget.child,
+              child: GestureDetector(
+                  onPanUpdate: (details) {
+                    top = top + details.delta.dy;
+                    left = left + details.delta.dx;
+                    onMove();
+                  },
+                  child: widget.child),
             ),
           ),
           // top left
           Positioned(
-            top: 0,
-            left: 0,
+            top: state.position.dy - ballDiameter / 2,
+            left: state.position.dx - ballDiameter / 2 - editBorderWidth / 2,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
                 //var mid = (dx + dy) / 2;
@@ -97,10 +106,23 @@ class _ResizableWidgetState extends State<ResizableWidget> {
                 //var newHeight = height - dy;
                 //var newWidth = width - dx;
                 //setState(() {
-                height = newHeight > 0 ? newHeight : 0;
-                width = newWidth > 0 ? newWidth : 0;
-                top = top + mid;
-                left = left + mid;
+                height = newHeight.clamp(
+                    widget.bloc.state.minHeight, widget.bloc.state.maxHeight);
+                width = newWidth.clamp(
+                    widget.bloc.state.minWidth, widget.bloc.state.maxWidth);
+                /*
+                double factorLeft =
+                    (width != widget.bloc.state.minWidth) ? mid : 0;
+                double factorTop =
+                    (height != widget.bloc.state.minHeight) ? mid : 0;
+                */
+                double factor = mid;
+                if ((width <= widget.bloc.state.minWidth) ||
+                    (height <= widget.bloc.state.minHeight)) {
+                  factor = 0;
+                }
+                top = top + factor;
+                left = left + factor;
                 //top = top + dx;
                 //left = left + dy;
                 //});
@@ -111,16 +133,20 @@ class _ResizableWidgetState extends State<ResizableWidget> {
           ),
           // top middle
           Positioned(
-            top: 0,
-            left: width / 2 - ballDiameter / 2,
+            top: state.position.dy - ballDiameter / 2,
+            left: state.position.dx + state.width / 2 - editBorderWidth,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
                 var newHeight = height - dy;
 
-                setState(() {
-                  height = newHeight > 0 ? newHeight : 0;
-                  top = top + dy;
-                });
+                height = newHeight.clamp(
+                    widget.bloc.state.minHeight, widget.bloc.state.maxHeight);
+                double factor = dy;
+                if (height <= widget.bloc.state.minHeight) {
+                  factor = 0;
+                }
+                top = top + factor;
+
                 onResize();
                 onMove();
               },
@@ -128,8 +154,11 @@ class _ResizableWidgetState extends State<ResizableWidget> {
           ),
           // top right
           Positioned(
-            top: 0,
-            left: width - ballDiameter / 2,
+            top: state.position.dy - ballDiameter / 2 - editBorderWidth / 2,
+            left: state.position.dx +
+                state.width -
+                ballDiameter / 2 -
+                editBorderWidth / 2,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
                 //var mid = (dx + (dy * -1)) / 2;
@@ -143,9 +172,16 @@ class _ResizableWidgetState extends State<ResizableWidget> {
                 var newWidth = width + mid;
 
                 //setState(() {
-                height = newHeight > 0 ? newHeight : 0;
-                width = newWidth > 0 ? newWidth : 0;
-                top = top - mid;
+                height = newHeight.clamp(
+                    widget.bloc.state.minHeight, widget.bloc.state.maxHeight);
+                width = newWidth.clamp(
+                    widget.bloc.state.minWidth, widget.bloc.state.maxWidth);
+                double factor = mid;
+                if ((width <= widget.bloc.state.minWidth) ||
+                    (height <= widget.bloc.state.minHeight)) {
+                  factor = 0;
+                }
+                top = top - factor;
                 //left = left - mid;
                 //});
                 onResize();
@@ -155,14 +191,18 @@ class _ResizableWidgetState extends State<ResizableWidget> {
           ),
           // center right
           Positioned(
-            top: height / 2 - ballDiameter / 2,
-            left: width - ballDiameter / 2,
+            top: state.position.dy + state.height / 2 - ballDiameter / 2,
+            left: state.position.dx +
+                state.width -
+                ballDiameter / 2 -
+                editBorderWidth / 2,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
                 var newWidth = width + dx;
 
                 //setState(() {
-                width = newWidth > 0 ? newWidth : 0;
+                width = newWidth.clamp(
+                    widget.bloc.state.minWidth, widget.bloc.state.maxWidth);
                 //});
                 onResize();
               },
@@ -170,8 +210,14 @@ class _ResizableWidgetState extends State<ResizableWidget> {
           ),
           // bottom right
           Positioned(
-            top: height - ballDiameter / 2,
-            left: width - ballDiameter / 2,
+            top: state.position.dy +
+                state.height -
+                ballDiameter / 2 -
+                editBorderWidth / 2,
+            left: state.position.dx +
+                state.width -
+                ballDiameter / 2 -
+                editBorderWidth / 2,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
                 //var mid = (dx + dy) / 2;
@@ -186,8 +232,10 @@ class _ResizableWidgetState extends State<ResizableWidget> {
                 var newWidth = width + mid;
 
                 //setState(() {
-                height = newHeight > 0 ? newHeight : 0;
-                width = newWidth > 0 ? newWidth : 0;
+                height = newHeight.clamp(
+                    widget.bloc.state.minHeight, widget.bloc.state.maxHeight);
+                width = newWidth.clamp(
+                    widget.bloc.state.minWidth, widget.bloc.state.maxWidth);
                 //top = top - mid;
                 //left = left - mid;
                 //});
@@ -198,14 +246,15 @@ class _ResizableWidgetState extends State<ResizableWidget> {
           ),
           // bottom center
           Positioned(
-            top: height - ballDiameter / 2,
-            left: width / 2 - ballDiameter / 2,
+            top: state.position.dy + state.height - ballDiameter / 2,
+            left: state.position.dx + state.width / 2 - ballDiameter / 2,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
                 var newHeight = height + dy;
 
                 //setState(() {
-                height = newHeight > 0 ? newHeight : 0;
+                height = newHeight.clamp(
+                    widget.bloc.state.minHeight, widget.bloc.state.maxHeight);
                 //});
                 onResize();
               },
@@ -213,8 +262,8 @@ class _ResizableWidgetState extends State<ResizableWidget> {
           ),
           // bottom left
           Positioned(
-            top: height - ballDiameter / 2,
-            left: 0,
+            top: state.position.dy + state.height - ballDiameter / 2,
+            left: state.position.dx - ballDiameter / 2 - editBorderWidth / 2,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
                 //var mid = ((dx * -1) + dy) / 2;
@@ -224,14 +273,22 @@ class _ResizableWidgetState extends State<ResizableWidget> {
                         ? -1
                         : 1;
                 double mid = sign * (point.distance / 2);
+
                 var newHeight = height + mid;
                 var newWidth = width + mid;
 
                 //setState(() {
-                height = newHeight > 0 ? newHeight : 0;
-                width = newWidth > 0 ? newWidth : 0;
+                height = newHeight.clamp(
+                    widget.bloc.state.minHeight, widget.bloc.state.maxHeight);
+                width = newWidth.clamp(
+                    widget.bloc.state.minWidth, widget.bloc.state.maxWidth);
+                double factor = mid;
+                if ((width <= widget.bloc.state.minWidth) ||
+                    (height <= widget.bloc.state.minHeight)) {
+                  factor = 0;
+                }
                 //top = top - mid;
-                left = left - mid;
+                left = left - factor;
                 //});
                 onResize();
                 onMove();
@@ -240,15 +297,20 @@ class _ResizableWidgetState extends State<ResizableWidget> {
           ),
           //left center
           Positioned(
-            top: height / 2 - ballDiameter / 2,
-            left: 0,
+            top: state.position.dy + state.height / 2 - editBorderWidth,
+            left: state.position.dx - ballDiameter / 2 - editBorderWidth / 2,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
                 var newWidth = width - dx;
 
                 //setState(() {
-                width = newWidth > 0 ? newWidth : 0;
-                left = left + dx;
+                width = newWidth.clamp(
+                    widget.bloc.state.minWidth, widget.bloc.state.maxWidth);
+                double factor = dx;
+                if (width <= widget.bloc.state.minWidth) {
+                  factor = 0;
+                }
+                left = left + factor;
                 //});
                 onResize();
                 onMove();
@@ -256,9 +318,10 @@ class _ResizableWidgetState extends State<ResizableWidget> {
             ),
           ),
           // center center
+          /*
           Positioned(
-            top: height / 2 - ballDiameter / 2,
-            left: width / 2 - ballDiameter / 2,
+            top: state.position.dy + height / 2 - ballDiameter / 2,
+            left: state.position.dx + width / 2 - ballDiameter / 2,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
                 //setState(() {
@@ -269,6 +332,7 @@ class _ResizableWidgetState extends State<ResizableWidget> {
               },
             ),
           ),
+          */
         ],
       ),
     );

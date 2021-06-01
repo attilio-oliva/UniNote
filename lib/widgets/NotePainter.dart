@@ -22,8 +22,9 @@ class _PainterState extends State<Painter> {
   List<Widget> list = [];
   FocusNode focusNode = FocusNode();
   _PainterState() {
-    addComponent(EditorSubject.text, cursor, {"isTitle": true});
+    //addComponent(EditorSubject.text, cursor, {"isTitle": true});
   }
+  /*
   void addComponent(EditorSubject subject, Offset pos,
       [Map<String, dynamic> data = const {}]) {
     bool canMove = true;
@@ -34,7 +35,7 @@ class _PainterState extends State<Painter> {
     switch (subject) {
       case EditorSubject.text:
         TextComponentBloc bloc = TextComponentBloc(ComponentState(
-          cursor,
+          pos,
           defaultMaxWidth,
           topFieldBarHeight,
           content,
@@ -42,12 +43,9 @@ class _PainterState extends State<Painter> {
           data,
         ));
         list.add(
-          BlocProvider<TextComponentBloc>(
-            create: (context) => bloc,
-            child: TextComponent(
-              text: content,
-              bloc: bloc,
-            ),
+          TextComponent(
+            text: content,
+            bloc: bloc,
           ),
         );
         break;
@@ -55,7 +53,7 @@ class _PainterState extends State<Painter> {
         content = imageDefaultLocation;
         ComponentBloc bloc = ComponentBloc(
           ComponentState(
-            cursor,
+            pos,
             imageDefaultMaxWidth,
             imageDefaultMaxHeight,
             content,
@@ -63,18 +61,18 @@ class _PainterState extends State<Painter> {
             data,
           ),
         );
-        list.add(BlocProvider<ComponentBloc>(
-            create: (context) => bloc,
-            child: ImageComponent(
-              position: cursor,
-              location: content,
-              bloc: bloc,
-            )));
+        list.add(
+          ImageComponent(
+            position: pos,
+            location: content,
+            bloc: bloc,
+          ),
+        );
         break;
       case EditorSubject.stroke:
         StrokeComponentBloc bloc = StrokeComponentBloc(
           ComponentState(
-            cursor,
+            pos,
             double.infinity,
             double.infinity,
             content,
@@ -82,22 +80,27 @@ class _PainterState extends State<Painter> {
             data,
           ),
         );
-        list.add(BlocProvider<StrokeComponentBloc>(
-            create: (context) => bloc,
-            child: StrokeComponent(
-              bloc: bloc,
-            )));
+        list.add(
+          StrokeComponent(
+            bloc: bloc,
+          ),
+        );
         break;
-      /*case EditorSubject.color:
-        backgroundColor = 
-        break;*/
       case EditorSubject.attachment:
         // TODO: Handle this case.
         break;
     }
   }
-
-  void onDragUpdate(DragUpdateDetails details, EditorState editorState) {
+*/
+  void onDragUpdate(DragUpdateDetails details, EditorBloc editorBloc) {
+    editorBloc.add({
+      "key": EditorEvent.canvasPressed,
+      "inputType": InputType.drag,
+      "inputState": InputState.update,
+      "position": details.localPosition
+    });
+    /*
+    EditorState editorState = editorBloc.state;
     switch (editorState.mode) {
       case EditorMode.selection:
         // TODO: Handle this case.
@@ -114,11 +117,21 @@ class _PainterState extends State<Painter> {
       case EditorMode.readOnly:
         // TODO: Handle this case.
         break;
+        
     }
-    setState(() {});
+    */
+    //setState(() {});
   }
 
-  void onDragEnd(DragEndDetails details, EditorState editorState) {
+  void onDragEnd(DragEndDetails details, EditorBloc editorBloc) {
+    editorBloc.add({
+      "key": EditorEvent.canvasPressed,
+      "inputType": InputType.drag,
+      "inputState": InputState.end,
+      "position": Offset(0, 0)
+    });
+    /*
+    EditorState editorState = editorBloc.state;
     switch (editorState.mode) {
       case EditorMode.selection:
         // TODO: Handle this case.
@@ -133,9 +146,18 @@ class _PainterState extends State<Painter> {
         // TODO: Handle this case.
         break;
     }
+    */
   }
 
-  void onTapDown(TapDownDetails details, EditorState editorState) {
+  void onTapDown(
+      TapDownDetails details, EditorState editorState, EditorBloc editorBloc) {
+    editorBloc.add({
+      "key": EditorEvent.canvasPressed,
+      "inputType": InputType.tap,
+      "inputState": InputState.end,
+      "position": details.localPosition
+    });
+    /*
     cursor = details.localPosition;
     switch (editorState.mode) {
       case EditorMode.selection:
@@ -158,9 +180,18 @@ class _PainterState extends State<Painter> {
         break;
     }
     setState(() {});
+    */
   }
 
-  void onDragStart(DragStartDetails details, EditorState editorState) {
+  void onDragStart(DragStartDetails details, EditorBloc editorBloc) {
+    editorBloc.add({
+      "key": EditorEvent.canvasPressed,
+      "inputType": InputType.drag,
+      "inputState": InputState.start,
+      "position": details.localPosition
+    });
+    /*
+    EditorState editorState = editorBloc.state;
     cursor = details.localPosition;
     switch (editorState.mode) {
       case EditorMode.selection:
@@ -178,20 +209,28 @@ class _PainterState extends State<Painter> {
         // TODO: Handle this case.
         break;
     }
+    */
   }
 
   void onTapUp(
-      BuildContext context, TapUpDetails details, EditorState editorState) {
+      BuildContext context, TapUpDetails details, EditorBloc editorBloc) {
+    /*
+    editorBloc.add({
+      "key": EditorEvent.canvasPressed,
+      "inputType": InputType.tap,
+      "inputState": InputState.end,
+      "position": details.localPosition
+    });
+    
+    EditorState editorState = editorBloc.state;
     if (!focusNode.hasFocus) {
       bool backgroundClicked = true;
       for (Widget item in list) {
-        if (item is BlocProvider<ComponentBloc>) {
-          if (item.child is Component) {
-            Component component = item.child as Component;
-            if (component.hitTest(details.localPosition)) {
-              backgroundClicked = false;
-              break;
-            }
+        if (item is Component) {
+          Component component = item as Component;
+          if (component.hitTest(details.localPosition)) {
+            backgroundClicked = false;
+            break;
           }
         }
       }
@@ -217,6 +256,7 @@ class _PainterState extends State<Painter> {
         }
       });
     }
+    */
   }
 
   List<Widget> background(List<Widget> list, EditorState state) {
@@ -240,6 +280,7 @@ class _PainterState extends State<Painter> {
   @override
   Widget build(BuildContext context) {
     final EditorBloc editorBloc = BlocProvider.of<EditorBloc>(context);
+    list = editorBloc.state.componentList;
     return BlocBuilder<EditorBloc, EditorState>(
       builder: (context, state) => SingleChildScrollView(
         physics: editorBloc.state.mode == EditorMode.readOnly
@@ -256,11 +297,11 @@ class _PainterState extends State<Painter> {
             width: 2000,
             child: GestureDetector(
               onTapUp: (TapUpDetails details) =>
-                  onTapUp(context, details, state),
-              onTapDown: (details) => onTapDown(details, state),
-              onPanStart: (details) => onDragStart(details, state),
-              onPanUpdate: (details) => onDragUpdate(details, state),
-              onPanEnd: (details) => onDragEnd(details, state),
+                  onTapUp(context, details, editorBloc),
+              onTapDown: (details) => onTapDown(details, state, editorBloc),
+              onPanStart: (details) => onDragStart(details, editorBloc),
+              onPanUpdate: (details) => onDragUpdate(details, editorBloc),
+              onPanEnd: (details) => onDragEnd(details, editorBloc),
               /*
               onTapUp: (TapUpDetails details) => editorBloc.add(EditorEventData(
                   EditorEvent.canvasPressed, details.localPosition)),

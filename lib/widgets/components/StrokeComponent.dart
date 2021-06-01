@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:uninote/bloc/ComponentBloc.dart';
+import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/states/ComponentState.dart';
+import 'package:uninote/widgets/ResizableWidget.dart';
 
 import 'Component.dart';
 
@@ -33,9 +35,20 @@ class _StrokeState extends State<StrokeComponent> {
   Widget build(BuildContext context) {
     return BlocBuilder<StrokeComponentBloc, ComponentState>(
       bloc: widget.bloc,
-      builder: (context, state) => CustomPaint(
-        painter: _StrokePainter(state.data["points"] ?? []),
-        willChange: true,
+      builder: (context, state) => Visibility(
+        visible: state.isSelected,
+        child: ResizableWidget(
+          bloc: widget.bloc,
+          position: state.position,
+          child: CustomPaint(
+            painter: _StrokePainter(state.data["points"] ?? [], state.position),
+            willChange: true,
+          ),
+        ),
+        replacement: CustomPaint(
+          painter: _StrokePainter(state.data["points"] ?? []),
+          willChange: true,
+        ),
       ),
     );
   }
@@ -45,7 +58,8 @@ class _StrokePainter extends CustomPainter {
   final double pointThreshold = 0;
   List<Offset> pointList = [];
   late Paint paintStyle;
-  _StrokePainter(this.pointList) {
+  Offset origin = Offset(0, 0);
+  _StrokePainter(this.pointList, [this.origin = const Offset(0, 0)]) {
     paintStyle = Paint()
       ..style = PaintingStyle.stroke
       ..isAntiAlias = true
@@ -58,6 +72,7 @@ class _StrokePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     //canvas.drawPoints(PointMode.polygon, pointList, paintStyle);
+    canvas.translate(-origin.dx, -origin.dy);
     if (pointList.length == 0) return;
     if (pointList.length == 1) {
       canvas.drawPoints(PointMode.points, pointList, paintStyle);

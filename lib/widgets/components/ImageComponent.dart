@@ -66,31 +66,26 @@ class _ImageState extends State<ImageComponent> {
     return BlocConsumer<ComponentBloc, ComponentState>(
       bloc: widget.bloc,
       listener: (context, state) {},
-      builder: (context, state) => Positioned(
-        left: state.position.dx - editOffset,
-        top: state.position.dy - editOffset,
-        width: state.width + editOffset * 2,
-        height: state.height + editOffset * 2,
-        child: GestureDetector(
-          onTapUp: (details) => setState(() {
-            isSelected = !isSelected;
-          }),
-          child: Visibility(
-            visible: isSelected,
-            replacement: Container(
-              padding: EdgeInsets.all(editOffset + editBorderWidth),
-              width: state.width,
-              height: state.height,
-              child: getImageWidget(),
-            ),
-            child: ResizableWidget(
-              child: getImageWidget(),
-              position: state.position,
-              width: state.width + editOffset,
-              height: state.height + editOffset,
-              bloc: widget.bloc,
-            ),
+      builder: (context, state) => Visibility(
+        visible: state.isSelected,
+        replacement: Positioned(
+          left: state.position.dx,
+          top: state.position.dy,
+          width: state.width,
+          height: state.height,
+          child: Container(
+            //padding: EdgeInsets.all(editOffset + editBorderWidth),
+            width: state.width,
+            height: state.height,
+            child: getImageWidget(),
           ),
+        ),
+        child: ResizableWidget(
+          child: getImageWidget(),
+          position: state.position,
+          width: state.width,
+          height: state.height,
+          bloc: widget.bloc,
         ),
       ),
     );

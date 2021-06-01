@@ -9,6 +9,8 @@ import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/widgets/ResizableWidget.dart';
 
 abstract class Component {
+  late ComponentBloc bloc;
+
   bool hitTest(Offset point);
   String parse();
 }
@@ -21,43 +23,44 @@ class ComponentWidget extends StatelessWidget {
   static const double defaultWidth = 200;
   static const double defaultHeight = 200;
   static const Offset defaultPosition = Offset(0, 0);
-  Widget child;
-  EditorBloc editorBloc;
-  ComponentBloc componentBloc;
-  Offset position;
-  bool isSelected;
-  bool isEditable;
-  bool horizontalOnlyResizable;
-  double minWidth;
+  final Widget child;
+  final ComponentBloc bloc;
+  final Offset position;
+  final bool isSelected;
+  final bool isEditable;
+  final bool horizontalOnlyResizable;
+  double minWidth = 20;
   double minHeight = 20;
   double maxWidth = double.maxFinite;
   double maxHeight = double.maxFinite;
-  double width = 200;
-  double height = 200;
+  double padding = 0;
 
-  ComponentWidget({
-    required this.child,
-    required this.editorBloc,
-    required this.componentBloc,
-    this.isSelected = true,
-    this.isEditable = true,
-    this.horizontalOnlyResizable = false,
-    this.position = defaultPosition,
-    this.minWidth = defaultMinWidth,
-    this.minHeight = defaultMinHeight,
-    this.maxWidth = defaultMaxWidth,
-    this.maxHeight = defaultMaxHeight,
-  });
+  ComponentWidget(
+      {required this.child,
+      required this.bloc,
+      this.isSelected = true,
+      this.isEditable = true,
+      this.horizontalOnlyResizable = false,
+      this.position = defaultPosition,
+      this.minWidth = defaultMinWidth,
+      this.minHeight = defaultMinHeight,
+      this.maxWidth = defaultMaxWidth,
+      this.maxHeight = defaultMaxHeight,
+      this.padding = 0});
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<EditorBloc, EditorState>(
-      bloc: editorBloc,
+    return BlocConsumer<ComponentBloc, ComponentState>(
+      listener: (context, state) => print(state.isSelected),
+      bloc: bloc,
       builder: (context, state) => Visibility(
-        visible: state.selectedComponents.contains(child),
+        visible: state.isSelected,
         child: ResizableWidget(
           child: child,
-          bloc: componentBloc,
+          bloc: bloc,
+          width: state.width + padding,
+          height: state.height + padding,
         ),
+        replacement: child,
       ),
     );
   }
