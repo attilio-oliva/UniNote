@@ -154,7 +154,7 @@ class _PainterState extends State<Painter> {
     editorBloc.add({
       "key": EditorEvent.canvasPressed,
       "inputType": InputType.tap,
-      "inputState": InputState.end,
+      "inputState": InputState.start,
       "position": details.localPosition
     });
     /*
@@ -214,14 +214,13 @@ class _PainterState extends State<Painter> {
 
   void onTapUp(
       BuildContext context, TapUpDetails details, EditorBloc editorBloc) {
-    /*
     editorBloc.add({
       "key": EditorEvent.canvasPressed,
       "inputType": InputType.tap,
       "inputState": InputState.end,
       "position": details.localPosition
     });
-    
+    /*
     EditorState editorState = editorBloc.state;
     if (!focusNode.hasFocus) {
       bool backgroundClicked = true;

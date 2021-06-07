@@ -134,7 +134,7 @@ class _ResizableWidgetState extends State<ResizableWidget> {
           // top middle
           Positioned(
             top: state.position.dy - ballDiameter / 2,
-            left: state.position.dx + state.width / 2 - editBorderWidth,
+            left: state.position.dx + state.width / 2 - ballDiameter / 2,
             child: ManipulatingBall(
               onDrag: (dx, dy) {
                 var newHeight = height - dy;

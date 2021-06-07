@@ -8,7 +8,7 @@
 	<note title="Limits" key="mathKeyNote4" color="460"/>
 	</section>
 	<section title="Physics" key="phyKey" color="600">
-		<note title="Groups" key="phyKeyNote1" color="610"/>
-		<note title="Functions" key="phyKeyNote2" color="620"/>
+		<note title="Kinematics" key="phyKeyNote1" color="610"/>
+		<note title="Dynamics" key="phyKeyNote2" color="620"/>
 	</section>
 </file>

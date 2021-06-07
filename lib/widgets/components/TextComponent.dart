@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'Component.dart';
 
 const double defaultMaxWidth = 300;
+const double defaultHeight = 45;
 const Offset defaultPosition = Offset(0, 0);
 const double topFieldBarHeight = 5;
 
@@ -49,10 +50,8 @@ class _TextState extends State<TextComponent> {
   int textMode = 0;
   late TextEditingController _controller;
   late FocusNode _focusNode;
-  bool isEditorVisible = true;
 
   _TextState({this.maxWidth = defaultMaxWidth, String text = ""}) {
-    isEditorVisible = true;
     _controller = TextEditingController(text: text);
     _focusNode = FocusNode(
       onKey: (node, key) => _onKey(key),
@@ -84,7 +83,7 @@ class _TextState extends State<TextComponent> {
         "key": EditorEvent.canvasPressed,
         "position": widget.bloc.state.position,
         "inputType": InputType.tap,
-        "inputState": InputState.start,
+        "inputState": InputState.end,
       });
     } else if (!_focusNode.hasFocus && widget.bloc.state.isSelected) {
       switchToParsed();
@@ -93,14 +92,12 @@ class _TextState extends State<TextComponent> {
 
   void switchToParsed() {
     setState(() {
-      isEditorVisible = false;
       _focusNode.unfocus();
     });
   }
 
   void switchToEditor() {
     setState(() {
-      isEditorVisible = true;
       _focusNode.requestFocus();
     });
   }
@@ -208,6 +205,9 @@ class _TextState extends State<TextComponent> {
         if (!state.isSelected && _focusNode.hasFocus) {
           _focusNode.unfocus();
         }
+        if (state.isSelected && !_focusNode.hasFocus) {
+          _focusNode.requestFocus();
+        }
       },
       builder: (context, state) => Positioned(
         left: state.position.dx,
@@ -233,29 +233,27 @@ class _TextState extends State<TextComponent> {
                   )
                 : null,
             child: Visibility(
-                visible: state.isSelected || (state.data["isTitle"] ?? false),
-                child: SizedBox(
-                  width: state.width,
-                  child: Column(
-                    children: [
-                      Visibility(
-                        visible: state.canMove,
-                        child: SizedBox(
-                          width: state.width,
-                          height: topFieldBarHeight,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(color: Colors.white),
-                          ),
+              visible: state.isSelected || (state.data["isTitle"] ?? false),
+              child: SizedBox(
+                width: state.width,
+                child: Column(
+                  children: [
+                    Visibility(
+                      visible: state.canMove && state.isSelected,
+                      child: SizedBox(
+                        width: state.width,
+                        height: topFieldBarHeight,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(color: Colors.white),
                         ),
                       ),
-                      textFieldWidget(state),
-                    ],
-                  ),
+                    ),
+                    textFieldWidget(state),
+                  ],
                 ),
-                replacement: GestureDetector(
-                  onTapUp: (details) => switchToEditor(),
-                  child: textWidget(state),
-                )),
+              ),
+              replacement: textWidget(state),
+            ),
           ),
         ),
       ),

@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:xml/xml.dart';
 import 'package:uninote/states/ComponentState.dart';
 import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/widgets/components/Component.dart';
@@ -65,9 +69,43 @@ void subToolBar(EditorState state) {
 
 class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
   EditorTool? lastPressedTool;
+
   EditorBloc(EditorState initialState) : super(initialState) {
-    addComponent(EditorSubject.text, Offset(0, 0), {"isTitle": true});
-    //addComponent(EditorSubject.text, Offset(100, 100));
+    File noteDoc = File(initialState.noteLocation);
+    XmlDocument xmlDoc = XmlDocument.parse(noteDoc.readAsStringSync());
+    String title = xmlDoc.firstElementChild?.getAttribute("title") ?? "";
+    String appVersion = xmlDoc.firstChild
+            ?.getElement("meta")
+            ?.getElement("version")
+            ?.getAttribute("app") ??
+        "";
+    String noteVersion = xmlDoc.firstChild
+            ?.getElement("meta")
+            ?.getElement("version")
+            ?.getAttribute("note") ??
+        "";
+    print("$appVersion, last edit: $noteVersion");
+    addComponent(EditorSubject.text, Offset(0, 0), {"isTitle": true}, title);
+    getComponentsFromFile();
+  }
+  void getComponentsFromFile() {
+    File noteDoc = File(state.noteLocation);
+    XmlDocument xmlDoc = XmlDocument.parse(noteDoc.readAsStringSync());
+    XmlElement? xmlList = xmlDoc.firstChild?.getElement("content");
+    xmlList!.findAllElements("text").toList().forEach((element) {
+      String text = element.getAttribute("data") ?? "";
+      double x = double.parse(element.getAttribute("x")!);
+      double y = double.parse(element.getAttribute("y")!);
+      Offset position = Offset(x, y);
+      addComponent(EditorSubject.text, position, {}, text, false);
+    });
+    xmlList.findAllElements("image").toList().forEach((element) {
+      String location = element.getAttribute("location") ?? "";
+      double x = double.parse(element.getAttribute("x")!);
+      double y = double.parse(element.getAttribute("y")!);
+      Offset position = Offset(x, y);
+      addComponent(EditorSubject.image, position, {}, location, false);
+    });
   }
 
   Widget? getClickedComponent(Offset position) {
@@ -82,52 +120,54 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
     }
   }
 
-  void addComponent(EditorSubject subject, Offset pos,
-      [Map<String, dynamic> data = const {}]) {
+  Widget? addComponent(EditorSubject subject, Offset pos,
+      [Map<String, dynamic> data = const {},
+      String content = "",
+      bool isSelected = true]) {
     bool canMove = true;
     if (data.containsKey("isTitle")) {
       canMove = !data["isTitle"]!;
     }
-    String content = "";
     deselectAllComponents();
     switch (subject) {
       case EditorSubject.text:
         TextComponentBloc bloc = TextComponentBloc(ComponentState(
           position: pos,
           width: defaultMaxWidth,
-          height: topFieldBarHeight,
+          height: defaultHeight + topFieldBarHeight,
           content: content,
           canMove: canMove,
+          isSelected: isSelected,
           data: data,
         ));
-        state.componentList.add(
-          TextComponent(
-            text: content,
-            bloc: bloc,
-            editorBloc: this,
-          ),
+        TextComponent textComponent = TextComponent(
+          text: content,
+          bloc: bloc,
+          editorBloc: this,
         );
-        break;
+        state.componentList.add(textComponent);
+        return textComponent;
       case EditorSubject.image:
-        content = imageDefaultLocation;
         ComponentBloc bloc = ComponentBloc(
           ComponentState(
             position: pos,
             width: imageDefaultMaxWidth,
             height: imageDefaultMaxHeight,
+            minWidth: 200,
+            minHeight: 200,
             content: content,
             canMove: canMove,
+            isSelected: isSelected,
             data: data,
           ),
         );
-        state.componentList.add(
-          ImageComponent(
-            position: pos,
-            location: content,
-            bloc: bloc,
-          ),
+        ImageComponent imageComponent = ImageComponent(
+          position: pos,
+          location: content,
+          bloc: bloc,
         );
-        break;
+        state.componentList.add(imageComponent);
+        return imageComponent;
       case EditorSubject.stroke:
         StrokeComponentBloc bloc = StrokeComponentBloc(
           ComponentState(
@@ -136,19 +176,20 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
             height: double.infinity,
             content: content,
             canMove: canMove,
+            isSelected: isSelected,
             data: data,
           ),
         );
-        state.componentList.add(
-          StrokeComponent(
-            bloc: bloc,
-          ),
+        StrokeComponent strokeComponent = StrokeComponent(
+          bloc: bloc,
         );
-        break;
+        state.componentList.add(strokeComponent);
+        return strokeComponent;
       case EditorSubject.attachment:
         // TODO: Handle this case.
         break;
     }
+    return null;
   }
 
   void deselectAllComponents([List<Widget> excludedList = const []]) {
@@ -223,7 +264,8 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
               }
               break;
             case EditorTool.grid:
-              if (lastPressedTool == EditorTool.grid) {
+              if (lastPressedTool == EditorTool.grid ||
+                  lastPressedTool == EditorTool.changedGridSize) {
                 state.subToolBarVisibility = !prevSubToolBarVisible;
               } else {
                 state.subToolBarVisibility = true;
@@ -263,36 +305,47 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
         yield EditorState.from(state);
         break;
       case EditorEvent.canvasPressed:
-        print("pressed");
         InputType inputType = event["inputType"];
         InputState inputState = event["inputState"];
         Offset position = event["position"];
         switch (inputType) {
           case InputType.tap:
-            Widget? clickedComponent = getClickedComponent(position);
-            bool isBackgroundClick = (clickedComponent == null);
-            if (isBackgroundClick) {
-              deselectAllComponents();
-              state.selectedComponents = [];
-              switch (state.mode) {
-                case EditorMode.selection:
-                  // TODO: Handle this case.
-                  break;
-                case EditorMode.insertion:
-                  addComponent(state.subject, position);
-                  break;
-                case EditorMode.readOnly:
-                  // TODO: Handle this case.
-                  break;
-              }
-            } else {
-              //deselect all components
-              deselectAllComponents([clickedComponent]);
+            switch (inputState) {
+              case InputState.end:
+                Widget? clickedComponent = getClickedComponent(position);
+                bool isBackgroundClick = (clickedComponent == null);
+                if (isBackgroundClick) {
+                  deselectAllComponents();
+                  state.selectedComponents = [];
+                  switch (state.mode) {
+                    case EditorMode.selection:
+                      // TODO: Handle this case.
+                      break;
+                    case EditorMode.insertion:
+                      Widget newComponent =
+                          addComponent(state.subject, position)!;
+                      state.selectedComponents = [newComponent];
+                      break;
+                    case EditorMode.readOnly:
+                      // TODO: Handle this case.
+                      break;
+                  }
+                } else {
+                  //deselect all components
+                  deselectAllComponents([clickedComponent]);
 
-              state.selectedComponents = [clickedComponent];
+                  state.selectedComponents = [clickedComponent];
 
-              //select all components
-              selectComponents(state.selectedComponents);
+                  //select all components
+                  selectComponents(state.selectedComponents);
+                }
+                break;
+              case InputState.start:
+                // TODO: Handle this case.
+                break;
+              case InputState.update:
+                // TODO: Handle this case.
+                break;
             }
             break;
           case InputType.drag:

@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:uninote/widgets/components/Component.dart';
-import 'package:equatable/equatable.dart';
 
 const double minPosX = 10;
 const double minPosY = 10;
@@ -58,8 +57,8 @@ class ComponentState {
     this.canMove = true,
     Map<String, dynamic>? data,
     this.isSelected = true,
-    this.minWidth = 200,
-    this.minHeight = 200,
+    this.minWidth = 20,
+    this.minHeight = 20,
     this.maxWidth = 1000,
     this.maxHeight = 1000,
   }) {
@@ -95,7 +94,7 @@ class ComponentState {
     return copyWith(position: position);
   }
 
-  ComponentState scale(double width, double height) {
+  ComponentState resize(double width, double height) {
     return copyWith(width: width, height: height);
   }
 

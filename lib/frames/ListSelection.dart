@@ -41,8 +41,9 @@ class ListSelection extends StatelessWidget {
                   BlocProvider<EditorBloc>(
                     create: (context) => EditorBloc(
                       EditorState(
-                        EditorMode.insertion,
-                        EditorSubject.text,
+                        noteLocation: "example/doc.xml",
+                        mode: EditorMode.insertion,
+                        subject: EditorSubject.text,
                       ),
                     ),
                   ),

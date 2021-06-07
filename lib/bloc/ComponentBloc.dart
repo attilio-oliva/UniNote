@@ -24,6 +24,7 @@ class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
 
   ComponentState onContentChange(Map<String, dynamic> event) => state;
   ComponentState onMove(Offset position) => state;
+  ComponentState onResize(double width, double height) => state;
 
   bool hitTest(Offset point) {
     if (state.position.dx <= point.dx &&
@@ -36,17 +37,23 @@ class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
     return false;
   }
 
+/*
   @override
   void onTransition(
       Transition<Map<String, dynamic>, ComponentState> transition) {
     super.onTransition(transition);
   }
-
+*/
   @override
   Stream<ComponentState> mapEventToState(Map<String, dynamic> event) async* {
     switch (event["key"]) {
       case ComponentEvent.resized:
-        yield state.scale(event["width"], event["height"]);
+        ComponentState newState = onResize(event["width"], event["height"]);
+        if (newState.width != state.width || newState.height != state.height) {
+          yield newState;
+        } else {
+          yield state.resize(event["width"], event["height"]);
+        }
         break;
       case ComponentEvent.moved:
         Offset position = state.position;
@@ -96,8 +103,7 @@ class StrokeComponentBloc extends ComponentBloc {
   static StrokeComponentBloc? editingBloc;
 
   StrokeComponentBloc(ComponentState initialState)
-      : super(initialState.copyWith(
-            isSelected: false, minHeight: 0, minWidth: 0)) {
+      : super(initialState.copyWith(isSelected: false)) {
     if (state.data["isEditing"] ?? false) {
       if (state.data.containsKey("points")) {
         editingStrokeData = state.data["points"];
@@ -105,6 +111,45 @@ class StrokeComponentBloc extends ComponentBloc {
       }
     }
   }
+  ComponentState recalculateConstraints(List<Offset> points) {
+    List<double> xPos = points.map((e) => e.dx).toList();
+    List<double> yPos = points.map((e) => e.dy).toList();
+    xPos.sort();
+    yPos.sort();
+    double xMin = xPos.first;
+    double xMax = xPos.last;
+    double yMin = yPos.first;
+    double yMax = yPos.last;
+    Offset newPosition = Offset(xMin, yMin);
+    double newWidth = (xMax - xMin) + 5;
+    double newHeight = (yMax - yMin) + 5;
+    return state.copyWith(
+      position: newPosition,
+      width: newWidth,
+      height: newHeight,
+    );
+  }
+
+  @override
+  ComponentState onResize(double width, double height) {
+    ComponentState newState = state;
+    if (state.data.containsKey("points")) {
+      Map<String, dynamic> newData = state.copyWith().data;
+      List<Offset> pointList = state.data["points"];
+      newData["points"] = <Offset>[];
+      for (Offset point in pointList) {
+        newData["points"]
+            .add(point.scale(width / state.width, height / state.height));
+      }
+
+      List<Offset> points = newData["points"];
+      newState = recalculateConstraints(points).copyWith(
+        data: newData,
+      );
+    }
+    return newState;
+  }
+
   @override
   ComponentState onMove(Offset position) {
     ComponentState newState = state;
@@ -139,22 +184,7 @@ class StrokeComponentBloc extends ComponentBloc {
           newData["points"] = points;
 
           //Recalculate position of the component
-          List<double> xPos = points.map((e) => e.dx).toList();
-          List<double> yPos = points.map((e) => e.dy).toList();
-          xPos.sort();
-          yPos.sort();
-          double xMin = xPos.first;
-          double xMax = xPos.last;
-          double yMin = yPos.first;
-          double yMax = yPos.last;
-          Offset newPosition = Offset(xMin, yMin);
-          double newWidth = (xMax - xMin) + 5;
-          double newHeight = (yMax - yMin) + 5;
-
-          newState = state.copyWith(
-            position: newPosition,
-            width: newWidth,
-            height: newHeight,
+          newState = recalculateConstraints(points).copyWith(
             data: newData,
           );
         }

@@ -21,6 +21,7 @@ enum EditorToolBar {
 }
 
 class EditorState {
+  String noteLocation = "";
   EditorMode mode = EditorMode.insertion;
   EditorSubject subject = EditorSubject.text;
   EditorToolBar selectedToolbar = EditorToolBar.text;
@@ -35,10 +36,23 @@ class EditorState {
     "gridColor": Colors.blue,
     "gridSize": 25.0,
   };
-  EditorState(this.mode, this.subject,
-      [this.selectedToolbar = EditorToolBar.text,
-      this.toolBarVisibility = false]);
+  EditorState({
+    this.noteLocation = "",
+    this.mode = EditorMode.insertion,
+    this.subject = EditorSubject.text,
+    this.selectedToolbar = EditorToolBar.text,
+    this.toolBarVisibility = false,
+    this.subToolBarVisibility = false,
+    this.paletteVisibility = false,
+    this.gridModifierVisibility = false,
+    List<Widget>? componentList,
+    List<Widget>? selectedComponents,
+  }) {
+    this.componentList = componentList ?? [];
+    this.selectedComponents = selectedComponents ?? [];
+  }
   EditorState.from(EditorState state) {
+    noteLocation = state.noteLocation;
     mode = state.mode;
     subject = state.subject;
     selectedToolbar = state.selectedToolbar;
@@ -49,6 +63,32 @@ class EditorState {
     theme = state.theme;
     componentList = state.componentList;
     selectedComponents = state.selectedComponents;
+  }
+  EditorState copyWith(
+    String? noteLocation,
+    EditorMode? mode,
+    EditorSubject? subject,
+    EditorToolBar? selectedToolbar,
+    List<Widget>? componentList,
+    List<Widget>? selectedComponents,
+    bool? toolBarVisibility,
+    bool? subToolBarVisibility,
+    bool? paletteVisibility,
+    bool? gridModifierVisibility,
+  ) {
+    return EditorState(
+      noteLocation: noteLocation ?? this.noteLocation,
+      mode: mode ?? this.mode,
+      subject: subject ?? this.subject,
+      selectedToolbar: selectedToolbar ?? this.selectedToolbar,
+      componentList: componentList ?? this.componentList,
+      selectedComponents: selectedComponents ?? this.selectedComponents,
+      toolBarVisibility: toolBarVisibility ?? this.toolBarVisibility,
+      subToolBarVisibility: subToolBarVisibility ?? this.subToolBarVisibility,
+      paletteVisibility: paletteVisibility ?? this.paletteVisibility,
+      gridModifierVisibility:
+          gridModifierVisibility ?? this.gridModifierVisibility,
+    );
   }
 
   String toString() {

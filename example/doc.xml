@@ -1,0 +1,17 @@
+<doc title="Example">
+    <meta>
+        <version app="v0.01" note="06/06/2021 10:10"/>
+    </meta>
+    <style>
+        <background color="#FFFFFF" pattern="grid"/>
+        <theme>
+        </theme>
+    </style>
+    <content>
+        <text x="25" y="150" id="txt1" data="## Example part 1
+This is a text example
+- element1
+- element2"/>
+        <image x="25" y="300" id="img1" location="https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Penguin%2C_Strait_of_Magellan.jpg/412px-Penguin%2C_Strait_of_Magellan.jpg"/>
+    </content>
+</doc>

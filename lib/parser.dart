@@ -6,7 +6,6 @@ import 'globals/types.dart';
 
 String usedFileListPath = 'example/opened.xml';
 void createUsedFileList() {
-  print(Directory.current);
   File list = new File(usedFileListPath);
   list.create();
   list.writeAsString("<list>\n</list>");

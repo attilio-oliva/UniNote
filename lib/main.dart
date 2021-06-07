@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uninote/parser.dart';
 import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
@@ -14,7 +15,11 @@ import 'package:uninote/globals/colors.dart' as globalColors;
 import 'frames/NoteEditor.dart';
 import 'globals/types.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Directory appDocDir = await getApplicationDocumentsDirectory();
+  String appDocPath = appDocDir.path;
+  print(appDocPath);
   runApp(MyApp(pathsToTree(usedFilesPaths())));
 }
 

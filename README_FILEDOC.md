@@ -60,7 +60,7 @@ Every main component can have optional data:
 ## Types definition
 
 ### Date
-Timestamp format (DD-MM-YYYY hh:mm)
+Timestamp format (DD/MM/YYYY hh:mm)
 ### Colour
 Represent the colour of the component in TODO format.
 ### ColourPalette

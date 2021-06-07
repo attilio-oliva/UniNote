@@ -54,7 +54,8 @@ class _ImageState extends State<ImageComponent> {
 
   _ImageState(this.position, this.width, this.height, this.location);
 
-  Widget getImageWidget() {
+  Widget getImageWidget(String location) {
+    location = (location == "") ? imageDefaultLocation : location;
     return Image.network(
       location,
       fit: BoxFit.fill,
@@ -77,11 +78,11 @@ class _ImageState extends State<ImageComponent> {
             //padding: EdgeInsets.all(editOffset + editBorderWidth),
             width: state.width,
             height: state.height,
-            child: getImageWidget(),
+            child: getImageWidget(state.content),
           ),
         ),
         child: ResizableWidget(
-          child: getImageWidget(),
+          child: getImageWidget(state.content),
           position: state.position,
           width: state.width,
           height: state.height,
