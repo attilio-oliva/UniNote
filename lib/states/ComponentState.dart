@@ -2,10 +2,11 @@ import 'dart:ui';
 
 import 'package:uninote/widgets/components/Component.dart';
 
-const double minPosX = 10;
-const double minPosY = 10;
-
 class ComponentState {
+  static const double minPosX = 10;
+  static const double minPosY = 10;
+  static double defaultWidth = 200;
+  static double defaultHeight = 200;
   late final Offset position;
   late final double width;
   late final double height;

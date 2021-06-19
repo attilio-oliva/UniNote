@@ -23,7 +23,6 @@ class Item {
 
 class Node<E> {
   late E? value;
-  //intensive usage of nodes' degree, to speedup lookups we save this information
   late int degree;
   bool areChildrenVisible = true;
   List<Node<E>> _children = [];

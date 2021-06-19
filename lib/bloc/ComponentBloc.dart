@@ -1,8 +1,8 @@
 import 'dart:ui';
-import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uninote/globals/types.dart';
 import 'package:uninote/states/ComponentState.dart';
+import 'package:uninote/widgets/components/TextComponent.dart';
+import 'package:xml/xml.dart';
 
 enum ComponentEvent {
   resized,
@@ -18,9 +18,23 @@ class ComponentEventData {
   ComponentEventData(this.key, [this.data]);
 }
 
-//TODO: add a minimum size
 class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
   ComponentBloc(ComponentState initialState) : super(initialState);
+
+  factory ComponentBloc.load(XmlElement element) {
+    double x = double.parse(element.getAttribute("x")!);
+    double y = double.parse(element.getAttribute("y")!);
+    Offset position = Offset(x, y);
+    return ComponentBloc(ComponentState(
+      position: position,
+      width: ComponentState.defaultWidth,
+      height: ComponentState.defaultHeight,
+    ));
+  }
+
+  String parse() {
+    return "";
+  }
 
   ComponentState onContentChange(Map<String, dynamic> event) => state;
   ComponentState onMove(Offset position) => state;
@@ -41,6 +55,7 @@ class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
   @override
   void onTransition(
       Transition<Map<String, dynamic>, ComponentState> transition) {
+    print(state.toString());
     super.onTransition(transition);
   }
 */
@@ -85,12 +100,35 @@ class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
 }
 
 class TextComponentBloc extends ComponentBloc {
-  static double maxWidthTitle = 400;
   TextComponentBloc(ComponentState initialState)
       : super((initialState.data["isTitle"] ?? false)
-            ? initialState.copyWith(width: maxWidthTitle)
+            ? initialState.copyWith(width: TextComponent.maxWidthTitle)
             : initialState);
 
+  factory TextComponentBloc.load(XmlElement element) {
+    String text = element.getAttribute("data") ?? "";
+    double x = double.parse(element.getAttribute("x")!);
+    double y = double.parse(element.getAttribute("y")!);
+    Offset position = Offset(x, y);
+    return TextComponentBloc(ComponentState(
+      content: text,
+      position: position,
+      width: TextComponent.defaultMaxWidth,
+      height: TextComponent.defaultHeight + TextComponent.topFieldBarHeight,
+      isSelected: false,
+    ));
+  }
+  /*
+  TextComponentBloc.load(XmlElement element)
+      : super(ComponentState(
+          content: element.getAttribute("data") ?? "",
+          position: Offset(double.parse(element.getAttribute("x")!),
+              double.parse(element.getAttribute("y")!)),
+          width: TextComponent.defaultMaxWidth,
+          height: TextComponent.defaultHeight + TextComponent.topFieldBarHeight,
+          isSelected: false,
+        ));
+  */
   //@override
   //void onContentChange(Map<String, dynamic> event) {
   //  state.data["isTitle"] = ;
@@ -98,12 +136,31 @@ class TextComponentBloc extends ComponentBloc {
   //}
 }
 
+class ImageComponentBloc extends ComponentBloc {
+  ImageComponentBloc(ComponentState initialState) : super(initialState);
+  factory ImageComponentBloc.load(XmlElement element) {
+    String location = element.getAttribute("location") ?? "";
+    double x = double.parse(element.getAttribute("x")!);
+    double y = double.parse(element.getAttribute("y")!);
+    Offset position = Offset(x, y);
+    return ImageComponentBloc(ComponentState(
+      content: location,
+      position: position,
+      width: ComponentState.defaultWidth,
+      height: ComponentState.defaultHeight,
+    ));
+  }
+}
+
 class StrokeComponentBloc extends ComponentBloc {
   static List<Offset> editingStrokeData = [];
   static StrokeComponentBloc? editingBloc;
 
   StrokeComponentBloc(ComponentState initialState)
-      : super(initialState.copyWith(isSelected: false)) {
+      : super(!(initialState.data["isEditing"] ?? false)
+            ? recalculateConstraints(initialState, initialState.data["points"])
+                .copyWith(isSelected: false)
+            : initialState.copyWith(isSelected: false)) {
     if (state.data["isEditing"] ?? false) {
       if (state.data.containsKey("points")) {
         editingStrokeData = state.data["points"];
@@ -111,7 +168,29 @@ class StrokeComponentBloc extends ComponentBloc {
       }
     }
   }
-  ComponentState recalculateConstraints(List<Offset> points) {
+  factory StrokeComponentBloc.load(XmlElement element) {
+    String svgData =
+        element.findElements("polyline").first.getAttribute("points") ?? "";
+    List<Offset> points = svgData.split(" ").map((element) {
+      List<String> pair = element.split(",");
+      double x = double.parse(pair.first);
+      double y = double.parse(pair.last);
+      return Offset(x, y);
+    }).toList();
+    double x = double.parse(element.getAttribute("x")!);
+    double y = double.parse(element.getAttribute("y")!);
+    Offset position = Offset(x, y);
+    return StrokeComponentBloc(ComponentState(
+      content: "*",
+      data: {"points": points},
+      position: position,
+      width: double.infinity,
+      height: double.infinity,
+    ));
+  }
+
+  static ComponentState recalculateConstraints(
+      ComponentState state, List<Offset> points) {
     List<double> xPos = points.map((e) => e.dx).toList();
     List<double> yPos = points.map((e) => e.dy).toList();
     xPos.sort();
@@ -121,8 +200,9 @@ class StrokeComponentBloc extends ComponentBloc {
     double yMin = yPos.first;
     double yMax = yPos.last;
     Offset newPosition = Offset(xMin, yMin);
-    double newWidth = (xMax - xMin) + 5;
-    double newHeight = (yMax - yMin) + 5;
+    double newWidth = (xMax - xMin).clamp(5, double.infinity);
+    double newHeight = (yMax - yMin).clamp(5, double.infinity);
+
     return state.copyWith(
       position: newPosition,
       width: newWidth,
@@ -143,7 +223,7 @@ class StrokeComponentBloc extends ComponentBloc {
       }
 
       List<Offset> points = newData["points"];
-      newState = recalculateConstraints(points).copyWith(
+      newState = recalculateConstraints(state, points).copyWith(
         data: newData,
       );
     }
@@ -184,7 +264,7 @@ class StrokeComponentBloc extends ComponentBloc {
           newData["points"] = points;
 
           //Recalculate position of the component
-          newState = recalculateConstraints(points).copyWith(
+          newState = recalculateConstraints(state, points).copyWith(
             data: newData,
           );
         }

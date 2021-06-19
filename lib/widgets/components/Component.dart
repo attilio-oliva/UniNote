@@ -9,7 +9,7 @@ import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/widgets/ResizableWidget.dart';
 
 abstract class Component {
-  late ComponentBloc bloc;
+  late final ComponentBloc bloc;
 
   bool hitTest(Offset point);
   String parse();

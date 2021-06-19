@@ -8,6 +8,8 @@ import 'dart:math' as math;
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
+import 'package:xml/xml.dart';
+
 final String defaultKey = 0xFFFFFF.toString();
 const defaultNoteBookName = "Notebook";
 const defaultSectionName = "Section";
@@ -70,6 +72,7 @@ String getDuplicateId(List<Node<Item>> list, String value, [int? indexToSkip]) {
 }
 
 class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
+  final XmlBuilder builder = XmlBuilder();
   Tree<Item> fileSystem = Tree<Item>();
   late Node<Item> selectedNode;
   ListBloc(ListState initialState, [Tree<Item>? tree]) : super(initialState) {

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
@@ -86,25 +85,19 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
         "";
     print("$appVersion, last edit: $noteVersion");
     addComponent(EditorSubject.text, Offset(0, 0), {"isTitle": true}, title);
-    getComponentsFromFile();
+    getComponentsFromFile(xmlDoc);
   }
-  void getComponentsFromFile() {
-    File noteDoc = File(state.noteLocation);
-    XmlDocument xmlDoc = XmlDocument.parse(noteDoc.readAsStringSync());
+
+  void getComponentsFromFile(XmlDocument xmlDoc) {
     XmlElement? xmlList = xmlDoc.firstChild?.getElement("content");
     xmlList!.findAllElements("text").toList().forEach((element) {
-      String text = element.getAttribute("data") ?? "";
-      double x = double.parse(element.getAttribute("x")!);
-      double y = double.parse(element.getAttribute("y")!);
-      Offset position = Offset(x, y);
-      addComponent(EditorSubject.text, position, {}, text, false);
+      loadComponent(EditorSubject.text, element);
     });
     xmlList.findAllElements("image").toList().forEach((element) {
-      String location = element.getAttribute("location") ?? "";
-      double x = double.parse(element.getAttribute("x")!);
-      double y = double.parse(element.getAttribute("y")!);
-      Offset position = Offset(x, y);
-      addComponent(EditorSubject.image, position, {}, location, false);
+      loadComponent(EditorSubject.image, element);
+    });
+    xmlList.findAllElements("stroke").toList().forEach((element) {
+      loadComponent(EditorSubject.stroke, element);
     });
   }
 
@@ -120,6 +113,35 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
     }
   }
 
+  void loadComponent(EditorSubject subject, XmlElement data) {
+    late Widget widgetComponent;
+    switch (subject) {
+      case EditorSubject.text:
+        TextComponentBloc bloc = TextComponentBloc.load(data);
+        widgetComponent = TextComponent(
+          bloc: bloc,
+          editorBloc: this,
+        );
+        break;
+      case EditorSubject.image:
+        ImageComponentBloc bloc = ImageComponentBloc.load(data);
+        widgetComponent = ImageComponent(
+          bloc: bloc,
+        );
+        break;
+      case EditorSubject.stroke:
+        StrokeComponentBloc bloc = StrokeComponentBloc.load(data);
+        widgetComponent = StrokeComponent(
+          bloc: bloc,
+        );
+        break;
+      case EditorSubject.attachment:
+        // TODO: Handle this case.
+        break;
+    }
+    state.componentList.add(widgetComponent);
+  }
+
   Widget? addComponent(EditorSubject subject, Offset pos,
       [Map<String, dynamic> data = const {},
       String content = "",
@@ -133,15 +155,15 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
       case EditorSubject.text:
         TextComponentBloc bloc = TextComponentBloc(ComponentState(
           position: pos,
-          width: defaultMaxWidth,
-          height: defaultHeight + topFieldBarHeight,
+          width: TextComponent.defaultMaxWidth,
+          height: TextComponent.defaultHeight + TextComponent.topFieldBarHeight,
+          maxHeight: 1000,
           content: content,
           canMove: canMove,
           isSelected: isSelected,
           data: data,
         ));
         TextComponent textComponent = TextComponent(
-          text: content,
           bloc: bloc,
           editorBloc: this,
         );
@@ -155,7 +177,7 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
             height: imageDefaultMaxHeight,
             minWidth: 200,
             minHeight: 200,
-            content: content,
+            content: imageDefaultLocation,
             canMove: canMove,
             isSelected: isSelected,
             data: data,
@@ -190,6 +212,19 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
         break;
     }
     return null;
+  }
+
+  deleteEmptyComponents(List<Widget> list) {
+    list = List<Widget>.from(list);
+    for (Widget selected in list) {
+      Component component = selected as Component;
+      if (component.bloc.state.content == "" &&
+          !(component.bloc.state.data["isTitle"] ?? false)) {
+        state.componentList.remove(selected);
+        //"Delete" component
+        selected = Container();
+      }
+    }
   }
 
   void deselectAllComponents([List<Widget> excludedList = const []]) {
@@ -315,6 +350,7 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
                 Widget? clickedComponent = getClickedComponent(position);
                 bool isBackgroundClick = (clickedComponent == null);
                 if (isBackgroundClick) {
+                  deleteEmptyComponents(state.componentList);
                   deselectAllComponents();
                   state.selectedComponents = [];
                   switch (state.mode) {

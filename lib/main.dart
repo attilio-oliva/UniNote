@@ -62,15 +62,17 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      //home: BlocProvider<EditorBloc>(
-      //  create: (context) => EditorBloc(
-      //    EditorState(
-      //      EditorMode.insertion,
-      //      EditorSubject.text,
-      //    ),
-      //  ),
-      //  child: NoteEditor(),
-      //),
+      /*
+      home: BlocProvider<EditorBloc>(
+        create: (context) => EditorBloc(
+          EditorState(
+            mode: EditorMode.insertion,
+            subject: EditorSubject.text,
+          ),
+        ),
+        child: NoteEditor(),
+      ),
+      */
       home: BlocProvider<ListBloc>(
         create: (context) => ListBloc(ListState(), fileTree),
         child: ListSelection(title: 'notebook'),

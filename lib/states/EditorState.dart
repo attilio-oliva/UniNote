@@ -64,7 +64,7 @@ class EditorState {
     componentList = state.componentList;
     selectedComponents = state.selectedComponents;
   }
-  EditorState copyWith(
+  EditorState copyWith({
     String? noteLocation,
     EditorMode? mode,
     EditorSubject? subject,
@@ -75,7 +75,7 @@ class EditorState {
     bool? subToolBarVisibility,
     bool? paletteVisibility,
     bool? gridModifierVisibility,
-  ) {
+  }) {
     return EditorState(
       noteLocation: noteLocation ?? this.noteLocation,
       mode: mode ?? this.mode,

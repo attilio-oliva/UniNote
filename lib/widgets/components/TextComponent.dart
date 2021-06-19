@@ -10,27 +10,22 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'Component.dart';
 
-const double defaultMaxWidth = 300;
-const double defaultHeight = 45;
 const Offset defaultPosition = Offset(0, 0);
-const double topFieldBarHeight = 5;
 
 class TextComponent extends StatefulWidget with Component {
-  //Initial value parameters
-  final double maxWidth;
-  final String text;
+  static double maxWidthTitle = 500;
+  static const double defaultMaxWidth = 300;
+  static const double defaultHeight = 45;
+  static const double topFieldBarHeight = 5;
   final TextComponentBloc bloc;
   final EditorBloc editorBloc;
   TextComponent({
     position = defaultPosition,
-    this.maxWidth = defaultMaxWidth,
-    this.text = "",
     required this.bloc,
     required this.editorBloc,
   });
   @override
-  State<TextComponent> createState() =>
-      _TextState(maxWidth: maxWidth, text: text);
+  State<TextComponent> createState() => _TextState();
 
   @override
   bool hitTest(Offset point) {
@@ -42,6 +37,15 @@ class TextComponent extends StatefulWidget with Component {
     // TODO: implement parse
     throw UnimplementedError();
   }
+
+  void onChildSize(Size size) {
+    print("${size.width}, ${size.height}");
+    bloc.add({
+      "key": ComponentEvent.resized,
+      "width": size.width,
+      "height": size.height
+    });
+  }
 }
 
 class _TextState extends State<TextComponent> {
@@ -51,13 +55,21 @@ class _TextState extends State<TextComponent> {
   late TextEditingController _controller;
   late FocusNode _focusNode;
 
-  _TextState({this.maxWidth = defaultMaxWidth, String text = ""}) {
-    _controller = TextEditingController(text: text);
+  @override
+  void initState() {
+    super.initState();
+    maxWidth = widget.bloc.state.maxWidth;
+    _controller = TextEditingController(text: widget.bloc.state.content);
+    _controller.addListener(() {
+      widget.bloc.add(
+          {"key": ComponentEvent.contentChanged, "data": _controller.text});
+    });
     _focusNode = FocusNode(
       onKey: (node, key) => _onKey(key),
     );
     _focusNode.addListener(_handleFocus);
   }
+
 /*
   void onDragUpdate(DragUpdateDetails details) {
     setState(() {
@@ -203,6 +215,18 @@ class _TextState extends State<TextComponent> {
       bloc: widget.bloc,
       listener: (context, state) {
         if (!state.isSelected && _focusNode.hasFocus) {
+          /*
+          final Size size = (TextPainter(
+                  text: TextSpan(
+                      text: _controller.text,
+                      style: Theme.of(context).textTheme.bodyText1),
+                  maxLines: null,
+                  //textScaleFactor: MediaQuery.of(context).textScaleFactor,
+                  textDirection: TextDirection.ltr)
+                ..layout())
+              .size;
+          widget.onChildSize(size);
+          */
           _focusNode.unfocus();
         }
         if (state.isSelected && !_focusNode.hasFocus) {
@@ -242,7 +266,7 @@ class _TextState extends State<TextComponent> {
                       visible: state.canMove && state.isSelected,
                       child: SizedBox(
                         width: state.width,
-                        height: topFieldBarHeight,
+                        height: TextComponent.topFieldBarHeight,
                         child: DecoratedBox(
                           decoration: BoxDecoration(color: Colors.white),
                         ),

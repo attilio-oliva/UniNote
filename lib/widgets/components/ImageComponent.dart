@@ -56,10 +56,29 @@ class _ImageState extends State<ImageComponent> {
 
   Widget getImageWidget(String location) {
     location = (location == "") ? imageDefaultLocation : location;
-    return Image.network(
-      location,
-      fit: BoxFit.fill,
-    );
+    return Image.network(location, fit: BoxFit.fill,
+        //isAntiAlias: true, enable in when rotation is implemented
+        loadingBuilder: (context, child, loadingProgress) {
+      if (loadingProgress == null) return child;
+      return Center(
+        child: CircularProgressIndicator(
+          color: Colors.pink,
+          value: loadingProgress.expectedTotalBytes != null
+              ? loadingProgress.cumulativeBytesLoaded /
+                  loadingProgress.expectedTotalBytes!
+              : null,
+        ),
+      );
+    }, errorBuilder:
+            (BuildContext context, Object exception, StackTrace? stackTrace) {
+      //TODO: add dummy image in error case
+      return Column(
+        children: [
+          Icon(Icons.error, color: Colors.pink),
+          Text("Could not load image", style: TextStyle(color: Colors.pink)),
+        ],
+      );
+    });
   }
 
   @override

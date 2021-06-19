@@ -6,7 +6,7 @@ import 'package:uninote/frames/ListSelection.dart';
 import 'package:uninote/globals/types.dart';
 import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
-import 'package:uninote/widgets/NotePainter.dart';
+import 'package:uninote/widgets/NoteBackground.dart';
 import 'package:uninote/widgets/Palette.dart';
 import 'package:uninote/widgets/ToolBar.dart';
 import 'package:uninote/globals/colors.dart' as globals;
@@ -35,20 +35,16 @@ extension appBarButtonExtension on AppBarButton {
 }
 
 class NoteEditor extends StatefulWidget {
-  late ListBloc listBloc;
+  ListBloc? listBloc;
   NoteEditor([ListBloc? listBloc]) {
-    if (listBloc != null) {
-      this.listBloc = listBloc;
-    } else {
-      Tree<Item> tree = pathsToTree(usedFilesPaths());
-      listBloc = ListBloc(ListState(), tree);
-    }
+    this.listBloc = listBloc;
   }
   @override
   _NoteEditorState createState() => _NoteEditorState();
 }
 
 class _NoteEditorState extends State<NoteEditor> {
+  late ListBloc listBloc;
   List options = ['Settings1', 'Settings2', 'Settings3'];
   late double maxHeight;
   late double maxWidth;
@@ -65,6 +61,17 @@ class _NoteEditorState extends State<NoteEditor> {
   Future<bool> _onWillPop(ListBloc listBloc) async {
     listBloc.add({"key": ListEvent.editorToListSwitch});
     return true;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.listBloc == null) {
+      Tree<Item> tree = pathsToTree(usedFilesPaths());
+      listBloc = ListBloc(ListState(), tree);
+    } else {
+      listBloc = widget.listBloc!;
+    }
   }
 
   void updateSize() {
