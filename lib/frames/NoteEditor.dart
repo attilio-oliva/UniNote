@@ -10,6 +10,7 @@ import 'package:uninote/widgets/NotePainter.dart';
 import 'package:uninote/widgets/Palette.dart';
 import 'package:uninote/widgets/ToolBar.dart';
 import 'package:uninote/globals/colors.dart' as globals;
+import 'package:uninote/globals/EditorTool.dart';
 
 import '../parser.dart';
 
@@ -40,7 +41,7 @@ class NoteEditor extends StatefulWidget {
     if (listBloc != null) {
       this.listBloc = listBloc;
     } else {
-      Tree<Item> tree = pathsToTree(usedFilesPaths());
+      Tree<Item> tree = Tree<Item>(); //pathsToTree(usedFilesPaths());
       listBloc = ListBloc(ListState(), tree);
     }
   }
@@ -159,29 +160,33 @@ class _NoteEditorState extends State<NoteEditor> {
       ));
     } else if (button == EditorToolBar.view) {
       list.add(Material(
-        color: globals.primaryColor,
         child: IconButton(
           icon: Icon(Icons.palette_outlined),
+          disabledColor: Colors.blue,
           onPressed: () => bloc.add({
             "key": EditorEvent.toolButtonPressed,
             "type": EditorTool.backgroundPalette,
           }),
         ),
+        color: (bloc.state.lastPressedTool == EditorTool.backgroundPalette)
+            ? globals.pressedButtonColor
+            : globals.primaryColor,
       ));
       list.add(Material(
         color: globals.primaryColor,
-        child: IconButton(
-          icon: (bloc.state.mode == EditorMode.readOnly)
-              ? Icon(Icons.lock_sharp)
-              : Icon(Icons.lock_open),
-          onPressed: () => bloc.add({
-            "key": EditorEvent.toolButtonPressed,
-            "type": EditorTool.lockInsertion,
-          }),
+        child: Container(
+          child: IconButton(
+            icon: (bloc.state.mode == EditorMode.readOnly)
+                ? Icon(Icons.lock_sharp)
+                : Icon(Icons.lock_open),
+            onPressed: () => bloc.add({
+              "key": EditorEvent.toolButtonPressed,
+              "type": EditorTool.lockInsertion,
+            }),
+          ),
         ),
       ));
       list.add(Material(
-        color: globals.primaryColor,
         child: IconButton(
           icon: Icon(Icons.grid_on_sharp),
           onPressed: () => bloc.add({
@@ -189,6 +194,9 @@ class _NoteEditorState extends State<NoteEditor> {
             "type": EditorTool.grid,
           }),
         ),
+        color: (bloc.state.lastPressedTool == EditorTool.grid)
+            ? globals.pressedButtonColor
+            : globals.primaryColor,
       ));
     }
     return list;
@@ -212,21 +220,9 @@ class _NoteEditorState extends State<NoteEditor> {
           child: Row(
             children: [
               Container(
-                child: IconButton(
-                  padding: EdgeInsets.all(0),
-                  icon: Icon(Icons.crop_square_sharp, size: 20),
-                  onPressed: () {
-                    bloc.add(
-                      {
-                        "key": EditorEvent.toolButtonPressed,
-                        "type": EditorTool.changedGridSize,
-                        "data": 40.0,
-                      },
-                    );
-                  },
-                ),
-              ),
-              Container(
+                color: (bloc.state.theme["gridSize"] == 25)
+                    ? Colors.grey.shade800
+                    : globals.primaryColor,
                 child: IconButton(
                   padding: EdgeInsets.all(0),
                   icon: Icon(Icons.crop_square_sharp, size: 15),
@@ -236,6 +232,24 @@ class _NoteEditorState extends State<NoteEditor> {
                         "key": EditorEvent.toolButtonPressed,
                         "type": EditorTool.changedGridSize,
                         "data": 25.0,
+                      },
+                    );
+                  },
+                ),
+              ),
+              Container(
+                color: (bloc.state.theme["gridSize"] == 40)
+                    ? Colors.grey.shade800
+                    : globals.primaryColor,
+                child: IconButton(
+                  padding: EdgeInsets.all(0),
+                  icon: Icon(Icons.crop_square_sharp, size: 20),
+                  onPressed: () {
+                    bloc.add(
+                      {
+                        "key": EditorEvent.toolButtonPressed,
+                        "type": EditorTool.changedGridSize,
+                        "data": 40.0,
                       },
                     );
                   },
@@ -385,8 +399,6 @@ class _NoteEditorState extends State<NoteEditor> {
                     top: BorderSide(color: Colors.black),
                   ),
                 ),
-                padding: EdgeInsets.all(0),
-                alignment: Alignment.centerLeft,
                 width: MediaQuery.of(context).size.width,
                 height: subToolBarHeight,
                 child: Row(

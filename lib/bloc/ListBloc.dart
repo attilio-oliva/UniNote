@@ -25,12 +25,6 @@ enum ListEvent {
   editorToListSwitch
 }
 
-class ListEventData {
-  final ListEvent key;
-  final dynamic data;
-  ListEventData(this.key, [this.data]);
-}
-
 String _getHashedKey(String title) {
   String salt = math.Random().nextInt(0xFFFF).toString();
   List<int> plainText = utf8.encode(title + salt);

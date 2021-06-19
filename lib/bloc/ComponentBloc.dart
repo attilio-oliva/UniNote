@@ -12,12 +12,6 @@ enum ComponentEvent {
   deselected,
 }
 
-class ComponentEventData {
-  ComponentEvent key;
-  dynamic data;
-  ComponentEventData(this.key, [this.data]);
-}
-
 //TODO: add a minimum size
 class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
   ComponentBloc(ComponentState initialState) : super(initialState);

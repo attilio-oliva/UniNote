@@ -4,21 +4,29 @@ import 'package:xml/xml.dart';
 
 import 'globals/types.dart';
 
-String usedFileListPath = 'example/opened.xml';
-void createUsedFileList() {
+import 'dart:async' show Future;
+import 'package:flutter/services.dart' show rootBundle;
+
+Future<String> getFileData(String path) async {
+  return await rootBundle.loadString(path, cache: false);
+}
+
+String usedFileListPath = 'assets/opened.xml';
+Future<void> createUsedFileList() async {
   File list = new File(usedFileListPath);
   list.create();
   list.writeAsString("<list>\n</list>");
 }
 
-List<String> usedFilesPaths() {
+Future<List<String>> usedFilesPaths() async {
   List<String> paths = [];
   try {
     File usedFileList = File(usedFileListPath);
     //if (!(await usedFileList.exists())) {
     //  createUsedFileList();
     //} else {
-    XmlDocument document = XmlDocument.parse(usedFileList.readAsStringSync());
+    String data = await getFileData(usedFileListPath);
+    XmlDocument document = XmlDocument.parse(data);
     paths = document.root.descendants
         .where((node) => node is XmlText && node.text.trim().isNotEmpty)
         .map((e) => e.text)
