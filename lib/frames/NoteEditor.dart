@@ -12,7 +12,6 @@ import 'package:uninote/widgets/ToolBar.dart';
 import 'package:uninote/globals/colors.dart' as globals;
 import 'package:uninote/globals/EditorTool.dart';
 
-import '../parser.dart';
 
 enum AppBarButton {
   insert,

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uninote/bloc/ComponentBloc.dart';
 import 'package:uninote/globals/EditorTool.dart';
 
 enum EditorMode {
@@ -101,8 +99,8 @@ class EditorState {
     result += "\tsubject: $subject,\n";
     result += "\tselectedToolbar: $selectedToolbar,\n";
     result += "\ttoolbarVisibility: $toolBarVisibility,\n";
-    result += "\tcomponentList: ${componentList},\n";
-    result += "\tselectedComponents: ${selectedComponents},\n";
+    result += "\tcomponentList: $componentList,\n";
+    result += "\tselectedComponents: $selectedComponents,\n";
     result += "}\n";
     return result;
   }

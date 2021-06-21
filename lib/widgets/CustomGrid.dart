@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uninote/bloc/EditorBloc.dart';
-import 'package:uninote/states/EditorState.dart';
 
 class _GridPaperPainter extends CustomPainter {
   const _GridPaperPainter({

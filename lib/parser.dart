@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:ui';
+import 'package:path_provider/path_provider.dart';
 import 'package:xml/xml.dart';
 
 import 'globals/types.dart';
@@ -18,6 +18,20 @@ Future<void> createUsedFileList() async {
   list.writeAsString("<list>\n</list>");
 }
 
+Future<String> get _localPath async {
+  final directory = await getApplicationDocumentsDirectory();
+  return directory.path;
+}
+
+Future<File> _getLocalFile(String nome) async {
+  File file = File(nome);
+
+  bool exists = await file.exists();
+
+  if (!exists) await file.create();
+  return file;
+}
+
 Future<List<String>> usedFilesPaths() async {
   List<String> paths = [];
   try {
@@ -25,6 +39,7 @@ Future<List<String>> usedFilesPaths() async {
     //if (!(await usedFileList.exists())) {
     //  createUsedFileList();
     //} else {
+    print(usedFileList);
     String data = await getFileData(usedFileListPath);
     XmlDocument document = XmlDocument.parse(data);
     paths = document.root.descendants
@@ -37,7 +52,7 @@ Future<List<String>> usedFilesPaths() async {
     });
     //}
   } catch (e) {
-    print(e);
+    print("Exeption: $e");
     createUsedFileList();
   }
   return paths;
@@ -57,17 +72,17 @@ Item elementToItem(XmlElement element) {
   return Item(title, colorValue, key, isGroup);
 }
 
-Tree<Item> pathsToTree(List<String> pathList) {
+Future<Tree<Item>> pathsToTree(List<String> pathList) async {
   Tree<Item> tree = Tree<Item>();
   for (String path in pathList) {
-    File file = File(path);
+    File file = await _getLocalFile(path);
+
     XmlDocument document = XmlDocument.parse(file.readAsStringSync());
     for (final node in document.descendants.whereType<XmlText>()) {
       node.replace(XmlText(node.text.trim()));
     }
     document.normalize();
     XmlElement fileElement = document.getElement("file")!;
-
     Node<Item> fileRootNode =
         tree.addChild(tree.root, elementToItem(fileElement));
     for (XmlElement section in fileElement.findAllElements("section")) {

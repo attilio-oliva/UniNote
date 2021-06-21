@@ -1,7 +1,5 @@
 import 'dart:ui';
-import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uninote/globals/types.dart';
 import 'package:uninote/states/ComponentState.dart';
 
 enum ComponentEvent {
