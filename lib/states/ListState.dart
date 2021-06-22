@@ -28,6 +28,19 @@ extension ListSubjectExtension on ListSubject {
         return 1;
     }
   }
+
+  ListSubject fromDepth(int depth) {
+    switch (depth) {
+      case 1:
+        return ListSubject.notebook;
+      case 2:
+        return ListSubject.section;
+      case 3:
+        return ListSubject.note;
+      default:
+        return ListSubject.notebook;
+    }
+  }
 }
 
 class ListState {

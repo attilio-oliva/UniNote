@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -91,13 +93,29 @@ class _ReordableState extends State<CustomList> {
                   child: RawKeyboardListener(
                     focusNode: getAutoFocusNode(context, state),
                     onKey: (event) {
-                      if (event is RawKeyUpEvent) {
-                        if (event.data.logicalKey == LogicalKeyboardKey.enter) {
-                          listBloc.add({
-                            'key': ListEvent.editRequested,
-                            'index': index,
-                            'data': state.editingContent
-                          });
+                      if (Platform.isAndroid) {
+                        if (event is RawKeyUpEvent &&
+                            event.data is RawKeyEventDataAndroid) {
+                          var data = event.data as RawKeyEventDataAndroid;
+                          if (data.keyCode == 13) {
+                            print("SABBATO");
+                            listBloc.add({
+                              'key': ListEvent.editRequested,
+                              'index': index,
+                              'data': state.editingContent
+                            });
+                          }
+                        }
+                      } else {
+                        if (event is RawKeyUpEvent) {
+                          if (event.data.logicalKey ==
+                              LogicalKeyboardKey.enter) {
+                            listBloc.add({
+                              'key': ListEvent.editRequested,
+                              'index': index,
+                              'data': state.editingContent
+                            });
+                          }
                         }
                       }
                     },
@@ -137,7 +155,6 @@ class _ReordableState extends State<CustomList> {
                 ),
               ),
               onTap: () {
-                print(state.editingIndex);
                 if (!isEditing(state.editingIndex, index))
                   listBloc.add({
                     'key': ListEvent.itemSelected,

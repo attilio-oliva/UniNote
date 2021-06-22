@@ -25,7 +25,8 @@ enum ListEvent {
   editRequested,
   importRemoteResource,
   importLocalResource,
-  editorToListSwitch
+  editorToListSwitch,
+  back
 }
 
 String _getHashedKey(String title) {
@@ -79,7 +80,7 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
   String getBaseFilePath() {
     Node<Item> node = selectedNode;
     for (int i = 0; i < selectedNode.degree - ListSubject.notebook.depth; i++) {
-      node = selectedNode.parent ?? fileSystem.root;
+      node = node.parent ?? fileSystem.root;
     }
     String path = node.value!.location;
     if (path != "") {
@@ -138,11 +139,13 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
         } else if (state.subject == ListSubject.note) {
           if (selectedNode.value!.isGroup) {
             selectedNode.areChildrenVisible = !selectedNode.areChildrenVisible;
-            selectedNode = selectedNode.parent!;
           } else {
             listToEditor(selectedNode.value!.title);
-            selectedNode = selectedNode.parent!;
+            if (selectedNode.parent!.value!.isGroup) {
+              selectedNode = selectedNode.parent!;
+            }
           }
+          selectedNode = selectedNode.parent!;
         }
 
         state.itemList = itemListFromNode(selectedNode);
@@ -207,6 +210,20 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
           state.itemList[index].value!.key = _getHashedKey(title);
         }
         yield ListState.from(state);
+        break;
+      case ListEvent.back:
+        if (selectedNode.parent != null) //if not root
+        {
+          selectedNode = selectedNode.parent!;
+          state.itemList = selectedNode.children;
+          state.subject = state.subject.fromDepth(state.subject.depth - 1);
+          if (state.subject == ListSubject.notebook) {
+            state.selectedItem = defaultNoteBookName;
+          } else {
+            state.selectedItem = selectedNode.value!.title;
+          }
+          yield ListState.from(state);
+        }
         break;
       case ListEvent.importLocalResource:
         // TODO: Handle this case.

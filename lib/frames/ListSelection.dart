@@ -26,6 +26,13 @@ class ListSelection extends StatelessWidget {
     }
   }
 
+  bool shouldBeVisible(ListState state) {
+    if (getAppBarTitle(state) == "Select notebook") {
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     final ListBloc listBloc = BlocProvider.of<ListBloc>(context);
@@ -61,6 +68,17 @@ class ListSelection extends StatelessWidget {
         appBar: AppBar(
           title: Text(getAppBarTitle(state)),
           centerTitle: true,
+          leading: Visibility(
+            visible: shouldBeVisible(state),
+            child: IconButton(
+              onPressed: () {
+                listBloc.add({
+                  'key': ListEvent.back,
+                });
+              },
+              icon: Icon(Icons.arrow_back),
+            ),
+          ),
         ),
         body: CustomList(state.itemList),
         bottomNavigationBar: BottomAppBar(

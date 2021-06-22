@@ -55,21 +55,6 @@ class _TextState extends State<TextComponent> {
   late TextEditingController _controller;
   late FocusNode _focusNode;
 
-  @override
-  void initState() {
-    super.initState();
-    maxWidth = widget.bloc.state.maxWidth;
-    _controller = TextEditingController(text: widget.bloc.state.content);
-    _controller.addListener(() {
-      widget.bloc.add(
-          {"key": ComponentEvent.contentChanged, "data": _controller.text});
-    });
-    _focusNode = FocusNode(
-      onKey: (node, key) => _onKey(key),
-    );
-    _focusNode.addListener(_handleFocus);
-  }
-
 /*
   void onDragUpdate(DragUpdateDetails details) {
     setState(() {
@@ -211,6 +196,16 @@ class _TextState extends State<TextComponent> {
 
   @override
   Widget build(BuildContext context) {
+    maxWidth = widget.bloc.state.maxWidth;
+    _controller = TextEditingController(text: widget.bloc.state.content);
+    _controller.addListener(() {
+      widget.bloc.add(
+          {"key": ComponentEvent.contentChanged, "data": _controller.text});
+    });
+    _focusNode = FocusNode(
+      onKey: (node, key) => _onKey(key),
+    );
+    _focusNode.addListener(_handleFocus);
     return BlocConsumer<TextComponentBloc, ComponentState>(
       bloc: widget.bloc,
       listener: (context, state) {
