@@ -34,9 +34,9 @@ class ListState {
   ListSubject subject = ListSubject.notebook;
   List<Node<Item>> itemList = [];
   String selectedItem = "";
+  String? selectedNote;
   int? editingIndex;
   String editingContent = "";
-  bool swapToNoteEditor = false;
   ListState([
     this.subject = ListSubject.notebook,
     this.selectedItem = "",
@@ -52,7 +52,7 @@ class ListState {
     this.selectedItem = state.selectedItem;
     this.editingIndex = state.editingIndex;
     this.editingContent = state.editingContent;
-    this.swapToNoteEditor = state.swapToNoteEditor;
+    this.selectedNote = state.selectedNote;
   }
   ListState.fromList(this.itemList);
 
@@ -63,7 +63,7 @@ class ListState {
     result += ", selectedItem: " + selectedItem;
     result += ", editingIndex: " + editingIndex.toString();
     result += ", editingContent: " + editingContent;
-    result += ", swapToNoteEditor: " + swapToNoteEditor.toString();
+    result += ", selectedNote: " + selectedNote.toString();
     result += "}";
     return result;
   }

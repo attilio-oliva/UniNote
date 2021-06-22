@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/painting.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/globals/types.dart';
 import 'package:uninote/parser.dart';
@@ -25,12 +26,6 @@ enum ListEvent {
   importRemoteResource,
   importLocalResource,
   editorToListSwitch
-}
-
-class ListEventData {
-  final ListEvent key;
-  final dynamic data;
-  ListEventData(this.key, [this.data]);
 }
 
 String _getHashedKey(String title) {
@@ -75,10 +70,24 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
   final XmlBuilder builder = XmlBuilder();
   Tree<Item> fileSystem = Tree<Item>();
   late Node<Item> selectedNode;
+
   ListBloc(ListState initialState, [Tree<Item>? tree]) : super(initialState) {
     fileSystem = tree ?? Tree<Item>();
     selectedNode = fileSystem.root;
     state.itemList = selectedNode.children;
+  }
+  String getBaseFilePath() {
+    Node<Item> node = selectedNode;
+    for (int i = 0; i < selectedNode.degree - ListSubject.notebook.depth; i++) {
+      node = selectedNode.parent ?? fileSystem.root;
+    }
+    String path = node.value!.location;
+    if (path != "") {
+      File file = File(path);
+      return file.parent.absolute.path;
+    } else {
+      return "";
+    }
   }
 
   //TODO: use a list of presets instead
@@ -96,12 +105,12 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
     return itemList;
   }
 
-  void listToEditor() {
-    state.swapToNoteEditor = true;
+  void listToEditor(String note) {
+    state.selectedNote = note;
   }
 
   void editorToList() {
-    state.swapToNoteEditor = false;
+    state.selectedNote = null;
     state.selectedItem = selectedNode.value!.title;
     state.itemList = itemListFromNode(selectedNode);
   }
@@ -131,8 +140,8 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
             selectedNode.areChildrenVisible = !selectedNode.areChildrenVisible;
             selectedNode = selectedNode.parent!;
           } else {
+            listToEditor(selectedNode.value!.title);
             selectedNode = selectedNode.parent!;
-            listToEditor();
           }
         }
 
@@ -155,7 +164,7 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
             defaultName + getDuplicateId(state.itemList, defaultName),
             getRandomColour(),
             defaultKey,
-            isGroupAdded,
+            isGroup: isGroupAdded,
           );
           fileSystem.addChild(selectedNode, newItem);
         } else {
@@ -165,12 +174,16 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
             title,
             getRandomColour(),
             _getHashedKey(title),
-            isGroupAdded,
+            isGroup: isGroupAdded,
           );
           fileSystem.addChild(fileSystem.addChild(selectedNode, newItem),
               Item(defaultNoteName, newItem.colorValue, defaultKey));
         }
-        state.itemList = fileSystem.preOrder(selectedNode);
+        if (state.subject == ListSubject.note) {
+          state.itemList = fileSystem.preOrder(selectedNode);
+        } else {
+          state.itemList = selectedNode.children;
+        }
         state.editingIndex = state.itemList.length - 1;
         yield ListState.from(state);
         break;
@@ -181,6 +194,7 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
         yield ListState.from(state);
         break;
       case ListEvent.editRequested:
+        print("edit requested");
         int index = event['index'];
         String title = event['data'];
         if (title != "") {

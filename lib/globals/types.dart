@@ -7,12 +7,17 @@ class Item {
   String key;
   int colorValue;
   bool isGroup;
-  Item(this.title, this.colorValue, this.key, [this.isGroup = false]);
+  String location;
+  Item(this.title, this.colorValue, this.key,
+      {this.location = "", this.isGroup = false});
 
   @override
   String toString() {
     String result = "";
     result += "{Title: $title";
+    if (location != null) {
+      result += ", location: $location";
+    }
     result += ", color: $colorValue";
     result += ", isGroup: $isGroup";
     result += ", key: $key";

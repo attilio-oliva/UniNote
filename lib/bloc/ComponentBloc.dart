@@ -12,12 +12,6 @@ enum ComponentEvent {
   deselected,
 }
 
-class ComponentEventData {
-  ComponentEvent key;
-  dynamic data;
-  ComponentEventData(this.key, [this.data]);
-}
-
 class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
   ComponentBloc(ComponentState initialState) : super(initialState);
 
@@ -71,14 +65,18 @@ class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
         }
         break;
       case ComponentEvent.moved:
-        Offset position = state.position;
-        if (event["absolute"] != null) {
-          position = event["absolute"];
-        } else if (event["data"] is Offset) {
-          position += event["data"];
+        if (state.canMove) {
+          Offset position = state.position;
+          if (event["absolute"] != null) {
+            position = event["absolute"];
+          } else if (event["data"] is Offset) {
+            position += event["data"];
+          }
+          ComponentState newState = onMove(position);
+          yield newState.move(position);
+        } else {
+          yield state;
         }
-        ComponentState newState = onMove(position);
-        yield newState.move(position);
         break;
       case ComponentEvent.deselected:
         yield state.deselect();
@@ -102,7 +100,8 @@ class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
 class TextComponentBloc extends ComponentBloc {
   TextComponentBloc(ComponentState initialState)
       : super((initialState.data["isTitle"] ?? false)
-            ? initialState.copyWith(width: TextComponent.maxWidthTitle)
+            ? initialState.copyWith(
+                width: TextComponent.maxWidthTitle, canMove: false)
             : initialState);
 
   factory TextComponentBloc.load(XmlElement element) {
@@ -148,6 +147,7 @@ class ImageComponentBloc extends ComponentBloc {
       position: position,
       width: ComponentState.defaultWidth,
       height: ComponentState.defaultHeight,
+      isSelected: false,
     ));
   }
 }

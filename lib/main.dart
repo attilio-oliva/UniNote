@@ -15,12 +15,26 @@ import 'package:uninote/globals/colors.dart' as globalColors;
 import 'frames/NoteEditor.dart';
 import 'globals/types.dart';
 
+import 'dart:async' show Future;
+import 'package:flutter/services.dart' show rootBundle;
+
+import 'package:permission_handler/permission_handler.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Directory appDocDir = await getApplicationDocumentsDirectory();
-  String appDocPath = appDocDir.path;
-  print(appDocPath);
-  runApp(MyApp(pathsToTree(usedFilesPaths())));
+  if (Platform.isAndroid || Platform.isIOS) {
+    var status = await Permission.storage.status;
+    if (status.isDenied) {
+      // You can request multiple permissions at once.
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.storage,
+        Permission.manageExternalStorage,
+      ].request();
+      print(statuses[
+          Permission.storage]); // it should print PermissionStatus.granted
+    }
+  }
+  runApp(MyApp(pathsToTree(await usedFilesPaths())));
 }
 
 class MyApp extends StatelessWidget {

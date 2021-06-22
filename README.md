@@ -5,13 +5,13 @@ It is designed to be a valid alternative to OneNote while having free access to 
 ## Features
 
 - Essential primitives for notes supported:
-  - text
-  - images
-  - strokes
-  - files
-- Text style can be interpreted using symbols (Markdown, HTML, LaTeX, ...)
-- Bookmarks
-- Theme customization
-- Notes are organized in a notebook structure
-- File versioning
-- Cloud syncronization
+  - [x] text
+  - [x] images
+  - [x] strokes
+  - [ ] files
+- [x] Notes are organized in a notebook structure
+- [x] Text style can be interpreted using symbols (Markdown, LaTeX, ...)
+- [ ] Bookmarks
+- [ ] Theme customization
+- [ ] File versioning
+- [ ] Cloud syncronization

@@ -133,6 +133,7 @@ class ComponentState {
     result += "\twidth: $width,\n";
     result += "\theight: $height,\n";
     result += "\tisSelected: $isSelected,\n";
+    result += "\tcanMove: $canMove,\n";
     result += "}";
     return result;
   }

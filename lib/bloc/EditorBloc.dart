@@ -9,6 +9,7 @@ import 'package:uninote/widgets/components/Component.dart';
 import 'package:uninote/widgets/components/ImageComponent.dart';
 import 'package:uninote/widgets/components/StrokeComponent.dart';
 import 'package:uninote/widgets/components/TextComponent.dart';
+import 'package:uninote/globals/EditorTool.dart';
 
 import 'ComponentBloc.dart';
 
@@ -16,18 +17,6 @@ enum EditorEvent {
   appBarButtonPressed,
   toolButtonPressed,
   canvasPressed,
-}
-enum EditorTool {
-  textInsert,
-  textSize,
-  textColor,
-  imageInsert,
-  strokeInsert,
-  lockInsertion,
-  backgroundPalette,
-  grid,
-  changedColor,
-  changedGridSize,
 }
 
 enum InputType {
@@ -40,35 +29,7 @@ enum InputState {
   end //equivalent to up for taps
 }
 
-extension editorToolExtension on EditorTool {
-  bool get isSubTool {
-    switch (this) {
-      case EditorTool.changedColor:
-        return true;
-      default:
-        return false;
-    }
-  }
-}
-
-class EditorEventData {
-  final EditorEvent key;
-  final dynamic data;
-  EditorEventData(this.key, [this.data]);
-}
-
-void subToolBar(EditorState state) {
-  if (state.toolBarVisibility == false) {
-    state.subToolBarVisibility = false;
-  } else if (state.toolBarVisibility == true &&
-      state.selectedToolbar != EditorToolBar.view) {
-    state.subToolBarVisibility = false;
-  }
-}
-
 class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
-  EditorTool? lastPressedTool;
-
   EditorBloc(EditorState initialState) : super(initialState) {
     File noteDoc = File(initialState.noteLocation);
     XmlDocument xmlDoc = XmlDocument.parse(noteDoc.readAsStringSync());
@@ -268,6 +229,7 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
             state.toolBarVisibility = true;
           }
         }
+        state.lastPressedTool = EditorTool.closing;
         yield EditorState.from(state);
         break;
       case EditorEvent.toolButtonPressed:
@@ -291,16 +253,16 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
               state.subject = EditorSubject.stroke;
               break;
             case EditorTool.backgroundPalette:
-              if (lastPressedTool == EditorTool.backgroundPalette) {
+              if (state.lastPressedTool == EditorTool.backgroundPalette) {
                 state.subToolBarVisibility = !prevSubToolBarVisible;
               } else {
                 state.subToolBarVisibility = true;
-                state.paletteVisibility = true;
               }
+              state.paletteVisibility = true;
               break;
             case EditorTool.grid:
-              if (lastPressedTool == EditorTool.grid ||
-                  lastPressedTool == EditorTool.changedGridSize) {
+              if (state.lastPressedTool == EditorTool.grid ||
+                  state.lastPressedTool == EditorTool.changedGridSize) {
                 state.subToolBarVisibility = !prevSubToolBarVisible;
               } else {
                 state.subToolBarVisibility = true;
@@ -315,10 +277,10 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
               state.gridModifierVisibility = true;
               break;
             case EditorTool.changedColor:
-              if (lastPressedTool == EditorTool.backgroundPalette) {
+              if (state.lastPressedTool == EditorTool.backgroundPalette) {
                 state.theme["backgroundColor"] = event["data"];
-              } else if (lastPressedTool == EditorTool.grid ||
-                  lastPressedTool == EditorTool.changedGridSize) {
+              } else if (state.lastPressedTool == EditorTool.grid ||
+                  pressedTool == EditorTool.changedGridSize) {
                 state.theme["gridColor"] = event["data"];
                 state.gridModifierVisibility = true;
               }
@@ -334,8 +296,12 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
               break;
           }
           if (!pressedTool.isSubTool) {
-            lastPressedTool = event["type"];
-          }
+            if (state.lastPressedTool == event["type"]) {
+              state.lastPressedTool = EditorTool.closing;
+            } else {
+              state.lastPressedTool = event["type"];
+            }
+          } else {}
         }
         yield EditorState.from(state);
         break;
@@ -423,6 +389,5 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
         yield EditorState.from(state);
         break;
     }
-    subToolBar(state);
   }
 }

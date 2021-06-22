@@ -31,7 +31,7 @@ class ListSelection extends StatelessWidget {
     final ListBloc listBloc = BlocProvider.of<ListBloc>(context);
     return BlocConsumer<ListBloc, ListState>(
       listener: (context, state) {
-        if (state.swapToNoteEditor) {
+        if (state.selectedNote != null) {
           FocusScope.of(context).unfocus();
           Navigator.push(
             context,
@@ -41,7 +41,9 @@ class ListSelection extends StatelessWidget {
                   BlocProvider<EditorBloc>(
                     create: (context) => EditorBloc(
                       EditorState(
-                        noteLocation: "example/doc.xml",
+                        noteLocation:
+                            "${listBloc.getBaseFilePath()}/document.xml",
+                        //noteLocation:"${listBloc.getBaseFilePath()}/${state.selectedNote!}.xml",
                         mode: EditorMode.insertion,
                         subject: EditorSubject.text,
                       ),

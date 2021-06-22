@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/bloc/ComponentBloc.dart';
+import 'package:uninote/globals/EditorTool.dart';
 
 enum EditorMode {
   selection,
@@ -31,9 +32,10 @@ class EditorState {
   bool subToolBarVisibility = false;
   bool paletteVisibility = false;
   bool gridModifierVisibility = false;
+  EditorTool? lastPressedTool;
   Map<String, dynamic> theme = {
     "backgroundColor": Colors.black,
-    "gridColor": Colors.blue,
+    "gridColor": Colors.blue.shade800,
     "gridSize": 25.0,
   };
   EditorState({
@@ -45,6 +47,7 @@ class EditorState {
     this.subToolBarVisibility = false,
     this.paletteVisibility = false,
     this.gridModifierVisibility = false,
+    this.lastPressedTool = EditorTool.closing,
     List<Widget>? componentList,
     List<Widget>? selectedComponents,
   }) {
@@ -63,6 +66,7 @@ class EditorState {
     theme = state.theme;
     componentList = state.componentList;
     selectedComponents = state.selectedComponents;
+    lastPressedTool = state.lastPressedTool;
   }
   EditorState copyWith({
     String? noteLocation,

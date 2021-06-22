@@ -50,7 +50,6 @@ class _ImageState extends State<ImageComponent> {
   late String location;
   late double width;
   late double height;
-  bool isSelected = true;
 
   _ImageState(this.position, this.width, this.height, this.location);
 
@@ -60,13 +59,16 @@ class _ImageState extends State<ImageComponent> {
         //isAntiAlias: true, enable in when rotation is implemented
         loadingBuilder: (context, child, loadingProgress) {
       if (loadingProgress == null) return child;
-      return Center(
-        child: CircularProgressIndicator(
-          color: Colors.pink,
-          value: loadingProgress.expectedTotalBytes != null
-              ? loadingProgress.cumulativeBytesLoaded /
-                  loadingProgress.expectedTotalBytes!
-              : null,
+      return Container(
+        color: Colors.pink.shade50,
+        child: Center(
+          child: CircularProgressIndicator(
+            color: Colors.pink,
+            value: loadingProgress.expectedTotalBytes != null
+                ? loadingProgress.cumulativeBytesLoaded /
+                    loadingProgress.expectedTotalBytes!
+                : null,
+          ),
         ),
       );
     }, errorBuilder:

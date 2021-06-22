@@ -17,13 +17,16 @@ Details:
 - Attachment contains files and images to be inserted in documents.
 - Groups are optional. They provide a further way to aggregate notes.
 - Documents filename are used for their title. In case the title is left empty, default name is TODO.
+# File structure implementation
+A file is made of multiple related xml subfiles.
+- File structure: every uninote file has its structure defined in a proper xml document (Example in repository at assets/filename.xml) 
+- Note content: every note has its content defined in a dedicated xml document (Example in repository at assets/doc.xml)
 # Document format
 Notation:
 - [Foo]: data of type Foo
 - [[Foo]]: data array of type Foo
 - [TODO]: type is not defined yet
 ## Header
-Documents always starts with "UniNote" encoded as a UTF-8 string, for any kind of serialization implemented. It is used for validation purposes.
 ### version
 - app [string]
 - document [Date]
@@ -37,26 +40,29 @@ Documents always starts with "UniNote" encoded as a UTF-8 string, for any kind o
 ## Main components
 ### text
 - data [string]: The actual text content
-- position [Coordinate]
 - type [TODO] *optional* : how should it be interpreted? Plaintext, Markdown, HTML, LaTeX... Default is TODO
+- width[float]
 - style [TextStyle] *optional*
 ### stroke
-- data [TODO]
-- position [Coordinate]
+ Contains as a child an svg element. Currently a polyline with attribute "points".
 - width [float]
 - colour [Colour]
 ### image
-- data-location [Location]
-- boundary [[Coordinate]]
+- location [Location]
+- width [float]
+- height [float]
 - type [TODO]
 ### file
-- data-location [Location]
-- position [Coordinate]
+- location [Location]
 - type [TODO]
 - icon [TODO]
 ## Common data
+Every main component requires:
+- x [float]: Horizontal distance from the leftmost point in screen(origin is at the top-left corner of the screen)
+- y [float]: Vertical distance from the highest point in screen(origin is at the top-left corner of the screen)
+- id [string]: Identifies the single component to support a bookmark system
 Every main component can have optional data:
-- bookmark [string]: the component is designated as a bookmark of name equal to this string. 
+- bookmark [string]: the component is designated as a bookmark of name equal to this string.
 ## Types definition
 
 ### Date

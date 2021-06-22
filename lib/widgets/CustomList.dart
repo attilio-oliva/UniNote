@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/bloc/ListBloc.dart';
 import 'package:uninote/globals/types.dart';
@@ -87,18 +88,34 @@ class _ReordableState extends State<CustomList> {
                 visible: !isEditing(state.editingIndex, index),
                 replacement: Container(
                   height: 40,
-                  child: TextField(
+                  child: RawKeyboardListener(
                     focusNode: getAutoFocusNode(context, state),
-                    onChanged: (value) => listBloc.add({
-                      'key': ListEvent.editUpdate,
-                      'data': value,
-                    }),
-                    onSubmitted: (value) => listBloc.add({
-                      'key': ListEvent.editRequested,
-                      'index': index,
-                      'data': value
-                    }),
-                    textInputAction: TextInputAction.done,
+                    onKey: (event) {
+                      if (event is RawKeyUpEvent) {
+                        if (event.data.logicalKey == LogicalKeyboardKey.enter) {
+                          listBloc.add({
+                            'key': ListEvent.editRequested,
+                            'index': index,
+                            'data': state.editingContent
+                          });
+                        }
+                      }
+                    },
+                    child: TextField(
+                      focusNode: getAutoFocusNode(context, state),
+                      onChanged: (value) => listBloc.add({
+                        'key': ListEvent.editUpdate,
+                        'data': value,
+                      }),
+                      /* ... not working
+                      onSubmitted: (value) => listBloc.add({
+                        'key': ListEvent.editRequested,
+                        'index': index,
+                        'data': value
+                      }),
+                      */
+                      textInputAction: TextInputAction.done,
+                    ),
                   ),
                 ),
                 child: Text(widget.items[index].value!.title),
@@ -119,10 +136,14 @@ class _ReordableState extends State<CustomList> {
                       .withOpacity(1),
                 ),
               ),
-              onTap: () => listBloc.add({
-                'key': ListEvent.itemSelected,
-                'index': index,
-              }),
+              onTap: () {
+                print(state.editingIndex);
+                if (!isEditing(state.editingIndex, index))
+                  listBloc.add({
+                    'key': ListEvent.itemSelected,
+                    'index': index,
+                  });
+              },
             );
           },
           onReorder: reorderData,
