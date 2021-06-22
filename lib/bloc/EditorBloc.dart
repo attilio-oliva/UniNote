@@ -224,6 +224,7 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
           if (state.toolBarVisibility == true &&
               event['data'] == state.selectedToolbar) {
             state.toolBarVisibility = false;
+            state.subToolBarVisibility = false;
           } else {
             state.selectedToolbar = event['data'];
             state.toolBarVisibility = true;

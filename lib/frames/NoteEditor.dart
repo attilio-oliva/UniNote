@@ -130,7 +130,6 @@ class _NoteEditorState extends State<NoteEditor> {
       list.add(
           //Related to issue https://github.com/flutter/flutter/issues/30658
           Material(
-        color: globals.primaryColor,
         child: IconButton(
           icon: Icon(Icons.border_style),
           onPressed: () => bloc.add({
@@ -138,9 +137,11 @@ class _NoteEditorState extends State<NoteEditor> {
             "type": EditorTool.selectionMode,
           }),
         ),
+        color: (bloc.state.mode == EditorMode.selection)
+            ? globals.pressedButtonColor
+            : globals.primaryColor,
       ));
       list.add(Material(
-        color: globals.primaryColor,
         child: IconButton(
           icon: Icon(Icons.text_fields),
           onPressed: () => bloc.add({
@@ -148,9 +149,12 @@ class _NoteEditorState extends State<NoteEditor> {
             "type": EditorTool.textInsert
           }),
         ),
+        color: (bloc.state.mode == EditorMode.insertion &&
+                bloc.state.subject == EditorSubject.text)
+            ? globals.pressedButtonColor
+            : globals.primaryColor,
       ));
       list.add(Material(
-        color: globals.primaryColor,
         child: IconButton(
           icon: Icon(Icons.image_sharp),
           onPressed: () => bloc.add({
@@ -158,9 +162,12 @@ class _NoteEditorState extends State<NoteEditor> {
             "type": EditorTool.imageInsert,
           }),
         ),
+        color: (bloc.state.mode == EditorMode.insertion &&
+                bloc.state.subject == EditorSubject.image)
+            ? globals.pressedButtonColor
+            : globals.primaryColor,
       ));
       list.add(Material(
-        color: globals.primaryColor,
         child: IconButton(
           icon: Icon(Icons.format_paint_sharp),
           onPressed: () => bloc.add({
@@ -168,6 +175,10 @@ class _NoteEditorState extends State<NoteEditor> {
             "type": EditorTool.strokeInsert,
           }),
         ),
+        color: (bloc.state.mode == EditorMode.insertion &&
+                bloc.state.subject == EditorSubject.stroke)
+            ? globals.pressedButtonColor
+            : globals.primaryColor,
       ));
     } else if (button == EditorToolBar.text) {
       list.add(Material(
@@ -181,7 +192,6 @@ class _NoteEditorState extends State<NoteEditor> {
       list.add(Material(
         child: IconButton(
           icon: Icon(Icons.palette_outlined),
-          disabledColor: Colors.blue,
           onPressed: () => bloc.add({
             "key": EditorEvent.toolButtonPressed,
             "type": EditorTool.backgroundPalette,
@@ -192,7 +202,6 @@ class _NoteEditorState extends State<NoteEditor> {
             : globals.primaryColor,
       ));
       list.add(Material(
-        color: globals.primaryColor,
         child: Container(
           child: IconButton(
             icon: (bloc.state.mode == EditorMode.readOnly)
@@ -204,6 +213,9 @@ class _NoteEditorState extends State<NoteEditor> {
             }),
           ),
         ),
+        color: (bloc.state.mode == EditorMode.readOnly)
+            ? globals.pressedButtonColor
+            : globals.primaryColor,
       ));
       list.add(Material(
         child: IconButton(
