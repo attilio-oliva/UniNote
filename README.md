@@ -4,7 +4,7 @@ It is designed to be a valid alternative to OneNote while having free access to 
 
 ## Features
 
-- Essential primitives for notes supported:
+- [ ] Essential primitives for notes supported:
   - [x] text
   - [x] images
   - [x] strokes

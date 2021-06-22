@@ -132,6 +132,16 @@ class _NoteEditorState extends State<NoteEditor> {
           Material(
         color: globals.primaryColor,
         child: IconButton(
+          icon: Icon(Icons.border_style),
+          onPressed: () => bloc.add({
+            "key": EditorEvent.toolButtonPressed,
+            "type": EditorTool.selectionMode,
+          }),
+        ),
+      ));
+      list.add(Material(
+        color: globals.primaryColor,
+        child: IconButton(
           icon: Icon(Icons.text_fields),
           onPressed: () => bloc.add({
             "key": EditorEvent.toolButtonPressed,

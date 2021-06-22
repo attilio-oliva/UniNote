@@ -65,7 +65,7 @@ class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
         }
         break;
       case ComponentEvent.moved:
-        if (state.canMove) {
+        if (state.canMove && state.isSelected) {
           Offset position = state.position;
           if (event["absolute"] != null) {
             position = event["absolute"];

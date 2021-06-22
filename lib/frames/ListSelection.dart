@@ -10,7 +10,7 @@ import 'NoteEditor.dart';
 
 class ListSelection extends StatelessWidget {
   ListSelection({this.title = ""});
-
+  bool switched = false;
   final String title;
 
   String getAppBarTitle(ListState state) {
@@ -39,29 +39,34 @@ class ListSelection extends StatelessWidget {
     return BlocConsumer<ListBloc, ListState>(
       listener: (context, state) {
         if (state.selectedNote != null) {
-          FocusScope.of(context).unfocus();
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (BuildContext context) => MultiBlocProvider(
-                providers: [
-                  BlocProvider<EditorBloc>(
-                    create: (context) => EditorBloc(
-                      EditorState(
-                        noteLocation:
-                            "${listBloc.getBaseFilePath()}/document.xml",
-                        //noteLocation:"${listBloc.getBaseFilePath()}/${state.selectedNote!}.xml",
-                        mode: EditorMode.insertion,
-                        subject: EditorSubject.text,
+          if (!switched) {
+            switched = true;
+            FocusScope.of(context).unfocus();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider<EditorBloc>(
+                      create: (context) => EditorBloc(
+                        EditorState(
+                          noteLocation:
+                              "${listBloc.getBaseFilePath()}/document.xml",
+                          //noteLocation:"${listBloc.getBaseFilePath()}/${state.selectedNote!}.xml",
+                          mode: EditorMode.selection,
+                          subject: EditorSubject.text,
+                        ),
                       ),
                     ),
-                  ),
-                  BlocProvider<ListBloc>.value(value: listBloc)
-                ],
-                child: NoteEditor(listBloc),
+                    BlocProvider<ListBloc>.value(value: listBloc)
+                  ],
+                  child: NoteEditor(listBloc),
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            switched = false;
+          }
         }
       },
       builder: (context, state) => Scaffold(
@@ -104,7 +109,7 @@ class ListSelection extends StatelessWidget {
               child: Expanded(
                 child: IconButton(
                     color: globalColors.bottomButtonColor,
-                    icon: Icon(Icons.add_circle),
+                    icon: Icon(Icons.create_new_folder),
                     onPressed: () {
                       if (state.editingIndex != null) {
                         listBloc.add({

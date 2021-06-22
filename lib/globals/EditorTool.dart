@@ -1,5 +1,6 @@
 enum EditorTool {
   closing,
+  selectionMode,
   textInsert,
   textSize,
   textColor,

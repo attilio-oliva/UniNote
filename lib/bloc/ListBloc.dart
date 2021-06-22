@@ -146,6 +146,7 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
             }
           }
           selectedNode = selectedNode.parent!;
+          state.selectedItem = selectedNode.value!.title;
         }
 
         state.itemList = itemListFromNode(selectedNode);
@@ -197,7 +198,6 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
         yield ListState.from(state);
         break;
       case ListEvent.editRequested:
-        print("edit requested");
         int index = event['index'];
         String title = event['data'];
         if (title != "") {
@@ -217,6 +217,7 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
           selectedNode = selectedNode.parent!;
           state.itemList = selectedNode.children;
           state.subject = state.subject.fromDepth(state.subject.depth - 1);
+          state.selectedNote = null;
           if (state.subject == ListSubject.notebook) {
             state.selectedItem = defaultNoteBookName;
           } else {

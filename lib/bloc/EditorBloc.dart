@@ -240,6 +240,9 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
           state.paletteVisibility = false;
           state.gridModifierVisibility = false;
           switch (event['type']) {
+            case EditorTool.selectionMode:
+              state.mode = EditorMode.selection;
+              break;
             case EditorTool.textInsert:
               state.mode = EditorMode.insertion;
               state.subject = EditorSubject.text;
@@ -316,30 +319,36 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
                 Widget? clickedComponent = getClickedComponent(position);
                 bool isBackgroundClick = (clickedComponent == null);
                 if (isBackgroundClick) {
-                  deleteEmptyComponents(state.componentList);
-                  deselectAllComponents();
-                  state.selectedComponents = [];
                   switch (state.mode) {
                     case EditorMode.selection:
-                      // TODO: Handle this case.
-                      break;
                     case EditorMode.insertion:
-                      Widget newComponent =
-                          addComponent(state.subject, position)!;
-                      state.selectedComponents = [newComponent];
+                      deleteEmptyComponents(state.componentList);
+                      deselectAllComponents();
+                      state.selectedComponents = [];
+                      if (state.mode == EditorMode.insertion) {
+                        Widget newComponent =
+                            addComponent(state.subject, position)!;
+                        state.selectedComponents = [newComponent];
+                      }
                       break;
                     case EditorMode.readOnly:
-                      // TODO: Handle this case.
                       break;
                   }
                 } else {
-                  //deselect all components
-                  deselectAllComponents([clickedComponent]);
+                  switch (state.mode) {
+                    case EditorMode.selection:
+                    case EditorMode.insertion:
+                      //deselect all components
+                      deselectAllComponents([clickedComponent]);
 
-                  state.selectedComponents = [clickedComponent];
+                      state.selectedComponents = [clickedComponent];
 
-                  //select all components
-                  selectComponents(state.selectedComponents);
+                      //select all components
+                      selectComponents(state.selectedComponents);
+                      break;
+                    case EditorMode.readOnly:
+                      break;
+                  }
                 }
                 break;
               case InputState.start:

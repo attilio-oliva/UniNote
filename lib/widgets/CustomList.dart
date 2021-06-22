@@ -98,7 +98,6 @@ class _ReordableState extends State<CustomList> {
                             event.data is RawKeyEventDataAndroid) {
                           var data = event.data as RawKeyEventDataAndroid;
                           if (data.keyCode == 13) {
-                            print("SABBATO");
                             listBloc.add({
                               'key': ListEvent.editRequested,
                               'index': index,
