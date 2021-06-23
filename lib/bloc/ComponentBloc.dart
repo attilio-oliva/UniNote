@@ -158,7 +158,8 @@ class StrokeComponentBloc extends ComponentBloc {
 
   StrokeComponentBloc(ComponentState initialState)
       : super(!(initialState.data["isEditing"] ?? false)
-            ? recalculateConstraints(initialState, initialState.data["points"])
+            ? recalculateConstraints(
+                    initialState, initialState.data["points"] ?? [])
                 .copyWith(isSelected: false)
             : initialState.copyWith(isSelected: false)) {
     if (state.data["isEditing"] ?? false) {
@@ -193,6 +194,9 @@ class StrokeComponentBloc extends ComponentBloc {
       ComponentState state, List<Offset> points) {
     List<double> xPos = points.map((e) => e.dx).toList();
     List<double> yPos = points.map((e) => e.dy).toList();
+    if (xPos.isEmpty || yPos.isEmpty) {
+      return state;
+    }
     xPos.sort();
     yPos.sort();
     double xMin = xPos.first;

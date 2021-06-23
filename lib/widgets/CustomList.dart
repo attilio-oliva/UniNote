@@ -15,14 +15,22 @@ class CustomList extends StatefulWidget {
 }
 
 class _ReordableState extends State<CustomList> {
-  void reorderData(int oldindex, int newindex) {
+  late ListBloc listBloc;
+  void reorderData(int oldIndex, int newIndex) {
+    listBloc.add({
+      "key": ListEvent.itemReordered,
+      "from": oldIndex,
+      "to": newIndex,
+    });
+    /*
     setState(() {
-      if (newindex > oldindex) {
+      if (newIndex > oldIndex) {
         newindex -= 1;
       }
-      final item = widget.items.removeAt(oldindex);
-      widget.items.insert(newindex, item);
+      final item = widget.items.removeAt(oldIndex);
+      widget.items.insert(newIndex, item);
     });
+    */
   }
 
   void sorting() {
@@ -73,7 +81,7 @@ class _ReordableState extends State<CustomList> {
 
   @override
   Widget build(BuildContext context) {
-    final ListBloc listBloc = BlocProvider.of<ListBloc>(context);
+    listBloc = BlocProvider.of<ListBloc>(context);
     return BlocBuilder<ListBloc, ListState>(
       builder: (context, state) => Theme(
         data: Theme.of(context).copyWith(

@@ -20,6 +20,7 @@ const defaultGroupName = "Group";
 enum ListEvent {
   itemSelected,
   itemAdded,
+  itemReordered,
   groupAdded,
   editUpdate,
   editRequested,
@@ -122,6 +123,67 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
       case ListEvent.editorToListSwitch:
         editorToList();
         yield ListState.from(state);
+        break;
+      case ListEvent.itemReordered:
+        if (event.containsKey("from") && event.containsKey("to")) {
+          int from = event["from"];
+          int to = event["to"];
+          if (to > from) {
+            to -= 1;
+          }
+          Node<Item> item = state.itemList.removeAt(from);
+          if (state.subject == ListSubject.note) {
+            int maxIndex = state.itemList.length - 1;
+            int prevIndex = (to - 1).clamp(0, maxIndex);
+            int nextIndex = to.clamp(0, maxIndex);
+
+            bool isPrevGroup = (to - 1 >= 0)
+                ? state.itemList[prevIndex].value!.isGroup
+                : false;
+            bool isNextInGroup =
+                (state.itemList[nextIndex].degree > ListSubject.note.depth);
+            bool isInGroup = (state.itemList[to.clamp(0, maxIndex)].degree >
+                ListSubject.note.depth);
+            bool wasInGroup = (item.degree > ListSubject.note.depth);
+            if (item.value!.isGroup) {
+              int maxIndex = selectedNode.children.length;
+              from = (from - maxIndex).clamp(0, maxIndex);
+              to = (to - maxIndex).clamp(0, maxIndex);
+              selectedNode.children.remove(item);
+              selectedNode.children.insert(to, item);
+              state.itemList = fileSystem.preOrder(selectedNode);
+            } else if (isPrevGroup ||
+                isNextInGroup ||
+                (wasInGroup && !isInGroup)) {
+              fileSystem.removeChild(item.parent!, item.value!);
+              Node<Item> newParent;
+              int parentIndex;
+              if (isNextInGroup) {
+                newParent = state.itemList[nextIndex].parent!;
+              } else if (isPrevGroup) {
+                newParent = state.itemList[prevIndex];
+              } else {
+                newParent = selectedNode;
+                print("ph");
+              }
+              parentIndex = state.itemList.indexOf(newParent);
+              fileSystem.insertChildAt(
+                newParent,
+                item.value!,
+                (to - parentIndex - 1).clamp(0, newParent.children.length),
+              );
+              state.itemList = fileSystem.preOrder(selectedNode);
+            } else {
+              state.itemList.insert(to, item);
+            }
+          } else {
+            state.itemList.insert(to, item);
+          }
+          yield ListState.from(state);
+        } else {
+          yield state;
+        }
+
         break;
       case ListEvent.itemSelected:
         if (event['index'] != null) {

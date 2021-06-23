@@ -97,8 +97,14 @@ class Tree<E> {
 
   void removeChild(Node<E> parentNode, E child) {
     Node<E> childNode = Node<E>(parentNode.degree + 1, child, parentNode);
-    parentNode.children.remove(childNode);
-    _size--;
+    int length = parentNode.children.length;
+    for (int index = 0; index < length; index++) {
+      if (parentNode.children[index].value == child) {
+        parentNode.children.removeAt(index);
+        _size--;
+        break;
+      }
+    }
   }
 
   List<Node<E>> preOrder(Node<E> parentNode,

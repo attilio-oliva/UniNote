@@ -8,9 +8,10 @@ import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/CustomList.dart';
 import 'NoteEditor.dart';
 
+String? lastSelectedNote;
+
 class ListSelection extends StatelessWidget {
   ListSelection({this.title = ""});
-  bool switched = false;
   final String title;
 
   String getAppBarTitle(ListState state) {
@@ -38,9 +39,9 @@ class ListSelection extends StatelessWidget {
     final ListBloc listBloc = BlocProvider.of<ListBloc>(context);
     return BlocConsumer<ListBloc, ListState>(
       listener: (context, state) {
-        if (state.selectedNote != null) {
-          if (!switched) {
-            switched = true;
+        if (state.selectedNote != lastSelectedNote) {
+          lastSelectedNote = state.selectedNote;
+          if (lastSelectedNote != null) {
             FocusScope.of(context).unfocus();
             Navigator.push(
               context,
@@ -64,8 +65,6 @@ class ListSelection extends StatelessWidget {
                 ),
               ),
             );
-          } else {
-            switched = false;
           }
         }
       },
