@@ -4,6 +4,7 @@ import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/bloc/ListBloc.dart';
 import 'package:uninote/frames/ListSelection.dart';
 import 'package:uninote/globals/types.dart';
+import 'package:uninote/parser.dart';
 import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/NoteBackground.dart';
@@ -11,8 +12,6 @@ import 'package:uninote/widgets/Palette.dart';
 import 'package:uninote/widgets/ToolBar.dart';
 import 'package:uninote/globals/colors.dart' as globals;
 import 'package:uninote/globals/EditorTool.dart';
-
-import '../parser.dart';
 
 enum AppBarButton {
   insert,
@@ -66,15 +65,16 @@ class _NoteEditorState extends State<NoteEditor> {
 
   @override
   void initState() {
-    super.initState();
     usedFilesPaths().then((value) {
       if (widget.listBloc == null) {
-        Tree<Item> tree = pathsToTree(value);
-        listBloc = ListBloc(ListState(), tree);
+        pathsToTree(value).then((tree) {
+          listBloc = ListBloc(ListState(), tree);
+        });
       } else {
         listBloc = widget.listBloc!;
       }
     });
+    super.initState();
   }
 
   void updateSize() {

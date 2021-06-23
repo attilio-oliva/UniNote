@@ -164,7 +164,6 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
                 newParent = state.itemList[prevIndex];
               } else {
                 newParent = selectedNode;
-                print("ph");
               }
               parentIndex = state.itemList.indexOf(newParent);
               fileSystem.insertChildAt(

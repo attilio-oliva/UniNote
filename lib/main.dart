@@ -2,23 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'package:uninote/globals/colors.dart' as globalColors;
 import 'package:uninote/parser.dart';
-import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
-import 'package:xml/xml.dart';
-import 'bloc/EditorBloc.dart';
+
 import 'bloc/ListBloc.dart';
 import 'frames/ListSelection.dart';
-import 'package:uninote/globals/colors.dart' as globalColors;
-
-import 'frames/NoteEditor.dart';
 import 'globals/types.dart';
-
-import 'dart:async' show Future;
-import 'package:flutter/services.dart' show rootBundle;
-
-import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +26,7 @@ void main() async {
           Permission.storage]); // it should print PermissionStatus.granted
     }
   }
-  runApp(MyApp(pathsToTree(await usedFilesPaths())));
+  runApp(MyApp(await pathsToTree(await usedFilesPaths())));
 }
 
 class MyApp extends StatelessWidget {
