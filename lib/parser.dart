@@ -76,24 +76,26 @@ Future<Tree<Item>> pathsToTree(List<String> pathList) async {
   Tree<Item> tree = Tree<Item>();
   for (String path in pathList) {
     File file = await _getLocalFile(path);
-
-    XmlDocument document = XmlDocument.parse(file.readAsStringSync());
-    for (final node in document.descendants.whereType<XmlText>()) {
-      node.replace(XmlText(node.text.trim()));
-    }
-    document.normalize();
-    XmlElement fileElement = document.getElement("file")!;
-    Node<Item> fileRootNode =
-        tree.addChild(tree.root, elementToItem(fileElement));
-    for (XmlElement section in fileElement.findAllElements("section")) {
-      Node<Item> sectionNode =
-          tree.addChild(fileRootNode, elementToItem(section));
-      Node<Item> lastNode = sectionNode;
-      for (XmlElement element in section.descendants.whereType<XmlElement>()) {
-        if (element.depth == section.depth + 1) {
-          lastNode = tree.addChild(sectionNode, elementToItem(element));
-        } else {
-          tree.addChild(lastNode, elementToItem(element));
+    if (await file.length() != 0) {
+      XmlDocument document = XmlDocument.parse(file.readAsStringSync());
+      for (final node in document.descendants.whereType<XmlText>()) {
+        node.replace(XmlText(node.text.trim()));
+      }
+      document.normalize();
+      XmlElement fileElement = document.getElement("file")!;
+      Node<Item> fileRootNode =
+          tree.addChild(tree.root, elementToItem(fileElement));
+      for (XmlElement section in fileElement.findAllElements("section")) {
+        Node<Item> sectionNode =
+            tree.addChild(fileRootNode, elementToItem(section));
+        Node<Item> lastNode = sectionNode;
+        for (XmlElement element
+            in section.descendants.whereType<XmlElement>()) {
+          if (element.depth == section.depth + 1) {
+            lastNode = tree.addChild(sectionNode, elementToItem(element));
+          } else {
+            tree.addChild(lastNode, elementToItem(element));
+          }
         }
       }
     }

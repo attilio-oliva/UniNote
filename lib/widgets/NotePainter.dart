@@ -4,7 +4,6 @@ import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/widgets/CustomGrid.dart';
 
-
 class Painter extends StatefulWidget {
   @override
   State<Painter> createState() => _PainterState();
