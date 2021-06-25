@@ -149,7 +149,17 @@ class _StrokePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _StrokePainter old) {
-    return true;
-    //return old.pointList != pointList;
+    bool repaint = false;
+    if (old.pointList.length != pointList.length) {
+      return true;
+    }
+    //if lists are different
+    for (int index = 0; index < old.pointList.length; index++) {
+      if (old.pointList[index] != pointList[index]) {
+        repaint = true;
+        break;
+      }
+    }
+    return repaint;
   }
 }

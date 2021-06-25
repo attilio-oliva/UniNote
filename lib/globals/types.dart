@@ -96,7 +96,6 @@ class Tree<E> {
   }
 
   void removeChild(Node<E> parentNode, E child) {
-    Node<E> childNode = Node<E>(parentNode.degree + 1, child, parentNode);
     int length = parentNode.children.length;
     for (int index = 0; index < length; index++) {
       if (parentNode.children[index].value == child) {

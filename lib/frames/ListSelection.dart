@@ -80,6 +80,8 @@ class ListSelection extends StatelessWidget {
           lastSelectedNote = state.selectedNote;
           if (lastSelectedNote != null) {
             FocusScope.of(context).unfocus();
+            WidgetsBinding.instance?.focusManager.rootScope.unfocus();
+            WidgetsBinding.instance?.focusManager.primaryFocus?.unfocus();
             Navigator.push(
               context,
               MaterialPageRoute(

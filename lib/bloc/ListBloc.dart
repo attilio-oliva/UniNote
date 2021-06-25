@@ -1,9 +1,7 @@
 import 'dart:io';
 
-import 'package:flutter/painting.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/globals/types.dart';
-import 'package:uninote/parser.dart';
 import 'package:uninote/states/ListState.dart';
 import 'dart:math' as math;
 import 'package:crypto/crypto.dart';

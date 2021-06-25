@@ -3,8 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/bloc/ListBloc.dart';
 import 'package:uninote/frames/ListSelection.dart';
-import 'package:uninote/globals/types.dart';
-import 'package:uninote/parser.dart';
+import 'package:uninote/iomanager.dart';
 import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/states/ListState.dart';
 import 'package:uninote/widgets/NoteBackground.dart';
@@ -58,13 +57,8 @@ class _NoteEditorState extends State<NoteEditor> {
   bool isFirstBuild = true;
   bool isListVisible = false;
   bool shouldListBeVisible = false;
-  Future<bool> _onWillPop(ListBloc listBloc) async {
-    listBloc.add({"key": ListEvent.editorToListSwitch});
-    return true;
-  }
 
-  @override
-  void initState() {
+  _NoteEditorState() {
     usedFilesPaths().then((value) {
       if (widget.listBloc == null) {
         pathsToTree(value).then((tree) {
@@ -74,7 +68,11 @@ class _NoteEditorState extends State<NoteEditor> {
         listBloc = widget.listBloc!;
       }
     });
-    super.initState();
+  }
+
+  Future<bool> _onWillPop(ListBloc listBloc) async {
+    listBloc.add({"key": ListEvent.editorToListSwitch});
+    return true;
   }
 
   void updateSize() {

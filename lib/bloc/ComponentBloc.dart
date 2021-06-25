@@ -1,8 +1,10 @@
 import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/states/ComponentState.dart';
+import 'package:uninote/widgets/components/StrokeComponent.dart';
 import 'package:uninote/widgets/components/TextComponent.dart';
 import 'package:xml/xml.dart';
+import 'package:uninote/iomanager.dart';
 
 enum ComponentEvent {
   resized,
@@ -12,10 +14,41 @@ enum ComponentEvent {
   deselected,
 }
 
+class EditableDocument extends XmlTransformer {
+  String nodeName = "component";
+  Map<String, String> bindings = {};
+  T addElement<T>(
+      XmlHasVisitor visitable, String name, Map<String, String> bindings) {
+    this.bindings = bindings;
+    this.nodeName = name;
+    return visit(visitable);
+  }
+
+  @override
+  XmlElement visitElement(XmlElement node) {
+    List<XmlAttribute> attributes = [];
+    bindings.forEach((key, value) {
+      attributes.add(XmlAttribute(XmlName(key), value));
+    });
+
+    if (node.name.qualified == 'content') {
+      node.children.add(XmlElement(
+        XmlName(nodeName), //visit(node.name)
+        // set attributes
+        attributes,
+        <XmlNode>[],
+      ));
+    }
+    return super.visitElement(node);
+  }
+}
+
 class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
+  String fileComponentName = "component";
   ComponentBloc(ComponentState initialState) : super(initialState);
 
   factory ComponentBloc.load(XmlElement element) {
+    String key = element.getAttribute("id")!;
     double x = double.parse(element.getAttribute("x")!);
     double y = double.parse(element.getAttribute("y")!);
     Offset position = Offset(x, y);
@@ -23,13 +56,20 @@ class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
       position: position,
       width: ComponentState.defaultWidth,
       height: ComponentState.defaultHeight,
+      key: key,
     ));
   }
+  bool onSave() => false;
 
-  String parse() {
-    return "";
+  void save() {
+    bool changed = onSave();
+    if (changed) {
+      openedFileDocument?.writeAsString(openedDocument.toXmlString(),
+          flush: true);
+    }
   }
 
+  String parse() => "";
   ComponentState onContentChange(Map<String, dynamic> event) => state;
   ComponentState onMove(Offset position) => state;
   ComponentState onResize(double width, double height) => state;
@@ -45,14 +85,13 @@ class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
     return false;
   }
 
-/*
   @override
-  void onTransition(
-      Transition<Map<String, dynamic>, ComponentState> transition) {
-    print(state.toString());
-    super.onTransition(transition);
+  void onChange(Change<ComponentState> change) {
+    super.onChange(change);
+    //print(state.toString());
+    save();
   }
-*/
+
   @override
   Stream<ComponentState> mapEventToState(Map<String, dynamic> event) async* {
     switch (event["key"]) {
@@ -101,10 +140,16 @@ class TextComponentBloc extends ComponentBloc {
   TextComponentBloc(ComponentState initialState)
       : super((initialState.data["isTitle"] ?? false)
             ? initialState.copyWith(
-                width: TextComponent.maxWidthTitle, canMove: false)
-            : initialState);
+                width: TextComponent.maxWidthTitle,
+                canMove: false,
+                key: "title")
+            : initialState) {
+    fileComponentName =
+        (initialState.data["isTitle"] ?? false) ? "title" : "text";
+  }
 
   factory TextComponentBloc.load(XmlElement element) {
+    String key = element.getAttribute("id")!;
     String text = element.getAttribute("data") ?? "";
     double x = double.parse(element.getAttribute("x")!);
     double y = double.parse(element.getAttribute("y")!);
@@ -115,7 +160,51 @@ class TextComponentBloc extends ComponentBloc {
       width: TextComponent.defaultMaxWidth,
       height: TextComponent.defaultHeight + TextComponent.topFieldBarHeight,
       isSelected: false,
+      key: key,
     ));
+  }
+  @override
+  bool onSave() {
+    bool changed = false;
+    if (fileComponentName == "title") {
+      if (state.content != openedDocument.firstChild?.getAttribute("title")) {
+        openedDocument.firstChild?.setAttribute("title", state.content);
+        changed = true;
+      }
+    } else {
+      try {
+        XmlElement element = openedDocument
+            .findAllElements(fileComponentName)
+            .firstWhere(
+                (element) => (element.getAttribute("id") ?? "") == state.key);
+        double x = double.parse(element.getAttribute("x")!);
+        double y = double.parse(element.getAttribute("y")!);
+        Offset position = Offset(x, y);
+        if (state.content != element.getAttribute("data")) {
+          element.setAttribute("data", state.content);
+          changed = true;
+        }
+
+        if (state.position != position) {
+          element.setAttribute("x", state.position.dx.toStringAsFixed(2));
+          element.setAttribute("y", state.position.dy.toStringAsFixed(2));
+          changed = true;
+        }
+      } on StateError {
+        Map<String, String> bindings = {
+          "id": state.key,
+          "x": state.position.dx.toStringAsFixed(2),
+          "y": state.position.dy.toStringAsFixed(2),
+          "data": state.content,
+        };
+
+        openedDocument = EditableDocument()
+            .addElement(openedDocument, fileComponentName, bindings);
+
+        changed = true;
+      }
+    }
+    return changed;
   }
   /*
   TextComponentBloc.load(XmlElement element)
@@ -136,19 +225,71 @@ class TextComponentBloc extends ComponentBloc {
 }
 
 class ImageComponentBloc extends ComponentBloc {
-  ImageComponentBloc(ComponentState initialState) : super(initialState);
+  ImageComponentBloc(ComponentState initialState) : super(initialState) {
+    fileComponentName = "image";
+  }
   factory ImageComponentBloc.load(XmlElement element) {
+    String key = element.getAttribute("id")!;
     String location = element.getAttribute("location") ?? "";
     double x = double.parse(element.getAttribute("x")!);
     double y = double.parse(element.getAttribute("y")!);
+    double width = double.parse(element.getAttribute("width")!);
+    double height = double.parse(element.getAttribute("height")!);
     Offset position = Offset(x, y);
     return ImageComponentBloc(ComponentState(
       content: location,
       position: position,
-      width: ComponentState.defaultWidth,
-      height: ComponentState.defaultHeight,
+      width: width,
+      height: height,
       isSelected: false,
+      key: key,
     ));
+  }
+  @override
+  bool onSave() {
+    bool changed = false;
+    try {
+      XmlElement element = openedDocument
+          .findAllElements(fileComponentName)
+          .firstWhere((element) => (element.getAttribute("id")) == state.key);
+      double x = double.parse(element.getAttribute("x")!);
+      double y = double.parse(element.getAttribute("y")!);
+      double width = double.parse(element.getAttribute("width")!);
+      double height = double.parse(element.getAttribute("height")!);
+      Offset position = Offset(x, y);
+      if (state.content != element.getAttribute("data")) {
+        element.setAttribute("location", state.content);
+        changed = true;
+      }
+      if (state.width != width) {
+        element.setAttribute("width", state.width.toStringAsFixed(2));
+        changed = true;
+      }
+      if (state.height != height) {
+        element.setAttribute("height", state.height.toStringAsFixed(2));
+        changed = true;
+      }
+      if (state.position != position) {
+        element.setAttribute("x", state.position.dx.toStringAsFixed(2));
+        element.setAttribute("y", state.position.dy.toStringAsFixed(2));
+        changed = true;
+      }
+    } on StateError {
+      Map<String, String> bindings = {
+        "id": state.key,
+        "x": state.position.dx.toStringAsFixed(2),
+        "y": state.position.dy.toStringAsFixed(2),
+        "width": state.width.toStringAsFixed(2),
+        "height": state.height.toStringAsFixed(2),
+        "location": state.content,
+      };
+
+      openedDocument = EditableDocument()
+          .addElement(openedDocument, fileComponentName, bindings);
+
+      changed = true;
+    }
+    return changed;
   }
 }
 
@@ -162,6 +303,7 @@ class StrokeComponentBloc extends ComponentBloc {
                     initialState, initialState.data["points"] ?? [])
                 .copyWith(isSelected: false)
             : initialState.copyWith(isSelected: false)) {
+    fileComponentName = "stroke";
     if (state.data["isEditing"] ?? false) {
       if (state.data.containsKey("points")) {
         editingStrokeData = state.data["points"];
@@ -172,12 +314,8 @@ class StrokeComponentBloc extends ComponentBloc {
   factory StrokeComponentBloc.load(XmlElement element) {
     String svgData =
         element.findElements("polyline").first.getAttribute("points") ?? "";
-    List<Offset> points = svgData.split(" ").map((element) {
-      List<String> pair = element.split(",");
-      double x = double.parse(pair.first);
-      double y = double.parse(pair.last);
-      return Offset(x, y);
-    }).toList();
+    List<Offset> points = stringToPoints(svgData);
+    String key = element.getAttribute("id")!;
     double x = double.parse(element.getAttribute("x")!);
     double y = double.parse(element.getAttribute("y")!);
     Offset position = Offset(x, y);
@@ -187,7 +325,76 @@ class StrokeComponentBloc extends ComponentBloc {
       position: position,
       width: double.infinity,
       height: double.infinity,
+      key: key,
     ));
+  }
+  static List<Offset> stringToPoints(String data) {
+    return data.trimRight().split(" ").map((element) {
+      List<String> pair = element.split(",");
+      double x = double.parse(pair.first);
+      double y = double.parse(pair.last);
+      return Offset(x, y);
+    }).toList();
+  }
+
+  String pointsToString(List<Offset> points) {
+    SvgPolyline path = SvgPolyline();
+    for (int i = 0; i < points.length; i++) {
+      path.lineTo(points[i].dx, points[i].dy);
+    }
+    return path.toString();
+  }
+
+  @override
+  bool onSave() {
+    bool changed = false;
+    bool pointsChanged = false;
+    try {
+      XmlElement element = openedDocument
+          .findAllElements(fileComponentName)
+          .firstWhere(
+              (element) => (element.getAttribute("id") ?? "") == state.key);
+      double x = double.parse(element.getAttribute("x")!);
+      double y = double.parse(element.getAttribute("y")!);
+      Offset position = Offset(x, y);
+
+      List<Offset> statePoints = state.data["points"] ?? [];
+      XmlElement svgElement = element.findAllElements("polyline").first;
+      List<Offset> points =
+          stringToPoints(svgElement.getAttribute("points") ?? "");
+      if (statePoints.length != points.length) {
+        pointsChanged = true;
+      } else {
+        for (int index = 0; index < statePoints.length; index++) {
+          if (statePoints[index] != points[index]) {
+            pointsChanged = true;
+            break;
+          }
+        }
+      }
+      if (pointsChanged) {
+        svgElement.setAttribute("points", pointsToString(statePoints));
+        changed = true;
+      }
+
+      if (state.position != position) {
+        element.setAttribute("x", state.position.dx.toStringAsFixed(2));
+        element.setAttribute("y", state.position.dy.toStringAsFixed(2));
+        changed = true;
+      }
+    } on StateError {
+      Map<String, String> bindings = {
+        "id": state.key,
+        "x": state.position.dx.toStringAsFixed(2),
+        "y": state.position.dy.toStringAsFixed(2),
+      };
+
+      openedDocument = EditableDocument()
+          .addElement(openedDocument, fileComponentName, bindings);
+
+      changed = true;
+    }
+    return changed;
   }
 
   static ComponentState recalculateConstraints(
@@ -217,13 +424,16 @@ class StrokeComponentBloc extends ComponentBloc {
   @override
   ComponentState onResize(double width, double height) {
     ComponentState newState = state;
+
     if (state.data.containsKey("points")) {
       Map<String, dynamic> newData = state.copyWith().data;
       List<Offset> pointList = state.data["points"];
       newData["points"] = <Offset>[];
       for (Offset point in pointList) {
-        newData["points"]
-            .add(point.scale(width / state.width, height / state.height));
+        //TODO:fix scale to one direction for strokes
+        Offset newPoint =
+            point.scale(width / state.width, height / state.height);
+        newData["points"].add(newPoint);
       }
 
       List<Offset> points = newData["points"];

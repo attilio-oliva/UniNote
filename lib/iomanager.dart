@@ -7,11 +7,13 @@ import 'globals/types.dart';
 import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
 
+String usedFileListPath = 'assets';
+XmlDocument openedDocument = XmlDocument.parse("");
+File? openedFileDocument;
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path, cache: false);
 }
 
-String usedFileListPath = 'assets';
 Future<void> createUsedFileList() async {
   File list = new File(usedFileListPath);
   list.create();
@@ -19,8 +21,13 @@ Future<void> createUsedFileList() async {
 }
 
 Future<String> get _localPath async {
-  final directory = await getExternalStorageDirectory();
-  return directory!.path;
+  Directory directory;
+  if (Platform.isAndroid) {
+    directory = (await getExternalStorageDirectory())!;
+  } else {
+    directory = await getApplicationDocumentsDirectory();
+  }
+  return directory.path;
 }
 
 Future<File> _getLocalFile(String nome) async {
@@ -50,7 +57,11 @@ Future<List<String>> usedFilesPaths() async {
         .toList();
     print("Opened files:");
     paths = paths.map((String element) {
-      String newElement = "$usedFileListPath/$element";
+      String newElement = element;
+      // if relative path
+      if (!element.startsWith("/")) {
+        newElement = "$usedFileListPath/$element";
+      }
       print("\t$newElement");
       return newElement;
     }).toList();
