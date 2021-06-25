@@ -131,6 +131,7 @@ class ComponentState {
     result += "\theight: $height,\n";
     result += "\tisSelected: $isSelected,\n";
     result += "\tcanMove: $canMove,\n";
+    //result += "\tdata: ${data ?? '\{\}'},\n";
     result += "}";
     return result;
   }

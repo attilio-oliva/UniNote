@@ -149,6 +149,7 @@ class _StrokePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _StrokePainter old) {
+    /*
     bool repaint = false;
     if (old.pointList.length != pointList.length) {
       return true;
@@ -160,6 +161,7 @@ class _StrokePainter extends CustomPainter {
         break;
       }
     }
-    return repaint;
+    */
+    return true;
   }
 }

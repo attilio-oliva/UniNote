@@ -50,7 +50,7 @@ class ListSelection extends StatelessWidget {
         Material(
           color: globalColors.primaryColor,
           child: IconButton(
-            icon: Icon(Icons.accessible_forward_rounded),
+            icon: Icon(Icons.done),
             onPressed: () {
               listBloc.add({
                 'key': ListEvent.delete,

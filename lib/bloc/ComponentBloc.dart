@@ -16,27 +16,39 @@ enum ComponentEvent {
 
 class EditableDocument extends XmlTransformer {
   String nodeName = "component";
-  Map<String, String> bindings = {};
+  Map<String, String> attributeBindings = {};
+  Map<String, Map<String, String>> childrenBindings = {};
   T addElement<T>(
-      XmlHasVisitor visitable, String name, Map<String, String> bindings) {
-    this.bindings = bindings;
+      XmlHasVisitor visitable, String name, Map<String, String> bindings,
+      [Map<String, Map<String, String>> childrenBindings = const {}]) {
+    this.attributeBindings = bindings;
+    this.childrenBindings = childrenBindings;
     this.nodeName = name;
     return visit(visitable);
   }
 
   @override
   XmlElement visitElement(XmlElement node) {
-    List<XmlAttribute> attributes = [];
-    bindings.forEach((key, value) {
-      attributes.add(XmlAttribute(XmlName(key), value));
-    });
-
     if (node.name.qualified == 'content') {
+      List<XmlAttribute> attributes = [];
+      List<XmlElement> children = [];
+      attributeBindings.forEach((key, value) {
+        attributes.add(XmlAttribute(XmlName(key), value));
+      });
+      if (childrenBindings.isNotEmpty) {
+        childrenBindings.forEach((child, binding) {
+          List<XmlAttribute> childAttributes = [];
+          binding.forEach((key, value) {
+            childAttributes.add(XmlAttribute(XmlName(key), value));
+          });
+          children.add(XmlElement(XmlName(child), childAttributes));
+        });
+      }
       node.children.add(XmlElement(
         XmlName(nodeName), //visit(node.name)
         // set attributes
         attributes,
-        <XmlNode>[],
+        children,
       ));
     }
     return super.visitElement(node);
@@ -296,7 +308,7 @@ class ImageComponentBloc extends ComponentBloc {
 class StrokeComponentBloc extends ComponentBloc {
   static List<Offset> editingStrokeData = [];
   static StrokeComponentBloc? editingBloc;
-
+  bool flag = false;
   StrokeComponentBloc(ComponentState initialState)
       : super(!(initialState.data["isEditing"] ?? false)
             ? recalculateConstraints(
@@ -328,6 +340,23 @@ class StrokeComponentBloc extends ComponentBloc {
       key: key,
     ));
   }
+  @override
+  void onChange(Change<ComponentState> change) {
+    super.onChange(change);
+    //print(state.toString());
+    if ((change.nextState.data["isEditing"] ?? false) !=
+        (change.currentState.data["isEditing"] ?? false)) {
+      flag = true;
+    }
+  }
+
+  @override
+  void save() {
+    if (flag) {
+      super.save();
+    }
+  }
+
   static List<Offset> stringToPoints(String data) {
     return data.trimRight().split(" ").map((element) {
       List<String> pair = element.split(",");
@@ -388,9 +417,13 @@ class StrokeComponentBloc extends ComponentBloc {
         "x": state.position.dx.toStringAsFixed(2),
         "y": state.position.dy.toStringAsFixed(2),
       };
-
-      openedDocument = EditableDocument()
-          .addElement(openedDocument, fileComponentName, bindings);
+      Map<String, Map<String, String>> childrenBindings = {
+        "polyline": {
+          "points": pointsToString(state.data["points"]),
+        },
+      };
+      openedDocument = EditableDocument().addElement(
+          openedDocument, fileComponentName, bindings, childrenBindings);
 
       changed = true;
     }
@@ -487,6 +520,9 @@ class StrokeComponentBloc extends ComponentBloc {
     if (!shouldBeEditing && isEditing && editingBloc == this) {
       editingStrokeData = [];
       editingBloc = null;
+      Map<String, dynamic> newData = state.copyWith().data;
+      newData.remove("isEditing");
+      newState.copyWith(data: newData);
     }
     return newState;
   }
