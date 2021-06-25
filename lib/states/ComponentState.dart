@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:ui';
 
-import 'package:uninote/widgets/components/Component.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:math' as math;
 
 class ComponentState {
   static const double minPosX = 10;
@@ -17,8 +19,14 @@ class ComponentState {
   late final String content;
   late final bool canMove;
   late final bool isSelected;
-
+  late final String key;
   late final Map<String, dynamic> data;
+
+  String generateKey() {
+    String salt = math.Random().nextInt(0xFFFF).toString();
+    List<int> plainText = utf8.encode(this.hashCode.toString() + salt);
+    return sha1.convert(plainText).toString();
+  }
 
   setPosition(Offset newPos) {
     //if (!canMove) return;
@@ -50,38 +58,24 @@ class ComponentState {
     this.maxHeight = maxHeight;
   }
 
-  ComponentState({
-    required Offset position,
-    required double width,
-    required double height,
-    this.content = "",
-    this.canMove = true,
-    Map<String, dynamic>? data,
-    this.isSelected = true,
-    this.minWidth = 20,
-    this.minHeight = 20,
-    this.maxWidth = 1000,
-    this.maxHeight = 1000,
-  }) {
+  ComponentState(
+      {required Offset position,
+      required double width,
+      required double height,
+      this.content = "",
+      this.canMove = true,
+      Map<String, dynamic>? data,
+      this.isSelected = true,
+      this.minWidth = 20,
+      this.minHeight = 20,
+      this.maxWidth = 1000,
+      this.maxHeight = 1000,
+      String? key}) {
     setPosition(position);
     setWidth(width);
     setHeight(height);
     this.data = data ?? {};
-  }
-  ComponentState.from(ComponentState state) {
-    this.position = state.position;
-    this.width = state.width;
-    this.height = state.height;
-
-    this.minWidth = state.minWidth;
-    this.minHeight = state.minHeight;
-    this.maxWidth = state.maxWidth;
-    this.maxHeight = state.maxHeight;
-
-    this.content = state.content;
-    this.canMove = state.canMove;
-    this.isSelected = state.isSelected;
-    this.data = Map.from(state.data);
+    this.key = key ?? generateKey();
   }
   ComponentState select() {
     return copyWith(isSelected: true);
@@ -100,6 +94,7 @@ class ComponentState {
   }
 
   ComponentState copyWith({
+    String? key,
     Offset? position,
     double? width,
     double? height,
@@ -113,6 +108,7 @@ class ComponentState {
     Map<String, dynamic>? data,
   }) {
     return ComponentState(
+      key: key ?? this.key,
       position: position ?? this.position,
       width: width ?? this.width,
       height: height ?? this.height,
@@ -129,6 +125,7 @@ class ComponentState {
 
   String toString() {
     String result = "\n{\n";
+    result += "\tkey: $key,\n";
     result += "\tposition: $position,\n";
     result += "\twidth: $width,\n";
     result += "\theight: $height,\n";

@@ -12,7 +12,7 @@
 This is a text example
 - element1
 - element2"/>
-        <image x="75" y="300" id="img1" location="https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Penguin%2C_Strait_of_Magellan.jpg/412px-Penguin%2C_Strait_of_Magellan.jpg"/>
+        <image x="75" y="300" width="200" height="200" id="img1" location="https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Penguin%2C_Strait_of_Magellan.jpg/412px-Penguin%2C_Strait_of_Magellan.jpg"/>
         <stroke x="20" y="145" id="strk1">
             <polyline points="20,145 330,145 330,600 20,600 20,145"/>
         </stroke>

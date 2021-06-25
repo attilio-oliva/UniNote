@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:uninote/globals/colors.dart' as globalColors;
-import 'package:uninote/parser.dart';
+import 'package:uninote/iomanager.dart';
 import 'package:uninote/states/ListState.dart';
 
 import 'bloc/ListBloc.dart';
@@ -30,7 +30,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  Tree<Item> fileTree;
+  final Tree<Item> fileTree;
   MyApp(this.fileTree);
   @override
   Widget build(BuildContext context) {

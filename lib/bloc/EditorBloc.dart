@@ -10,6 +10,7 @@ import 'package:uninote/widgets/components/ImageComponent.dart';
 import 'package:uninote/widgets/components/StrokeComponent.dart';
 import 'package:uninote/widgets/components/TextComponent.dart';
 import 'package:uninote/globals/EditorTool.dart';
+import 'package:uninote/iomanager.dart';
 
 import 'ComponentBloc.dart';
 
@@ -31,22 +32,23 @@ enum InputState {
 
 class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
   EditorBloc(EditorState initialState) : super(initialState) {
-    File noteDoc = File(initialState.noteLocation);
-    XmlDocument xmlDoc = XmlDocument.parse(noteDoc.readAsStringSync());
-    String title = xmlDoc.firstElementChild?.getAttribute("title") ?? "";
-    String appVersion = xmlDoc.firstChild
+    openedFileDocument = File(initialState.noteLocation);
+    openedDocument = XmlDocument.parse(openedFileDocument!.readAsStringSync());
+    String title =
+        openedDocument.firstElementChild?.getAttribute("title") ?? "";
+    String appVersion = openedDocument.firstChild
             ?.getElement("meta")
             ?.getElement("version")
             ?.getAttribute("app") ??
         "";
-    String noteVersion = xmlDoc.firstChild
+    String noteVersion = openedDocument.firstChild
             ?.getElement("meta")
             ?.getElement("version")
             ?.getAttribute("note") ??
         "";
     print("$appVersion, last edit: $noteVersion");
     addComponent(EditorSubject.text, Offset(0, 0), {"isTitle": true}, title);
-    getComponentsFromFile(xmlDoc);
+    getComponentsFromFile(openedDocument);
   }
 
   void getComponentsFromFile(XmlDocument xmlDoc) {
@@ -130,7 +132,7 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
         state.componentList.add(textComponent);
         return textComponent;
       case EditorSubject.image:
-        ComponentBloc bloc = ComponentBloc(
+        ComponentBloc bloc = ImageComponentBloc(
           ComponentState(
             position: pos,
             width: imageDefaultMaxWidth,
