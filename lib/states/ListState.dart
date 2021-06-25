@@ -44,30 +44,56 @@ extension ListSubjectExtension on ListSubject {
 }
 
 class ListState {
-  ListSubject subject = ListSubject.notebook;
-  List<Node<Item>> itemList = [];
-  String selectedItem = "";
-  String? selectedNote;
-  int? editingIndex;
-  String editingContent = "";
-  ListState([
+  final ListSubject subject;
+  final String? selectedNote;
+  final int? editingIndex;
+  late final String selectedItem;
+  late final String editingContent;
+  late final bool isMarking;
+  late final List<Node<Item>> itemList;
+  late final List<Node<Item>> markedItems;
+  ListState({
     this.subject = ListSubject.notebook,
     this.selectedItem = "",
-    List<Node<Item>>? list,
-  ]) {
-    if (list != null) {
-      itemList = list;
+    this.selectedNote,
+    this.editingIndex,
+    this.editingContent = "",
+    this.isMarking = false,
+    List<Node<Item>>? markedItems,
+    List<Node<Item>>? itemList,
+  }) {
+    if (markedItems != null) {
+      this.markedItems = markedItems;
+    } else {
+      this.markedItems = [];
+    }
+    if (itemList != null) {
+      this.itemList = itemList;
+    } else {
+      this.itemList = [];
     }
   }
-  ListState.from(ListState state) {
-    this.subject = state.subject;
-    this.itemList = state.itemList;
-    this.selectedItem = state.selectedItem;
-    this.editingIndex = state.editingIndex;
-    this.editingContent = state.editingContent;
-    this.selectedNote = state.selectedNote;
+  ListState copyWith({
+    ListSubject? subject,
+    List<Node<Item>>? itemList,
+    String? selectedItem,
+    String? selectedNote,
+    int? editingIndex,
+    String? editingContent,
+    bool? isMarking,
+    List<Node<Item>>? markedItems,
+  }) {
+    return ListState(
+      subject: subject ?? this.subject,
+      itemList: itemList ?? this.itemList,
+      selectedItem: selectedItem ?? this.selectedItem,
+      selectedNote: selectedNote ?? this.selectedNote,
+      editingIndex: editingIndex ?? this.editingIndex,
+      editingContent: editingContent ?? this.editingContent,
+      isMarking: isMarking ?? this.isMarking,
+      markedItems: markedItems ?? this.markedItems,
+    );
   }
-  ListState.fromList(this.itemList);
 
   String toString() {
     String result = "{";

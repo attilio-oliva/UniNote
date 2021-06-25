@@ -27,6 +27,43 @@ class ListSelection extends StatelessWidget {
     }
   }
 
+  List<Widget> getActionsIcon(ListBloc listBloc) {
+    List<Widget> list = List<Widget>.empty(growable: true);
+    list.add(
+      Material(
+        child: IconButton(
+          icon: Icon(Icons.delete),
+          onPressed: () {
+            listBloc.add({
+              'key': ListEvent.marking,
+              'data': "buttonPressed",
+            });
+          },
+        ),
+        color: (listBloc.state.isMarking == true)
+            ? globalColors.pressedButtonColor
+            : globalColors.primaryColor,
+      ),
+    );
+    if (listBloc.state.isMarking == true) {
+      list.add(
+        Material(
+          color: globalColors.primaryColor,
+          child: IconButton(
+            icon: Icon(Icons.accessible_forward_rounded),
+            onPressed: () {
+              listBloc.add({
+                'key': ListEvent.delete,
+                'data': "deleteSelected",
+              });
+            },
+          ),
+        ),
+      );
+    }
+    return list;
+  }
+
   bool shouldBeVisible(ListState state) {
     if (getAppBarTitle(state) == "Select notebook") {
       return false;
@@ -83,6 +120,7 @@ class ListSelection extends StatelessWidget {
               icon: Icon(Icons.arrow_back),
             ),
           ),
+          actions: getActionsIcon(listBloc),
         ),
         body: CustomList(state.itemList),
         bottomNavigationBar: BottomAppBar(

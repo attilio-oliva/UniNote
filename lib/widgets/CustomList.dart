@@ -79,6 +79,14 @@ class _ReordableState extends State<CustomList> {
     return focusNode;
   }
 
+  bool getIfSelected(ListBloc listBloc, int index) {
+    Node<Item> item = listBloc.state.itemList[index];
+    if (listBloc.state.markedItems.contains(item)) {
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     listBloc = BlocProvider.of<ListBloc>(context);
@@ -91,6 +99,7 @@ class _ReordableState extends State<CustomList> {
           itemCount: widget.items.length,
           itemBuilder: (context, index) {
             return ListTile(
+              selected: getIfSelected(listBloc, index),
               contentPadding: EdgeInsets.fromLTRB(0, 0, 8, 0),
               minLeadingWidth: 0,
               key: ValueKey(widget.items[index].value!.key),
@@ -162,11 +171,18 @@ class _ReordableState extends State<CustomList> {
                 ),
               ),
               onTap: () {
-                if (!isEditing(state.editingIndex, index))
+                if (state.isMarking == true) {
+                  listBloc.add({
+                    'key': ListEvent.marking,
+                    'index': index,
+                  });
+                } else {
+                  if (!isEditing(state.editingIndex, index)) ;
                   listBloc.add({
                     'key': ListEvent.itemSelected,
                     'index': index,
                   });
+                }
               },
             );
           },
