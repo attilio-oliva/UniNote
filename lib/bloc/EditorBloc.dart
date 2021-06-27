@@ -311,6 +311,39 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
                 state.mode = EditorMode.readOnly;
               }
               break;
+            case EditorTool.markdown:
+              state.selectedComponents.forEach((element) {
+                Component text = element as Component;
+                if (text.bloc is TextComponentBloc) {
+                  text.bloc.add({
+                    "key": ComponentEvent.contentChanged,
+                    "mode": "markdown",
+                  });
+                }
+              });
+              break;
+            case EditorTool.latex:
+              state.selectedComponents.forEach((element) {
+                Component text = element as Component;
+                if (text.bloc is TextComponentBloc) {
+                  text.bloc.add({
+                    "key": ComponentEvent.contentChanged,
+                    "mode": "latex",
+                  });
+                }
+              });
+              break;
+            case EditorTool.plainText:
+              state.selectedComponents.forEach((element) {
+                Component text = element as Component;
+                if (text.bloc is TextComponentBloc) {
+                  text.bloc.add({
+                    "key": ComponentEvent.contentChanged,
+                    "mode": "plain",
+                  });
+                }
+              });
+              break;
           }
           if (!pressedTool.isSubTool) {
             if (state.lastPressedTool == event["type"]) {

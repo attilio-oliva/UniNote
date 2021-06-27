@@ -11,6 +11,7 @@ import 'package:uninote/widgets/Palette.dart';
 import 'package:uninote/widgets/ToolBar.dart';
 import 'package:uninote/globals/colors.dart' as globals;
 import 'package:uninote/globals/EditorTool.dart';
+import 'package:uninote/widgets/components/Component.dart';
 
 enum AppBarButton {
   insert,
@@ -180,11 +181,67 @@ class _NoteEditorState extends State<NoteEditor> {
       ));
     } else if (button == EditorToolBar.text) {
       list.add(Material(
-        color: globals.primaryColor,
-        child: IconButton(
-          icon: Icon(Icons.pages_outlined),
-          onPressed: () {},
+        child: TextButton(
+          child: Text("M↓"),
+          onPressed: () {
+            bloc.add({
+              "key": EditorEvent.toolButtonPressed,
+              "type": EditorTool.markdown,
+              "mode": "markdown"
+            });
+          },
         ),
+        color: (bloc.state.selectedComponents.length == 1)
+            ? ((bloc.state.selectedComponents.first as Component)
+                        .bloc
+                        .state
+                        .data["mode"] ==
+                    "markdown")
+                ? globals.pressedButtonColor
+                : globals.primaryColor
+            : globals.primaryColor,
+      ));
+      list.add(Material(
+        child: TextButton(
+          child: Text("TeX"),
+          onPressed: () {
+            bloc.add({
+              "key": EditorEvent.toolButtonPressed,
+              "type": EditorTool.latex,
+              "mode": "latex"
+            });
+          },
+        ),
+        color: (bloc.state.selectedComponents.length == 1)
+            ? ((bloc.state.selectedComponents.first as Component)
+                        .bloc
+                        .state
+                        .data["mode"] ==
+                    "latex")
+                ? globals.pressedButtonColor
+                : globals.primaryColor
+            : globals.primaryColor,
+      ));
+      list.add(Material(
+        child: TextButton(
+          child: Text("txt"),
+          onPressed: () {
+            bloc.add({
+              "key": EditorEvent.toolButtonPressed,
+              "type": EditorTool.plainText,
+              "mode": "plain"
+            });
+          },
+        ),
+        color: (bloc.state.selectedComponents.length == 1)
+            ? ((bloc.state.selectedComponents.first as Component)
+                        .bloc
+                        .state
+                        .data["mode"] ==
+                    "plain")
+                ? globals.pressedButtonColor
+                : globals.primaryColor
+            : globals.primaryColor,
       ));
     } else if (button == EditorToolBar.view) {
       list.add(Material(

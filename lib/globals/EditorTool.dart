@@ -11,6 +11,9 @@ enum EditorTool {
   grid,
   changedColor,
   changedGridSize,
+  markdown,
+  latex,
+  plainText
 }
 
 extension editorToolExtension on EditorTool {
