@@ -150,7 +150,8 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
             height: imageDefaultMaxHeight,
             minWidth: 200,
             minHeight: 200,
-            content: imageDefaultLocation,
+            content:
+                (state.imageUrl == "") ? imageDefaultLocation : state.imageUrl,
             canMove: canMove,
             isSelected: isSelected,
             data: data,
@@ -339,9 +340,18 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
                       deselectAllComponents();
                       state.selectedComponents = [];
                       if (state.mode == EditorMode.insertion) {
-                        Widget newComponent =
-                            addComponent(state.subject, position)!;
-                        state.selectedComponents = [newComponent];
+                        if (state.subject == EditorSubject.image) {
+                          state.imageUrl = event["url"];
+                          Widget newComponent = addComponent(
+                            state.subject,
+                            position,
+                          )!;
+                          state.selectedComponents = [newComponent];
+                        } else {
+                          Widget newComponent =
+                              addComponent(state.subject, position)!;
+                          state.selectedComponents = [newComponent];
+                        }
                       }
                       break;
                     case EditorMode.readOnly:

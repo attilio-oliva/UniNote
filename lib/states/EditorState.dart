@@ -21,6 +21,7 @@ enum EditorToolBar {
 
 class EditorState {
   String noteLocation = "";
+  String imageUrl = "";
   EditorMode mode = EditorMode.insertion;
   EditorSubject subject = EditorSubject.text;
   EditorToolBar selectedToolbar = EditorToolBar.text;

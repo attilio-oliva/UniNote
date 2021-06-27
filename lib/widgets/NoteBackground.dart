@@ -1,8 +1,10 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uninote/bloc/EditorBloc.dart';
 import 'package:uninote/states/EditorState.dart';
 import 'package:uninote/widgets/CustomGrid.dart';
+import 'package:uninote/globals/colors.dart' as globals;
 
 class Painter extends StatefulWidget {
   @override
@@ -53,12 +55,48 @@ class _PainterState extends State<Painter> {
 
   void onTapUp(
       BuildContext context, TapUpDetails details, EditorBloc editorBloc) {
-    editorBloc.add({
-      "key": EditorEvent.canvasPressed,
-      "inputType": InputType.tap,
-      "inputState": InputState.end,
-      "position": details.localPosition
-    });
+    if (editorBloc.state.subject == EditorSubject.image) {
+      print(editorBloc.state.subject);
+      TapUpDetails position = details;
+      showAlertDialog(editorBloc, context, position);
+    } else {
+      editorBloc.add({
+        "key": EditorEvent.canvasPressed,
+        "inputType": InputType.tap,
+        "inputState": InputState.end,
+        "position": details.localPosition
+      });
+    }
+  }
+
+  showAlertDialog(
+      EditorBloc editorBloc, BuildContext context, TapUpDetails position) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: globals.primaryColor,
+            title: Text(
+              'Insert image url',
+              style: TextStyle(color: Colors.white),
+            ),
+            actions: <Widget>[
+              TextField(
+                onSubmitted: (value) {
+                  editorBloc.add({
+                    "key": EditorEvent.canvasPressed,
+                    "inputType": InputType.tap,
+                    "inputState": InputState.end,
+                    "position": position.localPosition,
+                    "url": value
+                  });
+                  Navigator.pop(context);
+                },
+                textInputAction: TextInputAction.done,
+              ),
+            ],
+          );
+        });
   }
 
   List<Widget> getBackgroundWidgets(List<Widget> list, EditorState state) {
