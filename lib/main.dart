@@ -26,7 +26,9 @@ void main() async {
           Permission.storage]); // it should print PermissionStatus.granted
     }
   }
-  runApp(MyApp(await pathsToTree(await usedFilesPaths())));
+  List<String> paths = await usedFilesPaths();
+  Tree<Item> tree = await pathsToTree(paths);
+  runApp(MyApp(tree));
 }
 
 class MyApp extends StatelessWidget {

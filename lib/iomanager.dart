@@ -13,6 +13,7 @@ enum DocType {
   document,
 }
 String usedFileListPath = 'assets';
+String fileExtension = '.xml';
 XmlDocument openedIndexDocument = XmlDocument.parse("");
 XmlDocument openedItemsDocument = XmlDocument.parse("");
 XmlDocument openedDocument = XmlDocument.parse("");
@@ -25,13 +26,18 @@ Future<String> getFileData(String path) async {
 
 Future<void> createIndexFile(String location) async {
   File file = new File(location);
-  file.writeAsString("<list>\n</list>");
+  String template = "<list>\n</list>";
+  file.writeAsString(template);
+  openedFileIndex = file;
+  //openedIndexDocument = XmlDocument.parse(template);
 }
 
 Future<void> createNotebookFile(String location, Item item) async {
   File file = new File(location);
-  file.writeAsString(
-      '<notebook title="${item.title}" id="${item.key}" color=${item.colorValue}>\n</notebook>');
+  String template =
+      '<notebook title="${item.title}" id="${item.key}" color="${item.colorValue}">\n</notebook>';
+  file.writeAsString(template);
+  //openedItemsDocument = XmlDocument.parse(template);
 }
 
 Future<void> createDocumentFile(String location, String title) async {
@@ -39,8 +45,10 @@ Future<void> createDocumentFile(String location, String title) async {
   DateTime time = DateTime.now();
   String timestamp =
       "${time.day}/${time.month}/${time.year} ${time.hour}:${time.minute}";
-  file.writeAsString(
-      '<doc title="$title">\n<meta>\n<version app="v0.01" note="${timestamp}"/>\n</meta>\n<style>\n<background color="#FFFFFF" pattern="grid"/>\n<theme></theme>\n</style>\n<content>\n</content>\n</doc>');
+  String template =
+      '<doc title="$title">\n<meta>\n<version app="v0.01" note="${timestamp}"/>\n</meta>\n<style>\n<background color="#FFFFFF" pattern="grid"/>\n<theme></theme>\n</style>\n<content>\n</content>\n</doc>';
+  file.writeAsString(template);
+  //openedDocument = XmlDocument.parse(template);
 }
 
 Future<String> get _localPath async {
@@ -58,7 +66,6 @@ Future<File> getLocalFile(String name, DocType type,
   File file = File(name);
 
   bool exists = await file.exists();
-
   if (!exists) {
     await file.create();
     switch (type) {
@@ -79,35 +86,30 @@ Future<File> getLocalFile(String name, DocType type,
 Future<List<String>> usedFilesPaths() async {
   List<String> paths = [];
   try {
-    String data = "";
-    File usedFileList;
     if (openedFileIndex == null) {
       usedFileListPath = await _localPath;
-      usedFileList = await getLocalFile(
+      openedFileIndex = await getLocalFile(
           usedFileListPath + "/index.xml", DocType.indexList);
-    } else {
-      usedFileList = openedFileIndex!;
     }
-    print(usedFileList.path);
-    data = usedFileList.readAsStringSync();
-
-    openedIndexDocument = XmlDocument.parse(data);
-    paths = openedIndexDocument.root.descendants
-        .where((node) => node is XmlText && node.text.trim().isNotEmpty)
-        .map((e) => e.text)
-        .toList();
-    print("Opened files:");
-    paths = paths.map((String element) {
-      String newElement = element;
-      // if relative path
-      if (!element.startsWith("/")) {
-        newElement = "$usedFileListPath/$element";
-      }
-      print("\t$newElement");
-      return newElement;
-    }).toList();
-    //}
-  } catch (e) {
+    await openedFileIndex!.readAsString().then((data) {
+      openedIndexDocument = XmlDocument.parse(data);
+      paths = openedIndexDocument.root.descendants
+          .where((node) => node is XmlText && node.text.trim().isNotEmpty)
+          .map((e) => e.text)
+          .toList();
+      print("Opened files:");
+      paths = paths.map((String element) {
+        String newElement = element;
+        // if relative path
+        if (!element.startsWith("/")) {
+          newElement = "$usedFileListPath/$element";
+        }
+        newElement += fileExtension;
+        print(newElement);
+        return newElement;
+      }).toList();
+    });
+  } on Exception catch (e) {
     print("Exeption: $e");
   }
   return paths;
@@ -134,31 +136,34 @@ Future<Tree<Item>> pathsToTree(List<String> pathList) async {
     try {
       file = await getLocalFile(path, DocType.notebook);
     } catch (e) {
-      print("Exeption: $e");
+      print("Exception: $e");
       continue;
     }
     if (await file.length() != 0) {
-      openedItemsDocument = XmlDocument.parse(file.readAsStringSync());
-      for (final node in openedItemsDocument.descendants.whereType<XmlText>()) {
-        node.replace(XmlText(node.text.trim()));
-      }
-      openedItemsDocument.normalize();
-      XmlElement fileElement = openedItemsDocument.getElement("notebook")!;
-      Node<Item> fileRootNode =
-          tree.addChild(tree.root, elementToItem(fileElement, path));
-      for (XmlElement section in fileElement.findAllElements("section")) {
-        Node<Item> sectionNode =
-            tree.addChild(fileRootNode, elementToItem(section));
-        Node<Item> lastNode = sectionNode;
-        for (XmlElement element
-            in section.descendants.whereType<XmlElement>()) {
-          if (element.depth == section.depth + 1) {
-            lastNode = tree.addChild(sectionNode, elementToItem(element));
-          } else {
-            tree.addChild(lastNode, elementToItem(element));
+      await file.readAsString().then((data) {
+        openedItemsDocument = XmlDocument.parse(data);
+        for (final node
+            in openedItemsDocument.descendants.whereType<XmlText>()) {
+          node.replace(XmlText(node.text.trim()));
+        }
+        openedItemsDocument.normalize();
+        XmlElement fileElement = openedItemsDocument.getElement("notebook")!;
+        Node<Item> fileRootNode =
+            tree.addChild(tree.root, elementToItem(fileElement, path));
+        for (XmlElement section in fileElement.findAllElements("section")) {
+          Node<Item> sectionNode =
+              tree.addChild(fileRootNode, elementToItem(section));
+          Node<Item> lastNode = sectionNode;
+          for (XmlElement element
+              in section.descendants.whereType<XmlElement>()) {
+            if (element.depth == section.depth + 1) {
+              lastNode = tree.addChild(sectionNode, elementToItem(element));
+            } else {
+              tree.addChild(lastNode, elementToItem(element));
+            }
           }
         }
-      }
+      });
     }
   }
   return tree;

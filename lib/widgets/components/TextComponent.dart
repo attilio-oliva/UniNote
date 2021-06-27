@@ -55,6 +55,12 @@ class _TextState extends State<TextComponent> {
   late TextEditingController _controller;
   late FocusNode _focusNode;
 
+  _TextState() {
+    _focusNode = FocusNode(
+      onKey: (node, key) => _onKey(key),
+    );
+    _focusNode.addListener(_handleFocus);
+  }
 /*
   void onDragUpdate(DragUpdateDetails details) {
     setState(() {
@@ -104,7 +110,7 @@ class _TextState extends State<TextComponent> {
 
   Widget textWidget(ComponentState state) {
     Widget textWidget;
-    if (textModeList[textMode] == "md") {
+    if (state.data["mode"] == "md") {
       textWidget = Markdown(
         shrinkWrap: true,
         padding: EdgeInsets.symmetric(horizontal: 5, vertical: 13),
@@ -202,10 +208,6 @@ class _TextState extends State<TextComponent> {
       widget.bloc.add(
           {"key": ComponentEvent.contentChanged, "data": _controller.text});
     });
-    _focusNode = FocusNode(
-      onKey: (node, key) => _onKey(key),
-    );
-    _focusNode.addListener(_handleFocus);
     return BlocConsumer<TextComponentBloc, ComponentState>(
       bloc: widget.bloc,
       listener: (context, state) {
