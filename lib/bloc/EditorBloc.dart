@@ -243,6 +243,7 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
           } else {
             state.selectedToolbar = event['data'];
             state.toolBarVisibility = true;
+            state.subToolBarVisibility = false;
           }
         }
         state.lastPressedTool = EditorTool.closing;
@@ -308,10 +309,43 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
               break;
             case EditorTool.lockInsertion:
               if (state.mode == EditorMode.readOnly) {
-                state.mode = EditorMode.insertion;
+                state.mode = EditorMode.selection;
               } else {
                 state.mode = EditorMode.readOnly;
               }
+              break;
+            case EditorTool.markdown:
+              state.selectedComponents.forEach((element) {
+                Component text = element as Component;
+                if (text.bloc is TextComponentBloc) {
+                  text.bloc.add({
+                    "key": ComponentEvent.contentChanged,
+                    "mode": "markdown",
+                  });
+                }
+              });
+              break;
+            case EditorTool.latex:
+              state.selectedComponents.forEach((element) {
+                Component text = element as Component;
+                if (text.bloc is TextComponentBloc) {
+                  text.bloc.add({
+                    "key": ComponentEvent.contentChanged,
+                    "mode": "latex",
+                  });
+                }
+              });
+              break;
+            case EditorTool.plainText:
+              state.selectedComponents.forEach((element) {
+                Component text = element as Component;
+                if (text.bloc is TextComponentBloc) {
+                  text.bloc.add({
+                    "key": ComponentEvent.contentChanged,
+                    "mode": "plain",
+                  });
+                }
+              });
               break;
           }
           if (!pressedTool.isSubTool) {

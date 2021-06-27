@@ -110,7 +110,8 @@ class _TextState extends State<TextComponent> {
 
   Widget textWidget(ComponentState state) {
     Widget textWidget;
-    if (state.data["mode"] == "md") {
+    print(state.data["mode"]);
+    if (state.data["mode"] == "markdown") {
       textWidget = Markdown(
         shrinkWrap: true,
         padding: EdgeInsets.symmetric(horizontal: 5, vertical: 13),
@@ -132,7 +133,7 @@ class _TextState extends State<TextComponent> {
           [md.EmojiSyntax(), ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes],
         ),
       );
-    } else if (textModeList[textMode] == "latex") {
+    } else if (state.data["mode"] == "latex") {
       textWidget = Builder(
         builder: (context) => KaTeX(
           laTeXCode: Text(_controller.text,

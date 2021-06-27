@@ -183,6 +183,24 @@ class TextComponentBloc extends ComponentBloc {
     }
     return changed;
   }
+
+  @override
+  ComponentState onContentChange(Map<String, dynamic> event) {
+    Map<String, dynamic> map = Map<String, dynamic>.from(state.data);
+    print("mammt ${event["mode"]}");
+    if (!map.containsKey("mode")) {
+      map["mode"] = event["mode"];
+    } else {
+      String lastMode = map["mode"];
+      if (event.containsKey("mode")) {
+        if (lastMode != event["mode"]) {
+          map["mode"] = event["mode"];
+        }
+      }
+    }
+    return state.copyWith(data: map);
+  }
+
   /*
   TextComponentBloc.load(XmlElement element)
       : super(ComponentState(
