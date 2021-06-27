@@ -57,7 +57,6 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
         addComponent(
             EditorSubject.text, Offset(0, 0), {"isTitle": true}, title);
         getComponentsFromFile(openedDocument);
-        this.emit(state);
       });
     });
   }
@@ -75,6 +74,7 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
         loadComponent(EditorSubject.stroke, element);
       });
     }
+    this.emit(state);
   }
 
   Widget? getClickedComponent(Offset position) {

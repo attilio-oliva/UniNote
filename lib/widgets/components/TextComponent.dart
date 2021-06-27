@@ -61,7 +61,7 @@ class _TextState extends State<TextComponent> {
 
     _focusNode = FocusNode();
     _focusNode.addListener(_handleFocus);
-    _controller = TextEditingController();
+    _controller = TextEditingController(text: widget.bloc.state.content);
   }
 
 /*
