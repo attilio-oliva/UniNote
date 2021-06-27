@@ -375,25 +375,8 @@ class _NoteEditorState extends State<NoteEditor> {
           }),
           title: Row(
             children: [
-              Spacer(),
-              Flexible(
-                flex: 4,
-                child: IconButton(
-                  padding: EdgeInsets.only(left: 5),
-                  icon: Icon(Icons.undo),
-                  onPressed: () {},
-                ),
-              ),
-              Flexible(
-                flex: 4,
-                child: IconButton(
-                  padding: EdgeInsets.only(right: 5),
-                  icon: Icon(Icons.redo),
-                  onPressed: () {},
-                ),
-              ),
               Spacer(
-                flex: 2,
+                flex: 4,
               ),
               Flexible(
                 flex: 7,
@@ -450,23 +433,6 @@ class _NoteEditorState extends State<NoteEditor> {
               )
             ],
           ),
-          actions: [
-            PopupMenuButton(
-              itemBuilder: (BuildContext context) {
-                return options.map((element) {
-                  return PopupMenuItem(
-                    child: Text(element),
-                    value: element,
-                  );
-                }).toList();
-              },
-              /*onSelected: () {
-                print(route);
-
-                Navigator.pushNamed(context, route);
-              },*/
-            ),
-          ],
         ),
         body: Column(
           children: [
