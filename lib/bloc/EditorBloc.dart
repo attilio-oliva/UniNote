@@ -241,6 +241,7 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
           } else {
             state.selectedToolbar = event['data'];
             state.toolBarVisibility = true;
+            state.subToolBarVisibility = false;
           }
         }
         state.lastPressedTool = EditorTool.closing;
@@ -306,7 +307,7 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
               break;
             case EditorTool.lockInsertion:
               if (state.mode == EditorMode.readOnly) {
-                state.mode = EditorMode.insertion;
+                state.mode = EditorMode.selection;
               } else {
                 state.mode = EditorMode.readOnly;
               }
