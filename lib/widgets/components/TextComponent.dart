@@ -113,7 +113,6 @@ class _TextState extends State<TextComponent> {
 
   Widget textWidget(ComponentState state) {
     Widget textWidget;
-    print(state.data["mode"]);
     if (state.data["mode"] == "markdown") {
       textWidget = Markdown(
         shrinkWrap: true,

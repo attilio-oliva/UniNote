@@ -187,7 +187,6 @@ class TextComponentBloc extends ComponentBloc {
   @override
   ComponentState onContentChange(Map<String, dynamic> event) {
     Map<String, dynamic> map = Map<String, dynamic>.from(state.data);
-    print("mammt ${event["mode"]}");
     if (!map.containsKey("mode")) {
       map["mode"] = event["mode"];
     } else {
