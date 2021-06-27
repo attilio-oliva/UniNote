@@ -32,23 +32,34 @@ enum InputState {
 
 class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
   EditorBloc(EditorState initialState) : super(initialState) {
-    openedFileDocument = File(initialState.noteLocation);
-    openedDocument = XmlDocument.parse(openedFileDocument!.readAsStringSync());
-    String title =
-        openedDocument.firstElementChild?.getAttribute("title") ?? "";
-    String appVersion = openedDocument.firstChild
-            ?.getElement("meta")
-            ?.getElement("version")
-            ?.getAttribute("app") ??
-        "";
-    String noteVersion = openedDocument.firstChild
-            ?.getElement("meta")
-            ?.getElement("version")
-            ?.getAttribute("note") ??
-        "";
-    print("$appVersion, last edit: $noteVersion");
-    addComponent(EditorSubject.text, Offset(0, 0), {"isTitle": true}, title);
-    getComponentsFromFile(openedDocument);
+    //We'll all assume this is a magic trick
+    RegExp titleFinder = RegExp(r"[^\\\/]+(?=\.[\w]+$)|[^\\\/]+$");
+    String foundTitle =
+        titleFinder.firstMatch(initialState.noteLocation)?.group(0) ?? "";
+    getLocalFile(initialState.noteLocation, DocType.document, title: foundTitle)
+        .then((file) {
+      openedFileDocument = file;
+      openedFileDocument!.readAsString().then((value) {
+        openedDocument = XmlDocument.parse(value);
+        String title =
+            openedDocument.firstElementChild?.getAttribute("title") ?? "";
+        String appVersion = openedDocument.firstChild
+                ?.getElement("meta")
+                ?.getElement("version")
+                ?.getAttribute("app") ??
+            "";
+        String noteVersion = openedDocument.firstChild
+                ?.getElement("meta")
+                ?.getElement("version")
+                ?.getAttribute("note") ??
+            "";
+        print("$appVersion, last edit: $noteVersion");
+        addComponent(
+            EditorSubject.text, Offset(0, 0), {"isTitle": true}, title);
+        getComponentsFromFile(openedDocument);
+        this.emit(state);
+      });
+    });
   }
 
   void getComponentsFromFile(XmlDocument xmlDoc) {

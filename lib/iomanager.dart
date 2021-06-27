@@ -7,17 +7,40 @@ import 'globals/types.dart';
 import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
 
+enum DocType {
+  indexList,
+  notebook,
+  document,
+}
 String usedFileListPath = 'assets';
+XmlDocument openedIndexDocument = XmlDocument.parse("");
+XmlDocument openedItemsDocument = XmlDocument.parse("");
 XmlDocument openedDocument = XmlDocument.parse("");
+File? openedFileIndex;
+File? openedFileItems;
 File? openedFileDocument;
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path, cache: false);
 }
 
-Future<void> createUsedFileList() async {
-  File list = new File(usedFileListPath);
-  list.create();
-  list.writeAsString("<list>\n</list>");
+Future<void> createIndexFile(String location) async {
+  File file = new File(location);
+  file.writeAsString("<list>\n</list>");
+}
+
+Future<void> createNotebookFile(String location, Item item) async {
+  File file = new File(location);
+  file.writeAsString(
+      '<notebook title="${item.title}" id="${item.key}" color=${item.colorValue}>\n</notebook>');
+}
+
+Future<void> createDocumentFile(String location, String title) async {
+  File file = new File(location);
+  DateTime time = DateTime.now();
+  String timestamp =
+      "${time.day}/${time.month}/${time.year} ${time.hour}:${time.minute}";
+  file.writeAsString(
+      '<doc title="$title">\n<meta>\n<version app="v0.01" note="${timestamp}"/>\n</meta>\n<style>\n<background color="#FFFFFF" pattern="grid"/>\n<theme></theme>\n</style>\n<content>\n</content>\n</doc>');
 }
 
 Future<String> get _localPath async {
@@ -30,28 +53,46 @@ Future<String> get _localPath async {
   return directory.path;
 }
 
-Future<File> _getLocalFile(String nome) async {
-  File file = File(nome);
+Future<File> getLocalFile(String name, DocType type,
+    {String? title = "", Item? item}) async {
+  File file = File(name);
 
   bool exists = await file.exists();
 
-  if (!exists) await file.create();
+  if (!exists) {
+    await file.create();
+    switch (type) {
+      case DocType.indexList:
+        await createIndexFile(file.absolute.path);
+        break;
+      case DocType.notebook:
+        await createNotebookFile(file.absolute.path, item!);
+        break;
+      case DocType.document:
+        await createDocumentFile(file.absolute.path, title!);
+        break;
+    }
+  }
   return file;
 }
 
 Future<List<String>> usedFilesPaths() async {
   List<String> paths = [];
   try {
-    usedFileListPath = await _localPath;
-    File usedFileList = File(usedFileListPath + "/opened.xml");
-    //if (!(await usedFileList.exists())) {
-    //  createUsedFileList();
-    //} else {
+    String data = "";
+    File usedFileList;
+    if (openedFileIndex == null) {
+      usedFileListPath = await _localPath;
+      usedFileList = await getLocalFile(
+          usedFileListPath + "/index.xml", DocType.indexList);
+    } else {
+      usedFileList = openedFileIndex!;
+    }
     print(usedFileList.path);
-    String data = usedFileList.readAsStringSync();
+    data = usedFileList.readAsStringSync();
 
-    XmlDocument document = XmlDocument.parse(data);
-    paths = document.root.descendants
+    openedIndexDocument = XmlDocument.parse(data);
+    paths = openedIndexDocument.root.descendants
         .where((node) => node is XmlText && node.text.trim().isNotEmpty)
         .map((e) => e.text)
         .toList();
@@ -68,7 +109,6 @@ Future<List<String>> usedFilesPaths() async {
     //}
   } catch (e) {
     print("Exeption: $e");
-    createUsedFileList();
   }
   return paths;
 }
@@ -78,7 +118,7 @@ Item elementToItem(XmlElement element, [String path = ""]) {
       .firstWhere((element) => element.name.toString() == "color")
       .value);
   String key = element.attributes
-      .firstWhere((element) => element.name.toString() == "key")
+      .firstWhere((element) => element.name.toString() == "id")
       .value;
   String title = element.attributes
       .firstWhere((element) => element.name.toString() == "title")
@@ -92,18 +132,18 @@ Future<Tree<Item>> pathsToTree(List<String> pathList) async {
   for (String path in pathList) {
     File file;
     try {
-      file = await _getLocalFile(path);
+      file = await getLocalFile(path, DocType.notebook);
     } catch (e) {
       print("Exeption: $e");
       continue;
     }
     if (await file.length() != 0) {
-      XmlDocument document = XmlDocument.parse(file.readAsStringSync());
-      for (final node in document.descendants.whereType<XmlText>()) {
+      openedItemsDocument = XmlDocument.parse(file.readAsStringSync());
+      for (final node in openedItemsDocument.descendants.whereType<XmlText>()) {
         node.replace(XmlText(node.text.trim()));
       }
-      document.normalize();
-      XmlElement fileElement = document.getElement("file")!;
+      openedItemsDocument.normalize();
+      XmlElement fileElement = openedItemsDocument.getElement("notebook")!;
       Node<Item> fileRootNode =
           tree.addChild(tree.root, elementToItem(fileElement, path));
       for (XmlElement section in fileElement.findAllElements("section")) {

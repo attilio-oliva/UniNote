@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uninote/globals/EditableDocument.dart';
 import 'package:uninote/globals/types.dart';
+import 'package:uninote/iomanager.dart';
 import 'package:uninote/states/ListState.dart';
 import 'dart:math' as math;
 import 'package:crypto/crypto.dart';
@@ -79,10 +81,11 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
     fileSystem = tree ?? Tree<Item>();
     selectedNode = fileSystem.root;
   }
+
   String getBaseFilePath() {
     Node<Item> node = selectedNode;
     for (int i = 0; i < selectedNode.degree - ListSubject.notebook.depth; i++) {
-      node = node.parent ?? fileSystem.root;
+      node = node.parent ?? node;
     }
     String path = node.value!.location;
     if (path != "") {
@@ -91,6 +94,56 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
     } else {
       return "";
     }
+  }
+
+  String getNotebookFilePath() {
+    Node<Item> node = selectedNode;
+    for (int i = 0; i < selectedNode.degree - ListSubject.notebook.depth; i++) {
+      node = node.parent ?? node;
+    }
+    String path = node.value!.location;
+    String name = node.value!.title;
+    if (path != "") {
+      File file = File(path + "/" + name);
+      return file.parent.absolute.path;
+    } else {
+      return "";
+    }
+  }
+
+  Node<Item> addChild(Node<Item> parentNode, Item newItem, ListState state,
+      [bool isNewNode = true, String? oldKey]) {
+    Node<Item> child;
+    if (isNewNode) {
+      child = fileSystem.addChild(parentNode, newItem);
+    } else {
+      //String key = oldKey ?? newItem.key;
+      child = fileSystem
+          .preOrder(parentNode)
+          .firstWhere((element) => element.value!.key == newItem.key);
+      parentNode = child.parent!;
+    }
+    String parentName = (parentNode.value!.isGroup)
+        ? "group"
+        : state.subject.fromDepth(parentNode.degree).name;
+    String elementName = (newItem.isGroup) ? "group" : state.subject.name;
+    openedItemsDocument = EditableDocument().addElement(
+      openedItemsDocument,
+      parent: XmlElement(
+        XmlName(parentName),
+        [
+          XmlAttribute(XmlName("id"), parentNode.value!.key),
+        ],
+      ),
+      name: elementName,
+      lastKey: oldKey,
+      bindings: newItem.toStringMap(),
+    );
+    print("$parentName, $elementName, $oldKey");
+    openedFileItems?.writeAsString(
+        openedItemsDocument.toXmlString(pretty: true),
+        flush: true);
+    return child;
   }
 
   //TODO: use a list of presets instead
@@ -204,6 +257,12 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
           selectedNode = selectedNode.children
               .firstWhere((element) => element.value?.title == event['data']);
         }
+        if (openedFileItems == null &&
+            newState.subject != ListSubject.notebook) {
+          openedFileItems = await getLocalFile(
+              getNotebookFilePath(), DocType.notebook,
+              item: selectedNode.value!);
+        }
         newState = newState.copyWith(selectedItem: selectedNode.value!.title);
         //state.selectedItem = selectedNode.value!.title;
 
@@ -249,10 +308,10 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
           Item newItem = Item(
             defaultName + getDuplicateId(newState.itemList, defaultName),
             getRandomColour(),
-            defaultKey,
+            _getHashedKey(defaultNoteName), //defaultKey,
             isGroup: isGroupAdded,
           );
-          fileSystem.addChild(selectedNode, newItem);
+          addChild(selectedNode, newItem, newState);
         } else {
           String title =
               defaultName + getDuplicateId(newState.itemList, defaultName);
@@ -262,8 +321,9 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
             _getHashedKey(title),
             isGroup: isGroupAdded,
           );
-          fileSystem.addChild(fileSystem.addChild(selectedNode, newItem),
-              Item(defaultNoteName, newItem.colorValue, defaultKey));
+          Node<Item> groupNode = addChild(selectedNode, newItem, newState);
+          addChild(groupNode,
+              Item(defaultNoteName, newItem.colorValue, defaultKey), newState);
         }
         if (newState.subject == ListSubject.note) {
           newState =
@@ -291,13 +351,15 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
         int index = event['index'];
         String title = event['data'];
         List<Node<Item>> list = List<Node<Item>>.from(newState.itemList);
+        String lastKey = list[index].value!.key;
         if (title != "") {
           list[index].value!.title = title + getDuplicateId(list, title, index);
         }
-        newState = newState.copyWith(editingIndex: null, editingContent: "");
+        newState = newState.stopEditing();
         if (list[index].value!.key == defaultKey) {
           list[index].value!.key = _getHashedKey(title);
         }
+        addChild(selectedNode, list[index].value!, state, false, lastKey);
         yield newState;
         break;
       case ListEvent.back:
@@ -312,8 +374,8 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
               subject: subject,
               selectedNote: null);
           /*state.itemList = selectedNode.children;
-          state.subject = state.subject.fromDepth(state.subject.depth - 1);
-          state.selectedNote = null;*/
+                    state.subject = state.subject.fromDepth(state.subject.depth - 1);
+                    state.selectedNote = null;*/
           if (newState.subject == ListSubject.notebook) {
             newState = newState.copyWith(selectedItem: defaultNoteBookName);
             //state.selectedItem = defaultNoteBookName;

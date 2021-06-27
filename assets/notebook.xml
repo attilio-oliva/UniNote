@@ -1,0 +1,14 @@
+<notebook title="University" id="uniKey" color="200">
+	<section title="Math" id="mathKey" color="400">
+		<note title="Groups" id="mathKeyNote1" color="410"/>
+		<group title="Functions" id="mathKeyGroup1" color="420">
+			<note title="Linear" id="mathKeyNote2" color="440"/>
+			<note title="Non-linear" id="mathKeyNote3" color="450"/>
+		</group>
+		<note title="Limits" id="mathKeyNote4" color="460"/>
+	</section>
+	<section title="Physics" id="phyKey" color="600">
+		<note title="Kinematics" id="phyKeyNote1" color="610"/>
+		<note title="Dynamics" id="phyKeyNote2" color="620"/>
+	</section>
+</notebook>

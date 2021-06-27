@@ -90,9 +90,9 @@ class ListSelection extends StatelessWidget {
                     BlocProvider<EditorBloc>(
                       create: (context) => EditorBloc(
                         EditorState(
+                          //noteLocation:"${listBloc.getBaseFilePath()}/document.xml",
                           noteLocation:
-                              "${listBloc.getBaseFilePath()}/document.xml",
-                          //noteLocation:"${listBloc.getBaseFilePath()}/${state.selectedNote!}.xml",
+                              "${listBloc.getBaseFilePath()}/${state.selectedNote!}.xml",
                           mode: EditorMode.selection,
                           subject: EditorSubject.text,
                         ),

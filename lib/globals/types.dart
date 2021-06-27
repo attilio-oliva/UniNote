@@ -11,11 +11,23 @@ class Item {
   Item(this.title, this.colorValue, this.key,
       {this.location = "", this.isGroup = false});
 
+  Map<String, String> toStringMap() {
+    Map<String, String> map = {
+      "title": title,
+      "id": key,
+      "color": colorValue.toString(),
+    };
+    if (location != "") {
+      map["location"] = location;
+    }
+    return map;
+  }
+
   @override
   String toString() {
     String result = "";
     result += "{Title: $title";
-    if (location != null) {
+    if (location != "") {
       result += ", location: $location";
     }
     result += ", color: $colorValue";

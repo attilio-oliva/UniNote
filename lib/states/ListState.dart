@@ -95,6 +95,19 @@ class ListState {
     );
   }
 
+  ListState stopEditing() {
+    return ListState(
+      subject: this.subject,
+      itemList: this.itemList,
+      selectedItem: this.selectedItem,
+      selectedNote: this.selectedNote,
+      editingIndex: null,
+      editingContent: "",
+      isMarking: this.isMarking,
+      markedItems: this.markedItems,
+    );
+  }
+
   String toString() {
     String result = "{";
     result += " subject: " + subject.name;

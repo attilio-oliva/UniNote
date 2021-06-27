@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uninote/globals/EditableDocument.dart';
 import 'package:uninote/states/ComponentState.dart';
 import 'package:uninote/widgets/components/StrokeComponent.dart';
 import 'package:uninote/widgets/components/TextComponent.dart';
@@ -12,47 +13,6 @@ enum ComponentEvent {
   contentChanged,
   selected,
   deselected,
-}
-
-class EditableDocument extends XmlTransformer {
-  String nodeName = "component";
-  Map<String, String> attributeBindings = {};
-  Map<String, Map<String, String>> childrenBindings = {};
-  T addElement<T>(
-      XmlHasVisitor visitable, String name, Map<String, String> bindings,
-      [Map<String, Map<String, String>> childrenBindings = const {}]) {
-    this.attributeBindings = bindings;
-    this.childrenBindings = childrenBindings;
-    this.nodeName = name;
-    return visit(visitable);
-  }
-
-  @override
-  XmlElement visitElement(XmlElement node) {
-    if (node.name.qualified == 'content') {
-      List<XmlAttribute> attributes = [];
-      List<XmlElement> children = [];
-      attributeBindings.forEach((key, value) {
-        attributes.add(XmlAttribute(XmlName(key), value));
-      });
-      if (childrenBindings.isNotEmpty) {
-        childrenBindings.forEach((child, binding) {
-          List<XmlAttribute> childAttributes = [];
-          binding.forEach((key, value) {
-            childAttributes.add(XmlAttribute(XmlName(key), value));
-          });
-          children.add(XmlElement(XmlName(child), childAttributes));
-        });
-      }
-      node.children.add(XmlElement(
-        XmlName(nodeName), //visit(node.name)
-        // set attributes
-        attributes,
-        children,
-      ));
-    }
-    return super.visitElement(node);
-  }
 }
 
 class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
@@ -76,7 +36,8 @@ class ComponentBloc extends Bloc<Map<String, dynamic>, ComponentState> {
   void save() {
     bool changed = onSave();
     if (changed) {
-      openedFileDocument?.writeAsString(openedDocument.toXmlString(),
+      openedFileDocument?.writeAsString(
+          openedDocument.toXmlString(pretty: true),
           flush: true);
     }
   }
@@ -210,8 +171,12 @@ class TextComponentBloc extends ComponentBloc {
           "data": state.content,
         };
 
-        openedDocument = EditableDocument()
-            .addElement(openedDocument, fileComponentName, bindings);
+        openedDocument = EditableDocument().addElement(
+          openedDocument,
+          parent: XmlElement(XmlName("content")),
+          name: fileComponentName,
+          bindings: bindings,
+        );
 
         changed = true;
       }
@@ -296,8 +261,12 @@ class ImageComponentBloc extends ComponentBloc {
         "location": state.content,
       };
 
-      openedDocument = EditableDocument()
-          .addElement(openedDocument, fileComponentName, bindings);
+      openedDocument = EditableDocument().addElement(
+        openedDocument,
+        parent: XmlElement(XmlName("content")),
+        name: fileComponentName,
+        bindings: bindings,
+      );
 
       changed = true;
     }
@@ -422,8 +391,11 @@ class StrokeComponentBloc extends ComponentBloc {
           "points": pointsToString(state.data["points"]),
         },
       };
-      openedDocument = EditableDocument().addElement(
-          openedDocument, fileComponentName, bindings, childrenBindings);
+      openedDocument = EditableDocument().addElement(openedDocument,
+          parent: XmlElement(XmlName("content")),
+          name: fileComponentName,
+          bindings: bindings,
+          childrenBindings: childrenBindings);
 
       changed = true;
     }

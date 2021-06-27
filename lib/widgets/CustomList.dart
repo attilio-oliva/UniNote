@@ -68,10 +68,10 @@ class _ReordableState extends State<CustomList> {
     return false;
   }
 
-  FocusNode getAutoFocusNode(BuildContext context, ListState state) {
+  FocusNode getAutoFocusNode(BuildContext context, ListState state, int index) {
     FocusNode focusNode = FocusNode();
     if (state.editingIndex != null) {
-      if (!focusNode.hasFocus) {
+      if (!focusNode.hasFocus && state.editingIndex == index) {
         FocusScope.of(context).unfocus();
         FocusScope.of(context).requestFocus(focusNode);
       }
@@ -108,35 +108,37 @@ class _ReordableState extends State<CustomList> {
                 replacement: Container(
                   height: 40,
                   child: RawKeyboardListener(
-                    focusNode: getAutoFocusNode(context, state),
+                    focusNode: getAutoFocusNode(context, state, index),
                     onKey: (event) {
-                      if (Platform.isAndroid) {
-                        if (event is RawKeyUpEvent &&
-                            event.data is RawKeyEventDataAndroid) {
-                          var data = event.data as RawKeyEventDataAndroid;
-                          if (data.keyCode == 13) {
-                            listBloc.add({
-                              'key': ListEvent.editRequested,
-                              'index': index,
-                              'data': state.editingContent
-                            });
+                      if (state.editingIndex != null) {
+                        if (Platform.isAndroid) {
+                          if (event is RawKeyUpEvent &&
+                              event.data is RawKeyEventDataAndroid) {
+                            var data = event.data as RawKeyEventDataAndroid;
+                            if (data.keyCode == 13) {
+                              listBloc.add({
+                                'key': ListEvent.editRequested,
+                                'index': index,
+                                'data': state.editingContent
+                              });
+                            }
                           }
-                        }
-                      } else {
-                        if (event is RawKeyUpEvent) {
-                          if (event.data.logicalKey ==
-                              LogicalKeyboardKey.enter) {
-                            listBloc.add({
-                              'key': ListEvent.editRequested,
-                              'index': index,
-                              'data': state.editingContent
-                            });
+                        } else {
+                          if (event is RawKeyUpEvent) {
+                            if (event.data.logicalKey ==
+                                LogicalKeyboardKey.enter) {
+                              listBloc.add({
+                                'key': ListEvent.editRequested,
+                                'index': index,
+                                'data': state.editingContent
+                              });
+                            }
                           }
                         }
                       }
                     },
                     child: TextField(
-                      focusNode: getAutoFocusNode(context, state),
+                      focusNode: getAutoFocusNode(context, state, index),
                       onChanged: (value) => listBloc.add({
                         'key': ListEvent.editUpdate,
                         'data': value,
@@ -177,11 +179,12 @@ class _ReordableState extends State<CustomList> {
                     'index': index,
                   });
                 } else {
-                  if (!isEditing(state.editingIndex, index)) ;
-                  listBloc.add({
-                    'key': ListEvent.itemSelected,
-                    'index': index,
-                  });
+                  if (!isEditing(state.editingIndex, index)) {
+                    listBloc.add({
+                      'key': ListEvent.itemSelected,
+                      'index': index,
+                    });
+                  }
                 }
               },
             );
