@@ -177,11 +177,11 @@ class _ReordableState extends State<CustomList> {
                     'index': index,
                   });
                 } else {
-                  if (!isEditing(state.editingIndex, index)) ;
-                  listBloc.add({
-                    'key': ListEvent.itemSelected,
-                    'index': index,
-                  });
+                  if (!isEditing(state.editingIndex, index))
+                    listBloc.add({
+                      'key': ListEvent.itemSelected,
+                      'index': index,
+                    });
                 }
               },
             );

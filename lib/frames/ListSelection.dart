@@ -27,7 +27,49 @@ class ListSelection extends StatelessWidget {
     }
   }
 
-  List<Widget> getActionsIcon(ListBloc listBloc) {
+  showAlertDialog(ListBloc listBloc, BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: globalColors.primaryColor,
+            title: Text(
+              'Are you sure you want to delete the selected items?',
+              style: TextStyle(color: Colors.white),
+            ),
+            actions: <Widget>[
+              Material(
+                color: globalColors.primaryColor,
+                child: TextButton(
+                    child: Text(
+                      'GoBackN',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    }),
+              ),
+              Material(
+                color: globalColors.primaryColor,
+                child: TextButton(
+                    child: Text(
+                      'Yes',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      listBloc.add({
+                        'key': ListEvent.delete,
+                        'data': "deleteSelected",
+                      });
+                    }),
+              ),
+            ],
+          );
+        });
+  }
+
+  List<Widget> getActionsIcon(ListBloc listBloc, BuildContext context) {
     List<Widget> list = List<Widget>.empty(growable: true);
     list.add(
       Material(
@@ -52,10 +94,9 @@ class ListSelection extends StatelessWidget {
           child: IconButton(
             icon: Icon(Icons.done),
             onPressed: () {
-              listBloc.add({
-                'key': ListEvent.delete,
-                'data': "deleteSelected",
-              });
+              if (listBloc.state.markedItems.isNotEmpty) {
+                showAlertDialog(listBloc, context);
+              }
             },
           ),
         ),
@@ -122,7 +163,7 @@ class ListSelection extends StatelessWidget {
               icon: Icon(Icons.arrow_back),
             ),
           ),
-          actions: getActionsIcon(listBloc),
+          actions: getActionsIcon(listBloc, context),
         ),
         body: CustomList(state.itemList),
         bottomNavigationBar: BottomAppBar(

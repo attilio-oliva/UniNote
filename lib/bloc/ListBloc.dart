@@ -322,8 +322,14 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
                 newState.copyWith(selectedItem: selectedNode.value!.title);
             //state.selectedItem = selectedNode.value!.title;
           }
+          if (newState.isMarking == true) {
+            newState = newState.copyWith(isMarking: !newState.isMarking);
+            List<Node<Item>> list = [];
+            newState = newState.copyWith(markedItems: list);
+          }
           yield newState;
         }
+        yield newState;
         break;
       case ListEvent.marking:
         ListState newState = state;
