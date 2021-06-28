@@ -2,21 +2,26 @@ import 'package:xml/xml.dart';
 
 class EditableDocument extends XmlTransformer {
   String nodeName = "component";
+  String? text;
   late XmlElement parent;
   Map<String, String> attributeBindings = {};
   Map<String, Map<String, String>> childrenBindings = {};
-  late String childKey;
-  T addElement<T>(XmlHasVisitor visitable,
-      {required XmlElement parent,
-      required String name,
-      required Map<String, String> bindings,
-      String? lastKey,
-      Map<String, Map<String, String>> childrenBindings = const {}}) {
-    this.childKey = lastKey ?? bindings["id"]!;
+  String? childKey;
+  T addElement<T>(
+    XmlHasVisitor visitable, {
+    required XmlElement parent,
+    required String name,
+    Map<String, String> bindings = const {},
+    String? lastKey,
+    Map<String, Map<String, String>> childrenBindings = const {},
+    String? text,
+  }) {
+    this.childKey = lastKey ?? bindings["id"];
     this.attributeBindings = bindings;
     this.childrenBindings = childrenBindings;
     this.nodeName = name;
     this.parent = parent;
+    this.text = text;
     return visit(visitable);
   }
 
@@ -53,9 +58,11 @@ class EditableDocument extends XmlTransformer {
         List<XmlAttribute> attributes = [];
         List<XmlElement> children = [];
         XmlElement newChild;
-        attributeBindings.forEach((key, value) {
-          attributes.add(XmlAttribute(XmlName(key), value));
-        });
+        if (attributeBindings.isNotEmpty) {
+          attributeBindings.forEach((key, value) {
+            attributes.add(XmlAttribute(XmlName(key), value));
+          });
+        }
         if (childrenBindings.isNotEmpty) {
           childrenBindings.forEach((child, binding) {
             List<XmlAttribute> childAttributes = [];
@@ -71,10 +78,13 @@ class EditableDocument extends XmlTransformer {
           attributes,
           children,
         );
+        if (text != null) {
+          newChild.innerText = text!;
+        }
         int childIndex = -1;
         bool isChildPresent = node.children.any((element) {
           String? elementKey = element.getAttribute("id");
-          if (elementKey != null) {
+          if (elementKey != null && childKey != null) {
             if (elementKey == childKey) {
               childIndex = node.children.indexOf(element);
               return true;

@@ -168,6 +168,7 @@ class ListSelection extends StatelessWidget {
         body: CustomList(state.itemList),
         bottomNavigationBar: BottomAppBar(
           child: Row(children: [
+            /*
             Expanded(
               child: IconButton(
                 color: globalColors.bottomButtonColor,
@@ -184,6 +185,7 @@ class ListSelection extends StatelessWidget {
                     listBloc.add({'key': ListEvent.importLocalResource}),
               ),
             ),
+            */
             Visibility(
               visible: state.subject == ListSubject.note,
               child: Expanded(

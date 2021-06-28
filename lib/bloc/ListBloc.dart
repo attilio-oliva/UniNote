@@ -92,7 +92,7 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
       File file = File(path);
       return file.parent.absolute.path;
     } else {
-      return "";
+      return usedFileListPath;
     }
   }
 
@@ -117,32 +117,54 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
     if (isNewNode) {
       child = fileSystem.addChild(parentNode, newItem);
     } else {
-      //String key = oldKey ?? newItem.key;
       child = fileSystem
           .preOrder(parentNode)
           .firstWhere((element) => element.value!.key == newItem.key);
       parentNode = child.parent!;
     }
-    String parentName = (parentNode.value!.isGroup)
-        ? "group"
-        : state.subject.fromDepth(parentNode.degree).name;
-    String elementName = (newItem.isGroup) ? "group" : state.subject.name;
-    openedItemsDocument = EditableDocument().addElement(
-      openedItemsDocument,
-      parent: XmlElement(
-        XmlName(parentName),
-        [
-          XmlAttribute(XmlName("id"), parentNode.value!.key),
-        ],
-      ),
-      name: elementName,
-      lastKey: oldKey,
-      bindings: newItem.toStringMap(),
-    );
-    print("$parentName, $elementName, $oldKey");
-    openedFileItems?.writeAsString(
-        openedItemsDocument.toXmlString(pretty: true),
-        flush: true);
+    if (parentNode.parent == null) {
+      String elementName = state.subject.name;
+      openedIndexDocument = EditableDocument().addElement(
+        openedIndexDocument,
+        parent: XmlElement(XmlName("list")),
+        name: "file",
+        lastKey: oldKey,
+        bindings: {"id": newItem.key},
+        text: "$usedFileListPath/${newItem.title}",
+      );
+      openedFileIndex?.writeAsString(
+          openedIndexDocument.toXmlString(pretty: true),
+          flush: true);
+      getLocalFile(usedFileListPath + "/" + newItem.title + fileExtension,
+              DocType.notebook,
+              item: newItem)
+          .then((file) {
+        openedFileItems = file;
+        openedFileItems!.readAsString().then((value) {
+          openedItemsDocument = XmlDocument.parse(value);
+        });
+      });
+    } else {
+      String parentName = (parentNode.value!.isGroup)
+          ? "group"
+          : state.subject.fromDepth(parentNode.degree).name;
+      String elementName = (newItem.isGroup) ? "group" : state.subject.name;
+      openedItemsDocument = EditableDocument().addElement(
+        openedItemsDocument,
+        parent: XmlElement(
+          XmlName(parentName),
+          [
+            XmlAttribute(XmlName("id"), parentNode.value!.key),
+          ],
+        ),
+        name: elementName,
+        lastKey: oldKey,
+        bindings: newItem.toStringMap(),
+      );
+      openedFileItems?.writeAsString(
+          openedItemsDocument.toXmlString(pretty: true),
+          flush: true);
+    }
     return child;
   }
 
@@ -297,6 +319,7 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
         ListState newState = state;
         bool isGroupAdded = (event['key'] == ListEvent.groupAdded);
         String defaultName = defaultNoteBookName;
+
         if (newState.subject == ListSubject.section) {
           defaultName = defaultSectionName;
         } else if (isGroupAdded) {
@@ -321,28 +344,38 @@ class ListBloc extends Bloc<Map<String, dynamic>, ListState> {
             _getHashedKey(title),
             isGroup: isGroupAdded,
           );
+          if (newState.subject == ListSubject.notebook) {
+            newItem.location = usedFileListPath;
+            openedIndexDocument = EditableDocument().addElement(
+              openedIndexDocument,
+              parent: XmlElement(XmlName("list")),
+              name: "file",
+              bindings: {"id": newItem.key},
+              text:
+                  "$usedFileListPath/${defaultName + getDuplicateId(newState.itemList, defaultName)}",
+            );
+            openedFileIndex
+                ?.writeAsString(openedIndexDocument.toXmlString(pretty: true));
+          }
           Node<Item> groupNode = addChild(selectedNode, newItem, newState);
           addChild(groupNode,
               Item(defaultNoteName, newItem.colorValue, defaultKey), newState);
         }
+
         if (newState.subject == ListSubject.note) {
           newState =
               newState.copyWith(itemList: fileSystem.preOrder(selectedNode));
-          //state.itemList = fileSystem.preOrder(selectedNode);
         } else {
           newState = newState.copyWith(itemList: selectedNode.children);
-          //state.itemList = selectedNode.children;
         }
         newState =
             newState.copyWith(editingIndex: (newState.itemList.length - 1));
-        //state.editingIndex = state.itemList.length - 1;
         yield newState;
         break;
       case ListEvent.editUpdate:
         ListState newState = state;
         if (newState.editingIndex != null) {
           newState = newState.copyWith(editingContent: event["data"]);
-          //state.editingContent = event["data"];
         }
         yield newState;
         break;

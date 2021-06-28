@@ -55,6 +55,15 @@ class _TextState extends State<TextComponent> {
   late TextEditingController _controller;
   late FocusNode _focusNode;
 
+  @override
+  void initState() {
+    super.initState();
+
+    _focusNode = FocusNode();
+    _focusNode.addListener(_handleFocus);
+    _controller = TextEditingController(text: widget.bloc.state.content);
+  }
+
 /*
   void onDragUpdate(DragUpdateDetails details) {
     setState(() {
@@ -104,7 +113,6 @@ class _TextState extends State<TextComponent> {
 
   Widget textWidget(ComponentState state) {
     Widget textWidget;
-    print(state.data["mode"]);
     if (state.data["mode"] == "markdown") {
       textWidget = Markdown(
         shrinkWrap: true,
@@ -149,6 +157,8 @@ class _TextState extends State<TextComponent> {
         focusNode: _focusNode,
         autofocus: true,
         maxLength: 35,
+        onChanged: (value) => widget.bloc.add(
+            {"key": ComponentEvent.contentChanged, "data": _controller.text}),
         cursorColor: Colors.white,
         style: TextStyle(color: Colors.white),
         decoration: InputDecoration(
@@ -177,6 +187,8 @@ class _TextState extends State<TextComponent> {
         autofocus: true,
         maxLines: null,
         cursorColor: Colors.white,
+        onChanged: (value) => widget.bloc.add(
+            {"key": ComponentEvent.contentChanged, "data": _controller.text}),
         style: TextStyle(color: Colors.white),
         decoration: InputDecoration(
           border: OutlineInputBorder(
@@ -198,15 +210,6 @@ class _TextState extends State<TextComponent> {
   @override
   Widget build(BuildContext context) {
     maxWidth = widget.bloc.state.maxWidth;
-    _controller = TextEditingController(text: widget.bloc.state.content);
-    _controller.addListener(() {
-      widget.bloc.add(
-          {"key": ComponentEvent.contentChanged, "data": _controller.text});
-    });
-    _focusNode = FocusNode(
-      onKey: (node, key) => _onKey(key),
-    );
-    _focusNode.addListener(_handleFocus);
     return BlocConsumer<TextComponentBloc, ComponentState>(
       bloc: widget.bloc,
       listener: (context, state) {
@@ -224,6 +227,7 @@ class _TextState extends State<TextComponent> {
           widget.onChildSize(size);
           */
           _focusNode.unfocus();
+          _controller.value = _controller.value.copyWith(text: state.content);
         }
         if (state.isSelected && !_focusNode.hasFocus) {
           _focusNode.requestFocus();

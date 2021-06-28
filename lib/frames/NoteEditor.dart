@@ -504,7 +504,7 @@ class _NoteEditorState extends State<NoteEditor> {
                     ),
                   ),
                   Container(
-                    width: (maxWidth - listWidth),
+                    width: (maxWidth - listWidth).clamp(100, double.infinity),
                     child: Painter(),
                   ),
                 ],

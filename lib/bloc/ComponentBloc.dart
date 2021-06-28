@@ -187,7 +187,6 @@ class TextComponentBloc extends ComponentBloc {
   @override
   ComponentState onContentChange(Map<String, dynamic> event) {
     Map<String, dynamic> map = Map<String, dynamic>.from(state.data);
-    print("mammt ${event["mode"]}");
     if (!map.containsKey("mode")) {
       map["mode"] = event["mode"];
     } else {
@@ -295,7 +294,6 @@ class ImageComponentBloc extends ComponentBloc {
 class StrokeComponentBloc extends ComponentBloc {
   static List<Offset> editingStrokeData = [];
   static StrokeComponentBloc? editingBloc;
-  bool flag = false;
   StrokeComponentBloc(ComponentState initialState)
       : super(!(initialState.data["isEditing"] ?? false)
             ? recalculateConstraints(
@@ -330,16 +328,8 @@ class StrokeComponentBloc extends ComponentBloc {
   @override
   void onChange(Change<ComponentState> change) {
     super.onChange(change);
-    //print(state.toString());
     if ((change.nextState.data["isEditing"] ?? false) !=
         (change.currentState.data["isEditing"] ?? false)) {
-      flag = true;
-    }
-  }
-
-  @override
-  void save() {
-    if (flag) {
       super.save();
     }
   }
@@ -373,7 +363,6 @@ class StrokeComponentBloc extends ComponentBloc {
       double x = double.parse(element.getAttribute("x")!);
       double y = double.parse(element.getAttribute("y")!);
       Offset position = Offset(x, y);
-
       List<Offset> statePoints = state.data["points"] ?? [];
       XmlElement svgElement = element.findAllElements("polyline").first;
       List<Offset> points =

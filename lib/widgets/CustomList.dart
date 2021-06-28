@@ -143,13 +143,11 @@ class _ReordableState extends State<CustomList> {
                         'key': ListEvent.editUpdate,
                         'data': value,
                       }),
-                      /* ... not working
                       onSubmitted: (value) => listBloc.add({
                         'key': ListEvent.editRequested,
                         'index': index,
                         'data': value
                       }),
-                      */
                       textInputAction: TextInputAction.done,
                     ),
                   ),

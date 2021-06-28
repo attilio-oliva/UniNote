@@ -58,22 +58,24 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
         addComponent(
             EditorSubject.text, Offset(0, 0), {"isTitle": true}, title);
         getComponentsFromFile(openedDocument);
-        this.emit(state);
       });
     });
   }
 
   void getComponentsFromFile(XmlDocument xmlDoc) {
     XmlElement? xmlList = xmlDoc.firstChild?.getElement("content");
-    xmlList!.findAllElements("text").toList().forEach((element) {
-      loadComponent(EditorSubject.text, element);
-    });
-    xmlList.findAllElements("image").toList().forEach((element) {
-      loadComponent(EditorSubject.image, element);
-    });
-    xmlList.findAllElements("stroke").toList().forEach((element) {
-      loadComponent(EditorSubject.stroke, element);
-    });
+    if (xmlList!.children.whereType<XmlElement>().isNotEmpty) {
+      xmlList.findAllElements("text").toList().forEach((element) {
+        loadComponent(EditorSubject.text, element);
+      });
+      xmlList.findAllElements("image").toList().forEach((element) {
+        loadComponent(EditorSubject.image, element);
+      });
+      xmlList.findAllElements("stroke").toList().forEach((element) {
+        loadComponent(EditorSubject.stroke, element);
+      });
+    }
+    this.emit(state);
   }
 
   Widget? getClickedComponent(Offset position) {
