@@ -18,6 +18,7 @@ enum EditorEvent {
   appBarButtonPressed,
   toolButtonPressed,
   canvasPressed,
+  dialogCanceled
 }
 
 enum InputType {
@@ -452,6 +453,11 @@ class EditorBloc extends Bloc<Map<String, dynamic>, EditorState> {
             }
             break;
         }
+        yield EditorState.from(state);
+        break;
+      case EditorEvent.dialogCanceled:
+        state.mode = EditorMode.selection;
+        state.subject = EditorSubject.text;
         yield EditorState.from(state);
         break;
     }

@@ -56,7 +56,6 @@ class _PainterState extends State<Painter> {
   void onTapUp(
       BuildContext context, TapUpDetails details, EditorBloc editorBloc) {
     if (editorBloc.state.subject == EditorSubject.image) {
-      print(editorBloc.state.subject);
       TapUpDetails position = details;
       showAlertDialog(editorBloc, context, position);
     } else {
@@ -94,6 +93,15 @@ class _PainterState extends State<Painter> {
                 },
                 textInputAction: TextInputAction.done,
               ),
+              TextButton(
+                child: Text("Cancel"),
+                onPressed: () {
+                  editorBloc.add({
+                    "key": EditorEvent.dialogCanceled,
+                  });
+                  Navigator.pop(context);
+                },
+              )
             ],
           );
         });
